@@ -1,0 +1,32 @@
+name:                co-log
+version:             0.0.0
+description:         Logging library
+synopsis:            Logging library
+homepage:            https://github.com/kowainik/co-log
+bug-reports:         https://github.com/kowainik/co-log/issues
+license:             MPL-2.0
+license-file:        LICENSE
+author:              Kowainik
+maintainer:          xrom.xkov@gmail.com
+copyright:           2018 Kowainik
+category:            Logging
+build-type:          Simple
+extra-doc-files:     README.md
+                   , CHANGELOG.md
+cabal-version:       1.24
+tested-with:         GHC == 8.4.3
+
+source-repository head
+  type:                git
+  location:            https://github.com/kowainik/co-log.git
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     CoLog
+                       
+  ghc-options:         -Wall
+  build-depends:       base
+                     
+  default-language:    Haskell2010
+  
+
