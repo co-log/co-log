@@ -6,6 +6,8 @@ git:
 
 cache:
   directories:
+  - "$HOME/.cabal"
+  - "$HOME/.ghc"
   - "$HOME/.stack"
   - "$TRAVIS_BUILD_DIR/.stack-work"
 
@@ -22,7 +24,7 @@ matrix:
         packages:
         - ghc-8.4.3
         - cabal-install-head
-  
+
   - ghc: 8.4.3
     env: GHCVER='8.4.3' STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
     os: linux
@@ -30,7 +32,7 @@ matrix:
       apt:
         packages:
         - libgmp-dev
-  
+
 
 install:
   - |
@@ -38,7 +40,7 @@ install:
       export PATH="/opt/ghc/$GHCVER/bin:/opt/cabal/$CABALVER/bin:$PATH"
       echo $PATH
       cabal new-update
-      cabal new-build --enable-tests --enable-benchmarks
+      cabal new-build all --enable-tests --enable-benchmarks
     else
       mkdir -p ~/.local/bin
       export PATH="$HOME/.local/bin:$PATH"
@@ -53,10 +55,9 @@ script:
     if [ -z "$STACK_YAML" ]; then
        echo 'No tests'
     else
-      stack build --test --bench --no-run-benchmarks --no-terminal
+      stack build co-log-core --test --bench --no-run-benchmarks --no-terminal
     fi
 
 
 notifications:
   email: false
-

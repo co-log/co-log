@@ -1,7 +1,7 @@
 resolver: lts-12.2
 
-
+packages:
+  - co-log-core
 
 ghc-options:
   "$locals": -fhide-source-paths
-
