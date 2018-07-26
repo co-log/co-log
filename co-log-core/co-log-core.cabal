@@ -21,7 +21,7 @@ source-repository head
 
 library
   hs-source-dirs:      src
-  exposed-modules:     CoLog
+  exposed-modules:     CoLog.Core
 
   ghc-options:         -Wall -fhide-source-paths
   build-depends:       base
