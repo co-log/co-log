@@ -1,3 +1,0 @@
-module CoLog.Core
-       (
-       ) where
