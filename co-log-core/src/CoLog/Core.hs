@@ -1,3 +1,5 @@
-module CoLog.Core
-       (
+module Colog.Core
+       ( module Colog.Core.Action
        ) where
+
+import Colog.Core.Action
