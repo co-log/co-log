@@ -11,7 +11,7 @@ module Colog.Name
 
 import qualified Data.Text as T
 
-{- | Logger name is a unique label for some 'LogAction'. Loggers in @log-warper@
+{- | Logger name is a unique label for some 'LogAction'. Loggers in @co-log@
 form tree. Every 'LoggerName' contains some list of components. In textual
 representation those commponents separated by dot character. Below you can see
 example of correspondence between list of components and string:
@@ -43,7 +43,7 @@ instance IsString LoggerName where
         s' -> T.splitOn "." (fromString s')
 
 -- instance Buildable LoggerName where
---     build = mconcat . intersperse "." . Universum.toList . map smartBuild . unLoggerName
+--     build = mconcat . intersperse "." . toList . map smartBuild . unLoggerName
 --       where
 --         smartBuild "" = "<empty>"
 --         smartBuild s  = build s
