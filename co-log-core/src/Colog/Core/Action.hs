@@ -226,7 +226,7 @@ foo.g.f2
 
 -}
 extend :: Semigroup msg => (LogAction m msg -> m ()) -> LogAction m msg -> LogAction m msg
-extend f (LogAction log) = LogAction $ \m -> f (LogAction $ \m' -> log (m <> m'))
+extend f (LogAction action) = LogAction $ \m -> f $ LogAction $ \m' -> action (m <> m')
 
 -- | 'extend' with the arguments swapped. Dual to '>>=' for a 'Monad'.
 infixl 1 =>>
