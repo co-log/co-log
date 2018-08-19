@@ -31,6 +31,7 @@ library
                      , mtl
                      , relude
                      , text
+                     , transformers >= 0.5
 
   ghc-options:         -Wall
                        -Wincomplete-uni-patterns
