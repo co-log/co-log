@@ -9,7 +9,7 @@ module Colog.Core.Action
        , foldActions
 
          -- * Contravariant combinators
-       , ward
+       , cfilter
        , cmap
        , cbind
 
@@ -107,9 +107,9 @@ foldActions actions = LogAction $ \a -> for_ actions $ \(LogAction action) -> ac
 {- | Takes predicate and performs given logging action only if predicate returns
 'True' on input logging message.
 -}
-ward :: Applicative m => (msg -> Bool) -> LogAction m msg -> LogAction m msg
-ward predicate (LogAction action) = LogAction $ \a -> when (predicate a) (action a)
-{-# INLINE ward #-}
+cfilter :: Applicative m => (msg -> Bool) -> LogAction m msg -> LogAction m msg
+cfilter predicate (LogAction action) = LogAction $ \a -> when (predicate a) (action a)
+{-# INLINE cfilter #-}
 
 -- TODO: add Contravariant instance for GHC >= 8.6.1
 {- | This combinator is @contramap@ from contravariant functor. It is useful

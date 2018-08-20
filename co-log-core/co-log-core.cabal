@@ -23,6 +23,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Colog.Core
                            Colog.Core.Action
+                           Colog.Core.Class
 
   ghc-options:         -Wall -fhide-source-paths
   build-depends:       base
