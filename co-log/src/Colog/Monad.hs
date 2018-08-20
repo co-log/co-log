@@ -1,5 +1,6 @@
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE InstanceSigs    #-}
+{-# LANGUAGE ConstraintKinds     #-}
+{-# LANGUAGE InstanceSigs        #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Colog.Monad
        ( LoggerT (..)
@@ -39,7 +40,7 @@ example = __do__
     'logMsg' "Second message..."
 @
 -}
-logMsg :: WithLog env msg m => msg -> m ()
+logMsg :: forall msg env m . WithLog env msg m => msg -> m ()
 logMsg msg = do
     LogAction log <- asks getLogAction
     log msg

@@ -15,5 +15,10 @@ app = do
     logMsg "Starting application..."
     withLog (cmap ("app:" ++)) example
 
+foo :: (WithLog env String m, WithLog env Int m) => m ()
+foo = do
+    logMsg "String message..."
+    logMsg @Int 42
+
 main :: IO ()
 main = usingLoggerT (LogAction $ putStrLn @String) app
