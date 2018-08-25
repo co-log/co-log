@@ -3,7 +3,8 @@
 
 module Main where
 
-import Colog (LogAction (..), WithLog, cmap, logMsg, usingLoggerT, withLog)
+import Colog (WithLog, cmap, logMsg, logStringStderr, logStringStdout, usingLoggerT, withLog,
+              withLogStringFile)
 
 example :: WithLog env String m => m ()
 example = do
@@ -21,4 +22,5 @@ foo = do
     logMsg @Int 42
 
 main :: IO ()
-main = usingLoggerT (LogAction $ putStrLn @String) app
+main = withLogStringFile "co-log/example/example.log" $ \logStringFile ->
+    usingLoggerT (logStringStdout <> logStringStderr <> logStringFile) app

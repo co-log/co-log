@@ -22,11 +22,13 @@ source-repository head
 library
   hs-source-dirs:      src
   exposed-modules:     Colog
+                           Colog.Actions
                            Colog.Monad
                            Colog.Name
                        Prelude
 
   build-depends:       base-noprelude >= 4.9 && < 5
+                     , bytestring
                      , co-log-core
                      , mtl
                      , relude
