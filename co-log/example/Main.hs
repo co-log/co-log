@@ -1,26 +1,30 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications  #-}
 
 module Main where
 
-import Colog (WithLog, cmap, logMsg, logStringStderr, logStringStdout, usingLoggerT, withLog,
-              withLogStringFile)
+import Colog (LogMessage (..), WithLog, cmap, fmtLogMessage, logDebug, logInfo, logMsg,
+              logTextStderr, logTextStdout, logWarning, usingLoggerT, withLog, withLogTextFile)
 
-example :: WithLog env String m => m ()
+example :: WithLog env LogMessage m => m ()
 example = do
-    logMsg "First message..."
-    logMsg "Second message..."
+    logDebug "First message..."
+    logInfo "Second message..."
 
-app :: WithLog env String m => m ()
+app :: WithLog env LogMessage m => m ()
 app = do
-    logMsg "Starting application..."
-    withLog (cmap ("app:" ++)) example
+    logWarning "Starting application..."
+    withLog (cmap addApp) example
+  where
+    addApp :: LogMessage -> LogMessage
+    addApp (LogMessage msg sev) = LogMessage ("app: " <> msg) sev
 
 foo :: (WithLog env String m, WithLog env Int m) => m ()
 foo = do
-    logMsg "String message..."
+    logMsg ("String message..." :: String)
     logMsg @Int 42
 
 main :: IO ()
-main = withLogStringFile "co-log/example/example.log" $ \logStringFile ->
-    usingLoggerT (logStringStdout <> logStringStderr <> logStringFile) app
+main = withLogTextFile "co-log/example/example.log" $ \logTextFile ->
+    usingLoggerT (cmap fmtLogMessage $ logTextStdout <> logTextStderr <> logTextFile) app
