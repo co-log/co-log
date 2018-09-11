@@ -1,11 +1,14 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RecordWildCards  #-}
+
+{- | 'Message' with 'Severity', and logging functions for them.
+-}
 
 module Colog.Message
-       ( LogMessage (..)
+       ( Message (..)
        , log
        , logDebug
        , logInfo
-       , logNotice
        , logWarning
        , logError
 
@@ -15,31 +18,32 @@ module Colog.Message
 import Colog.Core.Severity (Severity (..))
 import Colog.Monad (WithLog, logMsg)
 
-data LogMessage = LogMessage Text Severity
+-- | Consist of the message 'Severity' level and the message itself.
+data Message = Message
+    { messageSeverity ::                !Severity
+    , messageText     :: {-# UNPACK #-} !Text
+    }
 
 -- | Logs the message with given 'Severity'.
-log :: WithLog env LogMessage m => Severity -> Text -> m ()
-log sev msg = logMsg (LogMessage msg sev)
+log :: WithLog env Message m => Severity -> Text -> m ()
+log messageSeverity messageText = logMsg Message{..}
 
 -- | Logs the message with 'Debug' severity.
-logDebug :: WithLog env LogMessage m => Text -> m ()
+logDebug :: WithLog env Message m => Text -> m ()
 logDebug = log Debug
 
 -- | Logs the message with 'Info' severity.
-logInfo :: WithLog env LogMessage m => Text -> m ()
+logInfo :: WithLog env Message m => Text -> m ()
 logInfo = log Info
 
--- | Logs the message with 'Notice' severity.
-logNotice :: WithLog env LogMessage m => Text -> m ()
-logNotice = log Notice
-
 -- | Logs the message with 'Warning' severity.
-logWarning :: WithLog env LogMessage m => Text -> m ()
+logWarning :: WithLog env Message m => Text -> m ()
 logWarning = log Warning
 
 -- | Logs the message with 'Error' severity.
-logError :: WithLog env LogMessage m => Text -> m ()
+logError :: WithLog env Message m => Text -> m ()
 logError = log Error
 
-fmtLogMessage :: LogMessage -> Text
-fmtLogMessage (LogMessage msg sev) = "[" <> show sev <> "] " <> msg
+-- | Prettifies 'Message' type.
+fmtLogMessage :: Message -> Text
+fmtLogMessage Message{..} = "[" <> show messageSeverity <> "] " <> messageText

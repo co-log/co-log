@@ -1,24 +1,25 @@
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PatternSynonyms   #-}
 {-# LANGUAGE TypeApplications  #-}
 
 module Main where
 
-import Colog (LogMessage (..), WithLog, cmap, fmtLogMessage, logDebug, logInfo, logMsg,
+import Colog (pattern D, Message (..), WithLog, cmap, fmtLogMessage, log, logInfo, logMsg,
               logTextStderr, logTextStdout, logWarning, usingLoggerT, withLog, withLogTextFile)
 
-example :: WithLog env LogMessage m => m ()
+example :: WithLog env Message m => m ()
 example = do
-    logDebug "First message..."
+    log D "First message..."
     logInfo "Second message..."
 
-app :: WithLog env LogMessage m => m ()
+app :: WithLog env Message m => m ()
 app = do
     logWarning "Starting application..."
     withLog (cmap addApp) example
   where
-    addApp :: LogMessage -> LogMessage
-    addApp (LogMessage msg sev) = LogMessage ("app: " <> msg) sev
+    addApp :: Message -> Message
+    addApp msg = msg { messageText = "app: " <> messageText msg }
 
 foo :: (WithLog env String m, WithLog env Int m) => m ()
 foo = do
