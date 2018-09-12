@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE LambdaCase       #-}
 
 {- | 'Message' with 'Severity', and logging functions for them.
 -}
@@ -19,6 +20,9 @@ module Colog.Message
 
 import Control.Concurrent (ThreadId, myThreadId)
 import Data.Time.Clock (UTCTime, getCurrentTime)
+import Data.Time.Format (defaultTimeLocale, formatTime)
+import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..),
+                            setSGRCode)
 
 import Colog.Core (LogAction, Severity (..), cbind)
 import Colog.Monad (WithLog, logMsg)
@@ -51,7 +55,20 @@ logError = log Error
 
 -- | Prettifies 'Message' type.
 fmtMessage :: Message -> Text
-fmtMessage Message{..} = "[" <> show messageSeverity <> "] " <> messageText
+fmtMessage Message{..} = showSeverity messageSeverity <> messageText
+
+-- | Prints severity in different colours
+showSeverity :: Severity -> Text
+showSeverity = \case
+    Debug   -> color Green  "[Debug]   "
+    Info    -> color Blue   "[Info]    "
+    Warning -> color Yellow "[Warning] "
+    Error   -> color Red    "[Error]   "
+ where
+    color :: Color -> Text -> Text
+    color c txt = toText (setSGRCode [SetColor Foreground Vivid c])
+        <> txt
+        <> toText (setSGRCode [Reset])
 
 -- | Contains additional data to 'Message' to display more verbose information.
 data RichMessage = RichMessage
@@ -75,6 +92,14 @@ makeRich = cbind (liftIO . toRich)
 -- | Prettifies 'RichMessage' type.
 fmtRichMessage :: RichMessage -> Text
 fmtRichMessage RichMessage{..} =
-    "[" <> show richMessageTime <> "] "
+    showSeverity (messageSeverity richMessageMsg)
+ <> "[" <> showTime richMessageTime <> "] "
  <> "[" <> show richMessageThread <> "] "
- <> fmtMessage richMessageMsg
+ <> messageText richMessageMsg
+   where
+     showTime :: UTCTime -> Text
+     showTime t = toText
+         ( formatTime defaultTimeLocale "%H:%M:%S." t
+        ++ take 3 (formatTime defaultTimeLocale "%q" t)
+        ++ formatTime defaultTimeLocale " %e %b %Y %Z" t
+         )
