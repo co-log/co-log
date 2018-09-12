@@ -30,6 +30,7 @@ library
                        Prelude
 
   build-depends:       base-noprelude >= 4.9 && < 5
+                     , ansi-terminal ^>= 0.8
                      , bytestring
                      , co-log-core
                      , contravariant ^>= 1.5
