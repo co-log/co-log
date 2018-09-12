@@ -1,3 +1,4 @@
+cabal-version:       2.0
 name:                co-log
 version:             0.0.0
 description:         Logging library
@@ -12,7 +13,6 @@ copyright:           2018 Kowainik
 category:            Logging
 build-type:          Simple
 extra-doc-files:     CHANGELOG.md
-cabal-version:       2.0
 tested-with:         GHC == 8.4.3
 
 source-repository head
@@ -23,6 +23,7 @@ library
   hs-source-dirs:      src
   exposed-modules:     Colog
                            Colog.Actions
+                           Colog.Contra
                            Colog.Message
                            Colog.Monad
                            Colog.Name
@@ -31,6 +32,7 @@ library
   build-depends:       base-noprelude >= 4.9 && < 5
                      , bytestring
                      , co-log-core
+                     , contravariant ^>= 1.5
                      , mtl
                      , relude
                      , text
