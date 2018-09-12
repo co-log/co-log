@@ -20,7 +20,9 @@ app :: (WithLog env Message m, MonadIO m) => m ()
 app = do
     logWarning "Starting application..."
     liftIO $ threadDelay $ 2 * 10^(6 :: Int)
-    withLog (cmap addApp) example
+    withLog (cmap addApp) $ do
+        example
+        logInfo "Application finished..."
   where
     addApp :: Message -> Message
     addApp msg = msg { messageText = "app: " <> messageText msg }

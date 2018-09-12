@@ -26,7 +26,7 @@ instance MonadTrans (LoggerT msg) where
     lift :: Monad m => m a -> LoggerT msg m a
     lift = LoggerT . lift
 
-type WithLog env msg m = (MonadReader env m, HasLog env msg m)
+type WithLog env msg m = (MonadReader env m, HasLog env msg m, HasCallStack)
 
 {- | Perform logging action with given message @msg@. This function works for
 monads that have access to 'LogAction'.
