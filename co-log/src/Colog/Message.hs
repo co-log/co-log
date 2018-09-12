@@ -21,6 +21,7 @@ module Colog.Message
 import Control.Concurrent (ThreadId, myThreadId)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import Data.Time.Format (defaultTimeLocale, formatTime)
+import GHC.Stack (SrcLoc (..))
 import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..),
                             setSGRCode)
 
@@ -29,33 +30,38 @@ import Colog.Monad (WithLog, logMsg)
 
 -- | Consist of the message 'Severity' level and the message itself.
 data Message = Message
-    { messageSeverity ::                !Severity
-    , messageText     :: {-# UNPACK #-} !Text
+    { messageSeverity :: !Severity
+    , messageStack    :: !CallStack
+    , messageText     :: !Text
     }
 
 -- | Logs the message with given 'Severity'.
 log :: WithLog env Message m => Severity -> Text -> m ()
-log messageSeverity messageText = logMsg Message{..}
+log messageSeverity messageText =
+    withFrozenCallStack (logMsg Message{ messageStack = callStack, .. })
 
 -- | Logs the message with 'Debug' severity.
 logDebug :: WithLog env Message m => Text -> m ()
-logDebug = log Debug
+logDebug = withFrozenCallStack (log Debug)
 
 -- | Logs the message with 'Info' severity.
 logInfo :: WithLog env Message m => Text -> m ()
-logInfo = log Info
+logInfo = withFrozenCallStack (log Info)
 
 -- | Logs the message with 'Warning' severity.
 logWarning :: WithLog env Message m => Text -> m ()
-logWarning = log Warning
+logWarning = withFrozenCallStack (log Warning)
 
 -- | Logs the message with 'Error' severity.
 logError :: WithLog env Message m => Text -> m ()
-logError = log Error
+logError = withFrozenCallStack (log Error)
 
 -- | Prettifies 'Message' type.
 fmtMessage :: Message -> Text
-fmtMessage Message{..} = showSeverity messageSeverity <> messageText
+fmtMessage Message{..} =
+    showSeverity messageSeverity
+ <> showSourceLoc messageStack
+ <> messageText
 
 -- | Prints severity in different colours
 showSeverity :: Severity -> Text
@@ -69,6 +75,19 @@ showSeverity = \case
     color c txt = toText (setSGRCode [SetColor Foreground Vivid c])
         <> txt
         <> toText (setSGRCode [Reset])
+
+showSourceLoc :: CallStack -> Text
+showSourceLoc cs = "[" <> showCallStack <> "] "
+  where
+    showCallStack :: Text
+    showCallStack = case getCallStack cs of
+        []                             -> "<unknown loc>"
+        [(name, loc)]                  -> showLoc name loc
+        (_, loc) : (callerName, _) : _ -> showLoc callerName loc
+
+    showLoc :: String -> SrcLoc -> Text
+    showLoc name SrcLoc{..} =
+        toText srcLocModule <> "." <> toText name <> "#" <> show srcLocStartLine
 
 -- | Contains additional data to 'Message' to display more verbose information.
 data RichMessage = RichMessage
@@ -94,6 +113,7 @@ fmtRichMessage :: RichMessage -> Text
 fmtRichMessage RichMessage{..} =
     showSeverity (messageSeverity richMessageMsg)
  <> "[" <> showTime richMessageTime <> "] "
+ <> showSourceLoc (messageStack richMessageMsg)
  <> "[" <> show richMessageThread <> "] "
  <> messageText richMessageMsg
    where
