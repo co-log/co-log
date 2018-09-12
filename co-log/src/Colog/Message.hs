@@ -1,5 +1,4 @@
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE RecordWildCards  #-}
 
 {- | 'Message' with 'Severity', and logging functions for them.
 -}
@@ -11,11 +10,17 @@ module Colog.Message
        , logInfo
        , logWarning
        , logError
+       , fmtMessage
 
-       , fmtLogMessage
+       , RichMessage
+       , makeRich
+       , fmtRichMessage
        ) where
 
-import Colog.Core.Severity (Severity (..))
+import Control.Concurrent (ThreadId, myThreadId)
+import Data.Time.Clock (UTCTime, getCurrentTime)
+
+import Colog.Core (LogAction, Severity (..), cbind)
 import Colog.Monad (WithLog, logMsg)
 
 -- | Consist of the message 'Severity' level and the message itself.
@@ -45,5 +50,31 @@ logError :: WithLog env Message m => Text -> m ()
 logError = log Error
 
 -- | Prettifies 'Message' type.
-fmtLogMessage :: Message -> Text
-fmtLogMessage Message{..} = "[" <> show messageSeverity <> "] " <> messageText
+fmtMessage :: Message -> Text
+fmtMessage Message{..} = "[" <> show messageSeverity <> "] " <> messageText
+
+-- | Contains additional data to 'Message' to display more verbose information.
+data RichMessage = RichMessage
+    { richMessageMsg    :: {-# UNPACK #-} !Message
+    , richMessageThread :: {-# UNPACK #-} !ThreadId
+    , richMessageTime   :: {-# UNPACK #-} !UTCTime
+    }
+
+{- | Allows to consume 'Message' instead of 'RichMessage' by reading current
+time and thread id from 'IO'.
+-}
+makeRich :: MonadIO m => LogAction m RichMessage -> LogAction m Message
+makeRich = cbind (liftIO . toRich)
+  where
+    toRich :: Message -> IO RichMessage
+    toRich richMessageMsg = do
+        richMessageThread <- myThreadId
+        richMessageTime   <- getCurrentTime
+        pure RichMessage{..}
+
+-- | Prettifies 'RichMessage' type.
+fmtRichMessage :: RichMessage -> Text
+fmtRichMessage RichMessage{..} =
+    "[" <> show richMessageTime <> "] "
+ <> "[" <> show richMessageThread <> "] "
+ <> fmtMessage richMessageMsg

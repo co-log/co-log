@@ -16,11 +16,11 @@ import Control.Monad.Trans.Class (MonadTrans (..))
 
 import Colog.Core (HasLog (..), LogAction (..), overLogAction)
 
-{- |
+{- | @newtype@ wrapper 'ReaderT' that keeps 'LogAction' in its context.
 -}
 newtype LoggerT msg m a = LoggerT
     { runLoggerT :: ReaderT (LogAction (LoggerT msg m) msg) m a
-    } deriving (Functor, Applicative, Monad, MonadReader (LogAction (LoggerT msg m) msg))
+    } deriving (Functor, Applicative, Monad, MonadIO, MonadReader (LogAction (LoggerT msg m) msg))
 
 instance MonadTrans (LoggerT msg) where
     lift :: Monad m => m a -> LoggerT msg m a
