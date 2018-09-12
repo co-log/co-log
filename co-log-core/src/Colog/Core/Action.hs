@@ -1,3 +1,5 @@
+{-# LANGUAGE ViewPatterns #-}
+
 {- | Implements core data types and combinators for logging actions.
 -}
 
@@ -11,7 +13,16 @@ module Colog.Core.Action
          -- * Contravariant combinators
        , cfilter
        , cmap
+       , (>$)
        , cbind
+
+         -- * Divisible combinators
+       , divide
+       , conquer
+
+         -- * decidable combinators
+       , lose
+       , choose
 
          -- * Comonadic combinators
        , extract
@@ -25,6 +36,7 @@ import Data.Foldable (for_)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.Monoid (Monoid (..))
 import Data.Semigroup (Semigroup (..), stimesMonoid)
+import Data.Void (Void, absurd)
 
 ----------------------------------------------------------------------------
 -- Core data type with instances
@@ -111,7 +123,6 @@ cfilter :: Applicative m => (msg -> Bool) -> LogAction m msg -> LogAction m msg
 cfilter predicate (LogAction action) = LogAction $ \a -> when (predicate a) (action a)
 {-# INLINE cfilter #-}
 
--- TODO: add Contravariant instance for GHC >= 8.6.1
 {- | This combinator is @contramap@ from contravariant functor. It is useful
 when you have something like
 
@@ -153,6 +164,14 @@ you can apply it instead of @lrMessage@ to log formatted @LogRecord@ as 'Text'.
 cmap :: (a -> b) -> LogAction m b -> LogAction m a
 cmap f (LogAction action) = LogAction (action . f)
 {-# INLINE cmap #-}
+
+{- | This combinator is @>$@ from contravariant functor. Replaces all locations
+in the output with the same value. The default definition is
+@contramap . const@, so this is a more efficient version.
+-}
+infixl 4 >$
+(>$) :: b -> LogAction m b -> LogAction m a
+(>$) f (LogAction action) = LogAction (const (action f))
 
 {- | 'cbind' combinator is similar to 'cmap' but allows to call monadic
 functions (functions that require extra context) to extend consumed value.
@@ -239,3 +258,20 @@ infixr 1 <<=
 (<<=) :: Semigroup msg => (LogAction m msg -> m ()) -> LogAction m msg -> LogAction m msg
 (<<=) = extend
 {-# INLINE (<<=) #-}
+
+-- | @divide@ combinator from @Divisible@ type class.
+divide :: (Applicative m) => (a -> (b, c)) -> LogAction m b -> LogAction m c -> LogAction m a
+divide f (LogAction actionB) (LogAction actionC) = LogAction $ \(f -> (b, c)) ->
+    actionB b *> actionC c
+
+-- | @conquer@ combinator from @Divisible@ type class.
+conquer :: Applicative m => LogAction m a
+conquer = LogAction $ const (pure ())
+
+-- | @lose@ combinator from @Decidable@ type class.
+lose :: (a -> Void) -> LogAction m a
+lose f = LogAction (absurd . f)
+
+-- | @choose@ combinator from @Decidable@ type class.
+choose :: (a -> Either b c) -> LogAction m b -> LogAction m c -> LogAction m a
+choose f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC . f)
