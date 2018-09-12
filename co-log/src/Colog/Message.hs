@@ -37,7 +37,8 @@ data Message = Message
 
 -- | Logs the message with given 'Severity'.
 log :: WithLog env Message m => Severity -> Text -> m ()
-log messageSeverity messageText = logMsg Message{ messageStack = callStack, .. }
+log messageSeverity messageText =
+    withFrozenCallStack (logMsg Message{ messageStack = callStack, .. })
 
 -- | Logs the message with 'Debug' severity.
 logDebug :: WithLog env Message m => Text -> m ()
@@ -79,10 +80,14 @@ showSourceLoc :: CallStack -> Text
 showSourceLoc cs = "[" <> showCallStack <> "] "
   where
     showCallStack :: Text
-    showCallStack = case drop 1 $ getCallStack cs of
+    showCallStack = case getCallStack cs of
         []                             -> "<unknown loc>"
-        (functionName, SrcLoc{..}) : _ ->
-            toText srcLocModule <> "." <> toText functionName <> "#" <> show srcLocStartLine
+        [(name, loc)]                  -> showLoc name loc
+        (_, loc) : (callerName, _) : _ -> showLoc callerName loc
+
+    showLoc :: String -> SrcLoc -> Text
+    showLoc name SrcLoc{..} =
+        toText srcLocModule <> "." <> toText name <> "#" <> show srcLocStartLine
 
 -- | Contains additional data to 'Message' to display more verbose information.
 data RichMessage = RichMessage

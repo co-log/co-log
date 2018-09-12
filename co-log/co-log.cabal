@@ -26,7 +26,6 @@ library
                            Colog.Contra
                            Colog.Message
                            Colog.Monad
-                           Colog.Name
                        Prelude
 
   build-depends:       base-noprelude >= 4.9 && < 5
