@@ -5,17 +5,21 @@
 
 module Main where
 
-import Colog (pattern D, Message (..), WithLog, cmap, fmtLogMessage, log, logInfo, logMsg,
-              logTextStderr, logTextStdout, logWarning, usingLoggerT, withLog, withLogTextFile)
+import Control.Concurrent (threadDelay)
+
+import Colog (pattern D, LogAction, Message (..), WithLog, cmap, fmtMessage, fmtRichMessage, log,
+              logInfo, logMsg, logTextStderr, logTextStdout, logWarning, makeRich, usingLoggerT,
+              withLog, withLogTextFile)
 
 example :: WithLog env Message m => m ()
 example = do
     log D "First message..."
     logInfo "Second message..."
 
-app :: WithLog env Message m => m ()
+app :: (WithLog env Message m, MonadIO m) => m ()
 app = do
     logWarning "Starting application..."
+    liftIO $ threadDelay $ 2 * 10^(6 :: Int)
     withLog (cmap addApp) example
   where
     addApp :: Message -> Message
@@ -27,5 +31,14 @@ foo = do
     logMsg @Int 42
 
 main :: IO ()
-main = withLogTextFile "co-log/example/example.log" $ \logTextFile ->
-    usingLoggerT (cmap fmtLogMessage $ logTextStdout <> logTextStderr <> logTextFile) app
+main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
+    let textAction = logTextStdout <> logTextStderr <> logTextFile
+    let simpleMessageAction  = cmap fmtMessage     textAction
+    let richMessageAction    = cmap fmtRichMessage textAction
+    let complexMessageAction = makeRich richMessageAction
+
+    let runApp :: LogAction IO Message -> IO ()
+        runApp action = usingLoggerT action app
+
+    runApp simpleMessageAction
+    runApp complexMessageAction

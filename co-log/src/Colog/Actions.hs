@@ -57,7 +57,7 @@ withLogStringFile path action = withFile path AppendMode $ action . logStringHan
 
 {- | Action that prints 'ByteString' to stdout. -}
 logByteStringStdout :: MonadIO m => LogAction m ByteString
-logByteStringStdout = LogAction putStrLn
+logByteStringStdout = LogAction putBSLn
 
 {- | Action that prints 'ByteString' to stderr. -}
 logByteStringStderr :: MonadIO m => LogAction m ByteString

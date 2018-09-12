@@ -34,8 +34,9 @@ library
                      , co-log-core
                      , contravariant ^>= 1.5
                      , mtl
-                     , relude
+                     , relude ^>= 0.3.0
                      , text
+                     , time
                      , transformers >= 0.5
 
   ghc-options:         -Wall
@@ -52,6 +53,8 @@ library
                       GeneralizedNewtypeDeriving
                       InstanceSigs
                       OverloadedStrings
+                      RecordWildCards
+                      TypeApplications
 
 executable play-colog
   hs-source-dirs:      example
@@ -59,7 +62,7 @@ executable play-colog
 
   build-depends:       base-noprelude
                      , co-log
-                     , relude ^>= 0.1.1
+                     , relude
 
   ghc-options:         -Wall
                        -Wincomplete-uni-patterns
