@@ -20,7 +20,7 @@ module Colog.Core.Action
        , divide
        , conquer
 
-         -- * decidable combinators
+         -- * Decidable combinators
        , lose
        , choose
 
@@ -171,7 +171,7 @@ in the output with the same value. The default definition is
 -}
 infixl 4 >$
 (>$) :: b -> LogAction m b -> LogAction m a
-(>$) f (LogAction action) = LogAction (const (action f))
+(>$) b (LogAction action) = LogAction (\_ -> action b)
 
 {- | 'cbind' combinator is similar to 'cmap' but allows to call monadic
 functions (functions that require extra context) to extend consumed value.
@@ -219,6 +219,23 @@ cbind :: Monad m => (a -> m b) -> LogAction m b -> LogAction m a
 cbind f (LogAction action) = LogAction (f >=> action)
 {-# INLINE cbind #-}
 
+-- | @divide@ combinator from @Divisible@ type class.
+divide :: (Applicative m) => (a -> (b, c)) -> LogAction m b -> LogAction m c -> LogAction m a
+divide f (LogAction actionB) (LogAction actionC) = LogAction $ \(f -> (b, c)) ->
+    actionB b *> actionC c
+
+-- | @conquer@ combinator from @Divisible@ type class.
+conquer :: Applicative m => LogAction m a
+conquer = LogAction $ const (pure ())
+
+-- | @lose@ combinator from @Decidable@ type class.
+lose :: (a -> Void) -> LogAction m a
+lose f = LogAction (absurd . f)
+
+-- | @choose@ combinator from @Decidable@ type class.
+choose :: (a -> Either b c) -> LogAction m b -> LogAction m c -> LogAction m a
+choose f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC . f)
+
 {- | If @msg@ is 'Monoid' then 'extract' performs given log action by passing
 'mempty' to it.
 -}
@@ -258,20 +275,3 @@ infixr 1 <<=
 (<<=) :: Semigroup msg => (LogAction m msg -> m ()) -> LogAction m msg -> LogAction m msg
 (<<=) = extend
 {-# INLINE (<<=) #-}
-
--- | @divide@ combinator from @Divisible@ type class.
-divide :: (Applicative m) => (a -> (b, c)) -> LogAction m b -> LogAction m c -> LogAction m a
-divide f (LogAction actionB) (LogAction actionC) = LogAction $ \(f -> (b, c)) ->
-    actionB b *> actionC c
-
--- | @conquer@ combinator from @Divisible@ type class.
-conquer :: Applicative m => LogAction m a
-conquer = LogAction $ const (pure ())
-
--- | @lose@ combinator from @Decidable@ type class.
-lose :: (a -> Void) -> LogAction m a
-lose f = LogAction (absurd . f)
-
--- | @choose@ combinator from @Decidable@ type class.
-choose :: (a -> Either b c) -> LogAction m b -> LogAction m c -> LogAction m a
-choose f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC . f)

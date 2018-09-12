@@ -6,6 +6,7 @@ packages:
 
 extra-deps:
   - base-noprelude-4.11.1.0
+  - contravariant-1.5
 
 ghc-options:
   "$locals": -fhide-source-paths
