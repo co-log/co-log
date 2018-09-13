@@ -1,3 +1,4 @@
+{-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms   #-}
@@ -7,9 +8,11 @@ module Main where
 
 import Control.Concurrent (threadDelay)
 
-import Colog (pattern D, LogAction, Message (..), WithLog, cmap, fmtMessage, fmtRichMessage, log,
-              logInfo, logMsg, logTextStderr, logTextStdout, logWarning, makeRich, usingLoggerT,
-              withLog, withLogTextFile)
+import Colog (pattern D, LogAction, Message (..), WithLog, cbind, cmap, defaultMessageMap,
+              fmtMessage, fmtRichMessageDefault, log, logInfo, logMsg, logTextStderr, logTextStdout,
+              logWarning, upgradeMessageAction, usingLoggerT, withLog, withLogTextFile)
+
+import qualified Data.TypeRepMap as TM
 
 example :: WithLog env Message m => m ()
 example = do
@@ -19,7 +22,7 @@ example = do
 app :: (WithLog env Message m, MonadIO m) => m ()
 app = do
     logWarning "Starting application..."
-    liftIO $ threadDelay $ 2 * 10^(6 :: Int)
+    liftIO $ threadDelay $ 10^(6 :: Int)
     withLog (cmap addApp) $ do
         example
         logInfo "Application finished..."
@@ -34,13 +37,19 @@ foo = do
 
 main :: IO ()
 main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
-    let textAction = logTextStdout <> logTextStderr <> logTextFile
-    let simpleMessageAction  = cmap fmtMessage     textAction
-    let richMessageAction    = cmap fmtRichMessage textAction
-    let complexMessageAction = makeRich richMessageAction
-
     let runApp :: LogAction IO Message -> IO ()
         runApp action = usingLoggerT action app
 
+    let textAction = logTextStdout <> logTextStderr <> logTextFile
+
+    let simpleMessageAction = cmap  fmtMessage            textAction
+    let richMessageAction   = cbind fmtRichMessageDefault textAction
+
+    let fullMessageAction = upgradeMessageAction defaultMessageMap richMessageAction
+    let semiMessageAction = upgradeMessageAction
+                                (TM.delete @"thread-id" defaultMessageMap)
+                                richMessageAction
+
     runApp simpleMessageAction
-    runApp complexMessageAction
+    runApp fullMessageAction
+    runApp semiMessageAction

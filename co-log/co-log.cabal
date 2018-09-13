@@ -38,6 +38,7 @@ library
                      , text
                      , time
                      , transformers >= 0.5
+                     , typerep-map ^>= 0.3.0
 
   ghc-options:         -Wall
                        -Wincomplete-uni-patterns
@@ -63,6 +64,7 @@ executable play-colog
   build-depends:       base-noprelude
                      , co-log
                      , relude
+                     , typerep-map
 
   ghc-options:         -Wall
                        -Wincomplete-uni-patterns
