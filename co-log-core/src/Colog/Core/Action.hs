@@ -13,16 +13,21 @@ module Colog.Core.Action
          -- * Contravariant combinators
        , cfilter
        , cmap
+       , (>$<)
        , (>$)
        , cbind
 
          -- * Divisible combinators
        , divide
        , conquer
+       , (>*<)
+       , (>*)
+       , (*<)
 
          -- * Decidable combinators
        , lose
        , choose
+       , (>|<)
 
          -- * Comonadic combinators
        , extract
@@ -165,6 +170,12 @@ cmap :: (a -> b) -> LogAction m b -> LogAction m a
 cmap f (LogAction action) = LogAction (action . f)
 {-# INLINE cmap #-}
 
+-- | Operator version of 'cmap'.
+infixr 3 >$<
+(>$<) :: (a -> b) -> LogAction m b -> LogAction m a
+(>$<) = cmap
+{-# INLINE (>$<) #-}
+
 {- | This combinator is @>$@ from contravariant functor. Replaces all locations
 in the output with the same value. The default definition is
 @contramap . const@, so this is a more efficient version.
@@ -228,6 +239,26 @@ divide f (LogAction actionB) (LogAction actionC) = LogAction $ \(f -> (b, c)) ->
 conquer :: Applicative m => LogAction m a
 conquer = LogAction $ const (pure ())
 
+
+-- | Operator version of @'divide' 'id'@.
+infixr 4 >*<
+(>*<) :: (Applicative m) => LogAction m a -> LogAction m b -> LogAction m (a, b)
+(LogAction actionA) >*< (LogAction actionB) = LogAction $ \(a, b) ->
+    actionA a *> actionB b
+{-# INLINE (>*<) #-}
+
+infixr 4 >*
+(>*) :: Applicative m => LogAction m a -> LogAction m () -> LogAction m a
+(LogAction actionA) >* (LogAction actionB) = LogAction $ \a ->
+    actionA a *> actionB ()
+{-# INLINE (>*) #-}
+
+infixr 4 *<
+(*<) :: Applicative m => LogAction m () -> LogAction m a -> LogAction m a
+(LogAction actionA) *< (LogAction actionB) = LogAction $ \a ->
+    actionA () *> actionB a
+{-# INLINE (*<) #-}
+
 -- | @lose@ combinator from @Decidable@ type class.
 lose :: (a -> Void) -> LogAction m a
 lose f = LogAction (absurd . f)
@@ -235,6 +266,12 @@ lose f = LogAction (absurd . f)
 -- | @choose@ combinator from @Decidable@ type class.
 choose :: (a -> Either b c) -> LogAction m b -> LogAction m c -> LogAction m a
 choose f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC . f)
+
+-- | Operator version of @'choose' 'id'@.
+infixr 3 >|<
+(>|<) :: LogAction m a -> LogAction m b -> LogAction m (Either a b)
+(LogAction actionA) >|< (LogAction actionB) = LogAction (either actionA actionB)
+{-# INLINE (>|<) #-}
 
 {- | If @msg@ is 'Monoid' then 'extract' performs given log action by passing
 'mempty' to it.
