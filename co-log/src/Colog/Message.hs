@@ -1,11 +1,18 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE LambdaCase       #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE GADTs               #-}
+{-# LANGUAGE KindSignatures      #-}
+{-# LANGUAGE LambdaCase          #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE ViewPatterns        #-}
 
 {- | 'Message' with 'Severity', and logging functions for them.
 -}
 
 module Colog.Message
-       ( Message (..)
+       ( -- * Basic message type
+         Message (..)
        , log
        , logDebug
        , logInfo
@@ -13,20 +20,34 @@ module Colog.Message
        , logError
        , fmtMessage
 
+         -- * Externally extensible message type
+       , FieldType
+       , MessageField (..)
+       , FieldMap
+       , defaultMessageMap
+
        , RichMessage
-       , makeRich
-       , fmtRichMessage
+       , fmtRichMessageDefault
+       , upgradeMessageAction
        ) where
 
 import Control.Concurrent (ThreadId, myThreadId)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import Data.Time.Format (defaultTimeLocale, formatTime)
+import Data.TypeRepMap (TypeRepMap)
 import GHC.Stack (SrcLoc (..))
+import GHC.TypeLits (Symbol)
 import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..),
                             setSGRCode)
 
-import Colog.Core (LogAction, Severity (..), cbind)
+import Colog.Core (LogAction, Severity (..), cmap)
 import Colog.Monad (WithLog, logMsg)
+
+import qualified Data.TypeRepMap as TM
+
+----------------------------------------------------------------------------
+-- Plain message
+----------------------------------------------------------------------------
 
 -- | Consist of the message 'Severity' level and the message itself.
 data Message = Message
@@ -76,8 +97,11 @@ showSeverity = \case
         <> txt
         <> toText (setSGRCode [Reset])
 
+square :: Text -> Text
+square t = "[" <> t <> "] "
+
 showSourceLoc :: CallStack -> Text
-showSourceLoc cs = "[" <> showCallStack <> "] "
+showSourceLoc cs = square showCallStack
   where
     showCallStack :: Text
     showCallStack = case getCallStack cs of
@@ -89,37 +113,106 @@ showSourceLoc cs = "[" <> showCallStack <> "] "
     showLoc name SrcLoc{..} =
         toText srcLocModule <> "." <> toText name <> "#" <> show srcLocStartLine
 
+----------------------------------------------------------------------------
+-- Externally extensible message
+----------------------------------------------------------------------------
+
+{- | Open type family that maps some user defined tags (type names) to actual
+types. The type family is open so you can add new instances.
+-}
+type family FieldType (fieldName :: Symbol) :: Type
+type instance FieldType "thread-id" = ThreadId
+type instance FieldType "utc-time"  = UTCTime
+
+{- | @newtype@ wrapper. Stores monadic ability to extract value of 'FieldType'.
+
+__Implementation detail:__ this exotic writing of 'MessageField' is required in
+order to use it nicer with type applications. So users can write
+
+@
+MessageField @"thread-id" myThreadId
+@
+
+instead of
+
+@
+MessageField @_ @"thread-id" myThreadId
+@
+-}
+newtype MessageField (m :: Type -> Type) (fieldName :: Symbol) where
+    MessageField :: forall fieldName m . m (FieldType fieldName) -> MessageField m fieldName
+
+-- TODO: rewrite using traverse or sequenceA
+extractField
+    :: Applicative m
+    => Maybe (MessageField m fieldName)
+    -> m (Maybe (FieldType fieldName))
+extractField = \case
+    Nothing -> pure Nothing
+    Just (MessageField field) -> Just <$> field
+
+{- | Depedent map from type level strings to the corresponding types. See
+'FieldType' for mapping between names and types.
+-}
+type FieldMap (m :: Type -> Type) = TypeRepMap (MessageField m)
+
+{- | Default message map that contains actions to extract 'ThreadId' and
+'UTCTime'. Basically, the following mapping:
+
+@
+"thread-id" -> myThreadId
+"utc-time"  -> getCurrentTime
+@
+-}
+defaultMessageMap :: MonadIO m => FieldMap m
+defaultMessageMap = fromList
+    [ TM.WrapTypeable $ MessageField @"thread-id" (liftIO myThreadId)
+    , TM.WrapTypeable $ MessageField @"utc-time" (liftIO getCurrentTime)
+    ]
+
 -- | Contains additional data to 'Message' to display more verbose information.
-data RichMessage = RichMessage
-    { richMessageMsg    :: {-# UNPACK #-} !Message
-    , richMessageThread :: {-# UNPACK #-} !ThreadId
-    , richMessageTime   :: {-# UNPACK #-} !UTCTime
+data RichMessage (m :: Type -> Type) = RichMessage
+    { richMessageMsg :: {-# UNPACK #-} !Message
+    , richMessageMap :: {-# UNPACK #-} !(FieldMap m)
     }
 
-{- | Allows to consume 'Message' instead of 'RichMessage' by reading current
-time and thread id from 'IO'.
--}
-makeRich :: MonadIO m => LogAction m RichMessage -> LogAction m Message
-makeRich = cbind (liftIO . toRich)
-  where
-    toRich :: Message -> IO RichMessage
-    toRich richMessageMsg = do
-        richMessageThread <- myThreadId
-        richMessageTime   <- getCurrentTime
-        pure RichMessage{..}
+{- | Formats 'RichMessage' in the following way:
 
--- | Prettifies 'RichMessage' type.
-fmtRichMessage :: RichMessage -> Text
-fmtRichMessage RichMessage{..} =
-    showSeverity (messageSeverity richMessageMsg)
- <> "[" <> showTime richMessageTime <> "] "
- <> showSourceLoc (messageStack richMessageMsg)
- <> "[" <> show richMessageThread <> "] "
- <> messageText richMessageMsg
-   where
-     showTime :: UTCTime -> Text
-     showTime t = toText
-         ( formatTime defaultTimeLocale "%H:%M:%S." t
-        ++ take 3 (formatTime defaultTimeLocale "%q" t)
-        ++ formatTime defaultTimeLocale " %e %b %Y %Z" t
-         )
+@
+[Severity] [Time] [SourceLocation] [ThreadId] <Text message>
+@
+-}
+fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
+fmtRichMessageDefault RichMessage{..} = do
+    maybeThreadId <- extractField $ TM.lookup @"thread-id" richMessageMap
+    maybeUtcTime  <- extractField $ TM.lookup @"utc-time"  richMessageMap
+    pure $ formatRichMessage maybeThreadId maybeUtcTime richMessageMsg
+  where
+    formatRichMessage :: Maybe ThreadId -> Maybe UTCTime -> Message -> Text
+    formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Message{..} =
+        showSeverity messageSeverity
+     <> time
+     <> showSourceLoc messageStack
+     <> thread
+     <> messageText
+
+    showTime :: UTCTime -> Text
+    showTime t = square $ toText $
+          formatTime defaultTimeLocale "%H:%M:%S." t
+       ++ take 3 (formatTime defaultTimeLocale "%q" t)
+       ++ formatTime defaultTimeLocale " %e %b %Y %Z" t
+
+    showThreadId :: ThreadId -> Text
+    showThreadId = square . show
+
+{- | Allows to extend basic 'Message' type with given dependent map of fields.
+-}
+upgradeMessageAction
+    :: forall m .
+       FieldMap m
+    -> LogAction m (RichMessage m)
+    -> LogAction m Message
+upgradeMessageAction fieldMap = cmap addMap
+  where
+    addMap :: Message -> RichMessage m
+    addMap msg = RichMessage msg fieldMap
