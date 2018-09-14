@@ -9,5 +9,5 @@ extra-deps:
   - contravariant-1.5
   - relude-0.3.0
 
-ghc-options:
-  "$locals": -fhide-source-paths
+  - typerep-map-0.3.0
+  - primitive-0.6.4.0  # needed for typerep-map
