@@ -9,8 +9,9 @@ module Main where
 import Control.Concurrent (threadDelay)
 
 import Colog (pattern D, LogAction, Message (..), WithLog, cbind, cmap, defaultMessageMap,
-              fmtMessage, fmtRichMessageDefault, log, logInfo, logMsg, logTextStderr, logTextStdout,
-              logWarning, upgradeMessageAction, usingLoggerT, withLog, withLogTextFile)
+              fmtMessage, fmtRichMessageDefault, log, logInfo, logMsg, logStringStdout,
+              logTextStderr, logTextStdout, logWarning, upgradeMessageAction, usingLoggerT, withLog,
+              withLogTextFile, (*<), (>$), (>$<), (>*), (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
 
@@ -30,10 +31,59 @@ app = do
     addApp :: Message -> Message
     addApp msg = msg { messageText = "app: " <> messageText msg }
 
+
 foo :: (WithLog env String m, WithLog env Int m) => m ()
 foo = do
     logMsg ("String message..." :: String)
     logMsg @Int 42
+
+----------------------------------------------------------------------------
+-- Section with contravariant combinators example
+----------------------------------------------------------------------------
+
+data Engine = Pistons Int | Rocket
+
+engineToEither :: Engine -> Either Int ()
+engineToEither e = case e of
+    Pistons i -> Left i
+    Rocket    -> Right ()
+
+data Car = Car
+    { carMake   :: String
+    , carModel  :: String
+    , carEngine :: Engine
+    }
+
+carToTuple :: Car -> (String, (String, Engine))
+carToTuple (Car make model engine) = (make, (model, engine))
+
+stringL :: LogAction IO String
+stringL = logStringStdout
+
+-- Combinator that allows to log any showable value
+showL :: Show a => LogAction IO a
+showL = cmap show stringL
+
+-- Returns log action that logs given string ignoring its input.
+constL :: String -> LogAction IO a
+constL s = s >$ stringL
+
+intL :: LogAction IO Int
+intL = showL
+
+-- log actions that logs single car module
+carL :: LogAction IO Car
+carL = carToTuple
+    >$< (constL "Logging make..." *< stringL >* constL "Finished logging make...")
+    >*< (constL "Logging model.." *< stringL >* constL "Finished logging model...")
+    >*< ( engineToEither
+      >$< constL "Logging pistons..." *< intL
+      >|< constL "Logging rocket..."
+        )
+
+----------------------------------------------------------------------------
+-- main runner
+----------------------------------------------------------------------------
 
 main :: IO ()
 main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
@@ -53,3 +103,5 @@ main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
     runApp simpleMessageAction
     runApp fullMessageAction
     runApp semiMessageAction
+
+    usingLoggerT carL $ logMsg $ Car "Toyota" "Corolla" (Pistons 4)
