@@ -26,12 +26,14 @@ library
                            Colog.Contra
                            Colog.Message
                            Colog.Monad
+                           Colog.Pure
                        Prelude
 
   build-depends:       base-noprelude >= 4.9 && < 5
                      , ansi-terminal ^>= 0.8
                      , bytestring
                      , co-log-core
+                     , containers >= 0.5.7 && < 0.7
                      , contravariant ^>= 1.5
                      , mtl
                      , relude ^>= 0.3.0

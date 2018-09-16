@@ -6,6 +6,7 @@ module Colog.Monad
        ( LoggerT (..)
        , WithLog
        , logMsg
+       , logMsgs
        , withLog
        , liftLogAction
        , usingLoggerT
@@ -44,6 +45,10 @@ logMsg :: forall msg env m . WithLog env msg m => msg -> m ()
 logMsg msg = do
     LogAction log <- asks getLogAction
     log msg
+
+-- | Logs multiple messages.
+logMsgs :: forall msg env f m . (Foldable f, WithLog env msg m) => f msg -> m ()
+logMsgs = traverse_ logMsg
 
 {- | Performs given monadic logging action by applying function to every logging record.
 
