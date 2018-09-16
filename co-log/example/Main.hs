@@ -8,10 +8,11 @@ module Main where
 
 import Control.Concurrent (threadDelay)
 
-import Colog (pattern D, LogAction, Message (..), WithLog, cbind, cmap, defaultMessageMap,
-              fmtMessage, fmtRichMessageDefault, log, logInfo, logMsg, logStringStdout,
-              logTextStderr, logTextStdout, logWarning, upgradeMessageAction, usingLoggerT, withLog,
-              withLogTextFile, (*<), (>$), (>$<), (>*), (>*<), (>|<))
+import Colog (pattern D, LogAction, Message (..), PureLogger, WithLog, cbind, cmap,
+              defaultMessageMap, fmtMessage, fmtRichMessageDefault, log, logInfo, logMessagePure,
+              logMsg, logMsgs, logStringStdout, logTextStderr, logTextStdout, logWarning,
+              runPureLog, upgradeMessageAction, usingLoggerT, withLog, withLogTextFile, (*<), (>$),
+              (>$<), (>*), (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
 
@@ -105,3 +106,8 @@ main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
     runApp semiMessageAction
 
     usingLoggerT carL $ logMsg $ Car "Toyota" "Corolla" (Pistons 4)
+
+    let pureAction :: PureLogger Message ()
+        pureAction = usingLoggerT logMessagePure example
+    let ((), msgs) = runPureLog pureAction
+    usingLoggerT simpleMessageAction $ logMsgs msgs
