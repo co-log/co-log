@@ -81,3 +81,13 @@ executable play-colog
                        -with-rtsopts=-N
 
   default-language:    Haskell2010
+
+executable readme
+  main-is:             README.lhs
+  build-depends:       base-noprelude
+                     , co-log
+                     , text
+
+  build-tool-depends:  markdown-unlit:markdown-unlit
+  ghc-options:         -Wall -pgmL markdown-unlit
+  default-language:    Haskell2010
