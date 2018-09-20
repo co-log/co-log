@@ -106,7 +106,7 @@ main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
 
     let fullMessageAction = upgradeMessageAction defaultMessageMap richMessageAction
     let semiMessageAction = upgradeMessageAction
-                                (TM.delete @"thread-id" defaultMessageMap)
+                                (TM.delete @"threadId" defaultMessageMap)
                                 richMessageAction
 
     runApp simpleMessageAction

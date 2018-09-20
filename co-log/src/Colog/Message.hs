@@ -1,11 +1,14 @@
-{-# LANGUAGE DataKinds           #-}
-{-# LANGUAGE FlexibleContexts    #-}
-{-# LANGUAGE GADTs               #-}
-{-# LANGUAGE KindSignatures      #-}
-{-# LANGUAGE LambdaCase          #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeFamilies        #-}
-{-# LANGUAGE ViewPatterns        #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE GADTs                 #-}
+{-# LANGUAGE KindSignatures        #-}
+{-# LANGUAGE LambdaCase            #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE OverloadedLabels      #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE ViewPatterns          #-}
 
 {- | 'Message' with 'Severity', and logging functions for them.
 -}
@@ -37,8 +40,9 @@ import Control.Exception (displayException)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import Data.Time.Format (defaultTimeLocale, formatTime)
 import Data.TypeRepMap (TypeRepMap)
+import GHC.OverloadedLabels (IsLabel (..))
 import GHC.Stack (SrcLoc (..))
-import GHC.TypeLits (Symbol)
+import GHC.TypeLits (KnownSymbol, Symbol)
 import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..),
                             setSGRCode)
 
@@ -127,8 +131,8 @@ showSourceLoc cs = square showCallStack
 types. The type family is open so you can add new instances.
 -}
 type family FieldType (fieldName :: Symbol) :: Type
-type instance FieldType "thread-id" = ThreadId
-type instance FieldType "utc-time"  = UTCTime
+type instance FieldType "threadId" = ThreadId
+type instance FieldType "utcTime"  = UTCTime
 
 {- | @newtype@ wrapper. Stores monadic ability to extract value of 'FieldType'.
 
@@ -136,17 +140,21 @@ __Implementation detail:__ this exotic writing of 'MessageField' is required in
 order to use it nicer with type applications. So users can write
 
 @
-MessageField @"thread-id" myThreadId
+MessageField @"threadId" myThreadId
 @
 
 instead of
 
 @
-MessageField @_ @"thread-id" myThreadId
+MessageField @_ @"threadId" myThreadId
 @
 -}
 newtype MessageField (m :: Type -> Type) (fieldName :: Symbol) where
     MessageField :: forall fieldName m . m (FieldType fieldName) -> MessageField m fieldName
+
+instance (KnownSymbol fieldName, a ~ m (FieldType fieldName))
+      => IsLabel fieldName (a -> TM.WrapTypeable (MessageField m)) where
+    fromLabel field = TM.WrapTypeable $ MessageField @fieldName field
 
 -- TODO: rewrite using traverse or sequenceA
 extractField
@@ -166,14 +174,14 @@ type FieldMap (m :: Type -> Type) = TypeRepMap (MessageField m)
 'UTCTime'. Basically, the following mapping:
 
 @
-"thread-id" -> myThreadId
-"utc-time"  -> getCurrentTime
+"threadId" -> myThreadId
+"utcTime"  -> getCurrentTime
 @
 -}
 defaultMessageMap :: MonadIO m => FieldMap m
 defaultMessageMap = fromList
-    [ TM.WrapTypeable $ MessageField @"thread-id" (liftIO myThreadId)
-    , TM.WrapTypeable $ MessageField @"utc-time" (liftIO getCurrentTime)
+    [ #threadId (liftIO myThreadId)
+    , #utcTime (liftIO getCurrentTime)
     ]
 
 -- | Contains additional data to 'Message' to display more verbose information.
@@ -190,8 +198,8 @@ data RichMessage (m :: Type -> Type) = RichMessage
 -}
 fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
 fmtRichMessageDefault RichMessage{..} = do
-    maybeThreadId <- extractField $ TM.lookup @"thread-id" richMessageMap
-    maybeUtcTime  <- extractField $ TM.lookup @"utc-time"  richMessageMap
+    maybeThreadId <- extractField $ TM.lookup @"threadId" richMessageMap
+    maybeUtcTime  <- extractField $ TM.lookup @"utcTime"  richMessageMap
     pure $ formatRichMessage maybeThreadId maybeUtcTime richMessageMsg
   where
     formatRichMessage :: Maybe ThreadId -> Maybe UTCTime -> Message -> Text
