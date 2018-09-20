@@ -1,4 +1,5 @@
 {-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE DeriveAnyClass    #-}
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms   #-}
@@ -9,10 +10,10 @@ module Main where
 import Control.Concurrent (threadDelay)
 
 import Colog (pattern D, LogAction, Message (..), PureLogger, WithLog, cbind, cmap,
-              defaultMessageMap, fmtMessage, fmtRichMessageDefault, log, logInfo, logMessagePure,
-              logMsg, logMsgs, logStringStdout, logTextStderr, logTextStdout, logWarning,
-              runPureLog, upgradeMessageAction, usingLoggerT, withLog, withLogTextFile, (*<), (>$),
-              (>$<), (>*), (>*<), (>|<))
+              defaultMessageMap, fmtMessage, fmtRichMessageDefault, log, logException, logInfo,
+              logMessagePure, logMsg, logMsgs, logStringStdout, logTextStderr, logTextStdout,
+              logWarning, runPureLog, upgradeMessageAction, usingLoggerT, withLog, withLogTextFile,
+              (*<), (>$), (>$<), (>*), (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
 
@@ -27,6 +28,7 @@ app = do
     liftIO $ threadDelay $ 10^(6 :: Int)
     withLog (cmap addApp) $ do
         example
+        exceptionL
         logInfo "Application finished..."
   where
     addApp :: Message -> Message
@@ -37,6 +39,12 @@ foo :: (WithLog env String m, WithLog env Int m) => m ()
 foo = do
     logMsg ("String message..." :: String)
     logMsg @Int 42
+
+data ExampleException = ExampleException
+    deriving (Show, Exception)
+
+exceptionL :: (WithLog env Message m) => m ()
+exceptionL = logException ExampleException
 
 ----------------------------------------------------------------------------
 -- Section with contravariant combinators example

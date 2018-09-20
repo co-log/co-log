@@ -18,6 +18,7 @@ module Colog.Message
        , logInfo
        , logWarning
        , logError
+       , logException
        , fmtMessage
 
          -- * Externally extensible message type
@@ -32,6 +33,7 @@ module Colog.Message
        ) where
 
 import Control.Concurrent (ThreadId, myThreadId)
+import Control.Exception (displayException)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import Data.Time.Format (defaultTimeLocale, formatTime)
 import Data.TypeRepMap (TypeRepMap)
@@ -76,6 +78,10 @@ logWarning = withFrozenCallStack (log Warning)
 -- | Logs the message with 'Error' severity.
 logError :: WithLog env Message m => Text -> m ()
 logError = withFrozenCallStack (log Error)
+
+-- | Logs 'Exception' message.
+logException :: forall e m env . (WithLog env Message m, Exception e) => e -> m ()
+logException = withFrozenCallStack (logError . toText . displayException)
 
 -- | Prettifies 'Message' type.
 fmtMessage :: Message -> Text
