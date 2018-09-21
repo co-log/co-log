@@ -28,7 +28,7 @@ module Colog.Message
        , FieldType
        , MessageField (..)
        , FieldMap
-       , defaultMessageMap
+       , defaultFieldMap
 
        , RichMessage
        , fmtRichMessageDefault
@@ -191,8 +191,8 @@ type FieldMap (m :: Type -> Type) = TypeRepMap (MessageField m)
 "utcTime"  -> getCurrentTime
 @
 -}
-defaultMessageMap :: MonadIO m => FieldMap m
-defaultMessageMap = fromList
+defaultFieldMap :: MonadIO m => FieldMap m
+defaultFieldMap = fromList
     [ #threadId (liftIO myThreadId)
     , #utcTime  (liftIO getCurrentTime)
     ]

@@ -9,11 +9,11 @@ module Main where
 
 import Control.Concurrent (threadDelay)
 
-import Colog (pattern D, LogAction, Message (..), PureLogger, WithLog, cbind, cmap,
-              defaultMessageMap, fmtMessage, fmtRichMessageDefault, log, logException, logInfo,
-              logMessagePure, logMsg, logMsgs, logStringStdout, logTextStderr, logTextStdout,
-              logWarning, runPureLog, upgradeMessageAction, usingLoggerT, withLog, withLogTextFile,
-              (*<), (>$), (>$<), (>*), (>*<), (>|<))
+import Colog (pattern D, LogAction, Message (..), PureLogger, WithLog, cbind, cmap, defaultFieldMap,
+              fmtMessage, fmtRichMessageDefault, log, logException, logInfo, logMessagePure, logMsg,
+              logMsgs, logStringStdout, logTextStderr, logTextStdout, logWarning, runPureLog,
+              upgradeMessageAction, usingLoggerT, withLog, withLogTextFile, (*<), (>$), (>$<), (>*),
+              (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
 
@@ -104,9 +104,9 @@ main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
     let simpleMessageAction = cmap  fmtMessage            textAction
     let richMessageAction   = cbind fmtRichMessageDefault textAction
 
-    let fullMessageAction = upgradeMessageAction defaultMessageMap richMessageAction
+    let fullMessageAction = upgradeMessageAction defaultFieldMap richMessageAction
     let semiMessageAction = upgradeMessageAction
-                                (TM.delete @"threadId" defaultMessageMap)
+                                (TM.delete @"threadId" defaultFieldMap)
                                 richMessageAction
 
     runApp simpleMessageAction
