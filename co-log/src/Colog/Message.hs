@@ -148,22 +148,35 @@ instead of
 @
 MessageField @_ @"threadId" myThreadId
 @
+
+Simpler version of this @newtype@:
+
+@
+newtype MessageField m fieldName = MessageField
+    { unMesssageField :: m (FieldType fieldName)
+    }
+@
 -}
 newtype MessageField (m :: Type -> Type) (fieldName :: Symbol) where
-    MessageField :: forall fieldName m . m (FieldType fieldName) -> MessageField m fieldName
+    MessageField
+        :: forall fieldName m .
+           { unMesssageField :: m (FieldType fieldName) }
+        -> MessageField m fieldName
 
 instance (KnownSymbol fieldName, a ~ m (FieldType fieldName))
       => IsLabel fieldName (a -> TM.WrapTypeable (MessageField m)) where
     fromLabel field = TM.WrapTypeable $ MessageField @fieldName field
 
--- TODO: rewrite using traverse or sequenceA
 extractField
     :: Applicative m
     => Maybe (MessageField m fieldName)
     -> m (Maybe (FieldType fieldName))
-extractField = \case
-    Nothing -> pure Nothing
-    Just (MessageField field) -> Just <$> field
+extractField = traverse unMesssageField
+
+-- same as:
+-- extractField = \case
+--    Nothing -> pure Nothing
+--    Just (MessageField field) -> Just <$> field
 
 {- | Depedent map from type level strings to the corresponding types. See
 'FieldType' for mapping between names and types.
@@ -181,7 +194,7 @@ type FieldMap (m :: Type -> Type) = TypeRepMap (MessageField m)
 defaultMessageMap :: MonadIO m => FieldMap m
 defaultMessageMap = fromList
     [ #threadId (liftIO myThreadId)
-    , #utcTime (liftIO getCurrentTime)
+    , #utcTime  (liftIO getCurrentTime)
     ]
 
 -- | Contains additional data to 'Message' to display more verbose information.
