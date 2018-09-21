@@ -29,7 +29,7 @@ library
                            Colog.Pure
                        Prelude
 
-  build-depends:       base-noprelude >= 4.9 && < 5
+  build-depends:       base-noprelude >= 4.11 && < 5
                      , ansi-terminal ^>= 0.8
                      , bytestring
                      , co-log-core
