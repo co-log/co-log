@@ -4,9 +4,12 @@
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/master/LICENSE)
 [![Build status](https://secure.travis-ci.org/kowainik/co-log.svg)](https://travis-ci.org/kowainik/co-log)
 
+Composable and configurable logging framework. The idea of the approach is
+described in the following blog post:
 
-Composable, contravariant, comonadic, monoidal logging library. Contains two
-packages:
+* [co-log: Composable Contravariant Combinatorial Comonadic Configurable Convenient Logging](https://kowainik.github.io/posts/2018-09-25-co-log)
+
+The repository contains two packages:
 
 * [`co-log-core`](co-log-core): lightweight package with basic data types and
   general idea.
