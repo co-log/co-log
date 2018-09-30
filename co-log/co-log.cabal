@@ -27,18 +27,18 @@ library
                            Colog.Message
                            Colog.Monad
                            Colog.Pure
-                       Prelude
+  other-modules:       Prelude
 
   build-depends:       base-noprelude >= 4.11 && < 5
                      , ansi-terminal ^>= 0.8
-                     , bytestring
-                     , co-log-core
+                     , bytestring ^>= 0.10.8
+                     , co-log-core ^>= 0.0
                      , containers >= 0.5.7 && < 0.7
                      , contravariant ^>= 1.5
-                     , mtl
+                     , mtl ^>= 2.2.2
                      , relude ^>= 0.3.0
-                     , text
-                     , time
+                     , text ^>= 1.2.3
+                     , time ^>= 1.9.2
                      , transformers >= 0.5
                      , typerep-map ^>= 0.3.0
 
@@ -63,7 +63,7 @@ executable play-colog
   hs-source-dirs:      example
   main-is:             Main.hs
 
-  build-depends:       base-noprelude
+  build-depends:       base
                      , co-log
                      , relude
                      , typerep-map
@@ -84,7 +84,7 @@ executable play-colog
 
 executable readme
   main-is:             README.lhs
-  build-depends:       base-noprelude
+  build-depends:       base
                      , co-log
                      , text
 
