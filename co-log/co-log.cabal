@@ -1,6 +1,6 @@
 cabal-version:       2.0
 name:                co-log
-version:             0.0.0
+version:             0.1.0
 description:         Logging library
 synopsis:            Logging library
 homepage:            https://github.com/kowainik/co-log
@@ -39,7 +39,7 @@ library
                      , relude ^>= 0.3.0
                      , text ^>= 1.2.3
                      , time ^>= 1.9.2
-                     , transformers >= 0.5
+                     , transformers ^>= 0.5
                      , typerep-map ^>= 0.3.0
 
   ghc-options:         -Wall
