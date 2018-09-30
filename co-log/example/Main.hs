@@ -12,7 +12,7 @@ import Relude
 
 import Control.Concurrent (threadDelay)
 
-import Colog (pattern D, LogAction, Message (..), PureLogger, WithLog, cbind, cmap, defaultFieldMap,
+import Colog (pattern D, LogAction, Message (..), PureLogger, WithLog, cmapM, cmap, defaultFieldMap,
               fmtMessage, fmtRichMessageDefault, log, logException, logInfo, logMessagePure, logMsg,
               logMsgs, logStringStdout, logTextStderr, logTextStdout, logWarning, runPureLog,
               upgradeMessageAction, usingLoggerT, withLog, withLogTextFile, (*<), (>$), (>$<), (>*),
@@ -105,7 +105,7 @@ main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
     let textAction = logTextStdout <> logTextStderr <> logTextFile
 
     let simpleMessageAction = cmap  fmtMessage            textAction
-    let richMessageAction   = cbind fmtRichMessageDefault textAction
+    let richMessageAction   = cmapM fmtRichMessageDefault textAction
 
     let fullMessageAction = upgradeMessageAction defaultFieldMap richMessageAction
     let semiMessageAction = upgradeMessageAction
