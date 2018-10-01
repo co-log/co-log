@@ -1,5 +1,5 @@
 name:                co-log-core
-version:             0.0.0.1
+version:             0.1.0
 description:         Logging library
 synopsis:            Logging library
 homepage:            https://github.com/kowainik/co-log
