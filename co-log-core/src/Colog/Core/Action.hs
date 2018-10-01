@@ -15,7 +15,7 @@ module Colog.Core.Action
        , cmap
        , (>$<)
        , (>$)
-       , cbind
+       , cmapM
 
          -- * Divisible combinators
        , divide
@@ -184,7 +184,7 @@ infixl 4 >$
 (>$) :: b -> LogAction m b -> LogAction m a
 (>$) b (LogAction action) = LogAction (\_ -> action b)
 
-{- | 'cbind' combinator is similar to 'cmap' but allows to call monadic
+{- | 'cmapM' combinator is similar to 'cmap' but allows to call monadic
 functions (functions that require extra context) to extend consumed value.
 Consider the following example.
 
@@ -219,16 +219,16 @@ withTime msg = __do__
     pure (LR time msg)
 @
 
-you can achieve desired behavior with 'cbind' in the following way:
+you can achieve desired behavior with 'cmapM' in the following way:
 
 @
 logTextAction :: 'LogAction' IO Text
-logTextAction = 'cbind' withTime myAction
+logTextAction = 'cmapM' withTime myAction
 @
 -}
-cbind :: Monad m => (a -> m b) -> LogAction m b -> LogAction m a
-cbind f (LogAction action) = LogAction (f >=> action)
-{-# INLINE cbind #-}
+cmapM :: Monad m => (a -> m b) -> LogAction m b -> LogAction m a
+cmapM f (LogAction action) = LogAction (f >=> action)
+{-# INLINE cmapM #-}
 
 -- | @divide@ combinator from @Divisible@ type class.
 divide :: (Applicative m) => (a -> (b, c)) -> LogAction m b -> LogAction m c -> LogAction m a

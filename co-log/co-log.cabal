@@ -32,7 +32,7 @@ library
   build-depends:       base-noprelude >= 4.11 && < 5
                      , ansi-terminal ^>= 0.8
                      , bytestring ^>= 0.10.8
-                     , co-log-core ^>= 0.0
+                     , co-log-core ^>= 0.1.0
                      , containers >= 0.5.7 && < 0.7
                      , contravariant ^>= 1.5
                      , mtl ^>= 2.2.2
