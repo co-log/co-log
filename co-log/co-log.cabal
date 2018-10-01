@@ -23,6 +23,8 @@ library
   hs-source-dirs:      src
   exposed-modules:     Colog
                            Colog.Actions
+                           Colog.Concurrent
+                               Colog.Concurrent.Internal
                            Colog.Contra
                            Colog.Message
                            Colog.Monad
@@ -37,6 +39,7 @@ library
                      , contravariant ^>= 1.5
                      , mtl ^>= 2.2.2
                      , relude ^>= 0.3.0
+                     , stm >= 2.4 && < 2.6
                      , text ^>= 1.2.3
                      , time ^>= 1.9.2
                      , transformers ^>= 0.5
