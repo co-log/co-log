@@ -58,6 +58,7 @@ library
                       OverloadedStrings
                       RecordWildCards
                       TypeApplications
+  other-extensions:   CPP
 
 executable play-colog
   hs-source-dirs:      example

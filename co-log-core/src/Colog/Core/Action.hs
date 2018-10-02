@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE ViewPatterns #-}
 
 {- | Implements core data types and combinators for logging actions.
@@ -14,7 +15,7 @@ module Colog.Core.Action
        , cfilter
        , cmap
        , (>$<)
-       , (>$)
+       , (Colog.Core.Action.>$)
        , cmapM
 
          -- * Divisible combinators
@@ -42,6 +43,10 @@ import Data.List.NonEmpty (NonEmpty (..))
 import Data.Monoid (Monoid (..))
 import Data.Semigroup (Semigroup (..), stimesMonoid)
 import Data.Void (Void, absurd)
+
+#if MIN_VERSION_base(4,12,0)
+import Data.Functor.Contravariant (Contravariant (..))
+#endif
 
 ----------------------------------------------------------------------------
 -- Core data type with instances
@@ -312,3 +317,11 @@ infixr 1 <<=
 (<<=) :: Semigroup msg => (LogAction m msg -> m ()) -> LogAction m msg -> LogAction m msg
 (<<=) = extend
 {-# INLINE (<<=) #-}
+
+
+#if MIN_VERSION_base(4,12,0)
+instance Contravariant (LogAction m) where
+    contramap = cmap
+    (>$)      = (Colog.Core.Action.>$)
+
+#endif
