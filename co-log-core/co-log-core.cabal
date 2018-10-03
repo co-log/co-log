@@ -1,5 +1,5 @@
 name:                co-log-core
-version:             0.1.0
+version:             0.1.1
 description:         Logging library
 synopsis:            Logging library
 homepage:            https://github.com/kowainik/co-log
@@ -25,6 +25,7 @@ library
                            Colog.Core.Action
                            Colog.Core.Class
                            Colog.Core.Severity
+                           Colog.Core.IO
 
   build-depends:       base >= 4.11 && < 5
 

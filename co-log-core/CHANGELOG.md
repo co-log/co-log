@@ -4,6 +4,13 @@ Change log
 `co-log-core` uses [PVP Versioning][1].
 The change log is available [on GitHub][2].
 
+0.1.1
+=====
+
+* [#46](https://github.com/kowainik/co-log/issues/46):
+  Moves `logStringStdout`, `logStringStderr`, `logStringHandle`,
+  `withLogStringFile` from `Colog.Actions` to `Colog.Core.IO`
+
 0.1.0
 =====
 

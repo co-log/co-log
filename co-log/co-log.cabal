@@ -1,6 +1,6 @@
 cabal-version:       2.0
 name:                co-log
-version:             0.1.0
+version:             0.2.0
 description:         Logging library
 synopsis:            Logging library
 homepage:            https://github.com/kowainik/co-log
