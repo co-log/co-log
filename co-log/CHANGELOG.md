@@ -10,8 +10,7 @@ The change log is available [on GitHub][2].
 * [#37](https://github.com/kowainik/co-log/issues/37):
   Add bounds to all dependencies. Move `Prelude` to the
   `other-modules` section.
-* [#48](https://github.com/kowainik/co-log/issues/48)
-  Adds `liftLogIO` function.
+
 
 0.0.0
 =====

@@ -4,6 +4,12 @@ Change log
 `co-log-core` uses [PVP Versioning][1].
 The change log is available [on GitHub][2].
 
+0.1.1
+=====
+
+* [#48](https://github.com/kowainik/co-log/issues/48)
+  Adds `liftLogIO` function in a new `Colog.Core.IO` module
+
 0.1.0
 =====
 
