@@ -13,7 +13,9 @@ category:            Logging
 build-type:          Simple
 extra-doc-files:     CHANGELOG.md
 cabal-version:       2.0
-tested-with:         GHC == 8.4.3
+tested-with:         GHC == 8.2.2
+                   , GHC == 8.4.3
+                   , GHC == 8.6.1
 
 source-repository head
   type:                git
@@ -26,7 +28,7 @@ library
                            Colog.Core.Class
                            Colog.Core.Severity
 
-  build-depends:       base >= 4.11 && < 5
+  build-depends:       base >= 4.10 && < 4.13
 
   ghc-options:         -Wall
                        -Wincomplete-uni-patterns

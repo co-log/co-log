@@ -31,8 +31,10 @@ import Colog (Message, WithLog, cmap, fmtMessage, logDebug, logInfo, logTextStdo
               usingLoggerT)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 
+import Data.Semigroup ((<>))
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TextIO
+
 ```
 
 ## Simple IO function example

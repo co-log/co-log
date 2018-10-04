@@ -9,6 +9,7 @@
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeFamilies          #-}
 {-# LANGUAGE ViewPatterns          #-}
+{-# LANGUAGE CPP                   #-}
 
 {- | 'Message' with 'Severity', and logging functions for them.
 -}
@@ -165,7 +166,12 @@ newtype MessageField (m :: Type -> Type) (fieldName :: Symbol) where
 
 instance (KnownSymbol fieldName, a ~ m (FieldType fieldName))
       => IsLabel fieldName (a -> TM.WrapTypeable (MessageField m)) where
+#if MIN_VERSION_base_noprelude(4,11,0)
     fromLabel field = TM.WrapTypeable $ MessageField @fieldName field
+#else
+    fromLabel field = TM.WrapTypeable $ MessageField  @_ @fieldName field    
+#endif
+    {-# INLINE fromLabel #-}
 
 extractField
     :: Applicative m
