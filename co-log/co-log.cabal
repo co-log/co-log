@@ -33,7 +33,7 @@ library
                            Colog.Pure
   other-modules:       Prelude
 
-  build-depends:       base-noprelude >= 4.10 && < 5
+  build-depends:       base-noprelude >= 4.10 && < 4.13
                      , ansi-terminal ^>= 0.8
                      , bytestring ^>= 0.10.8
                      , co-log-core ^>= 0.1.0
