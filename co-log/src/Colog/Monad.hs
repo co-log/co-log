@@ -13,7 +13,6 @@ module Colog.Monad
        ) where
 
 import Control.Monad.Reader (MonadReader (..), ReaderT)
-import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Trans.Class (MonadTrans (..))
 
 import Colog.Core (HasLog (..), LogAction (..), overLogAction)
@@ -65,9 +64,6 @@ withLog = local . overLogAction
 
 liftLogAction :: (Monad m, MonadTrans t) => LogAction m msg -> LogAction (t m) msg
 liftLogAction (LogAction action) = LogAction (lift . action)
-
-liftLogIO :: MonadIO m => LogAction IO msg -> LogAction m msg
-liftLogIO (LogAction action) = LogAction (liftIO . action)
 
 {- | Runner for 'LoggerT' monad. Let's consider one simple example of monadic
 action you have:

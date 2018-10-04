@@ -3,6 +3,7 @@ module Colog.Core.IO
     , logStringStderr
     , logStringHandle
     , withLogStringFile
+    , liftLogIO
     ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
@@ -31,3 +32,7 @@ Opens file in 'AppendMode'.
 -}
 withLogStringFile :: MonadIO m => FilePath -> (LogAction m String -> IO r) -> IO r
 withLogStringFile path action = withFile path AppendMode $ action . logStringHandle
+
+{- | Lifts a LogAction over IO into a more general Monad. -}
+liftLogIO :: MonadIO m => LogAction IO msg -> LogAction m msg
+liftLogIO (LogAction action) = LogAction (liftIO . action)
