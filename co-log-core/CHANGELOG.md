@@ -10,6 +10,9 @@ The change log is available [on GitHub][2].
 * [#46](https://github.com/kowainik/co-log/issues/46):
   Moves `logStringStdout`, `logStringStderr`, `logStringHandle`,
   `withLogStringFile` from `Colog.Actions` to `Colog.Core.IO`
+* [#48](https://github.com/kowainik/co-log/issues/48)
+  Adds `liftLogIO` function.
+
 
 0.1.0
 =====
