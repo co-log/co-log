@@ -28,7 +28,6 @@ library
                            Colog.Core.Class
                            Colog.Core.IO
                            Colog.Core.Severity
-                           Colog.Core.IO
 
   build-depends:       base >= 4.10 && < 4.13
 
