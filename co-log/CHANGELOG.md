@@ -18,6 +18,7 @@ The change log is available [on GitHub][2].
   Add bounds to all dependencies. Move `Prelude` to the
   `other-modules` section.
 
+
 0.0.0
 =====
 * Initially created.

@@ -26,8 +26,8 @@ library
   exposed-modules:     Colog.Core
                            Colog.Core.Action
                            Colog.Core.Class
-                           Colog.Core.Severity
                            Colog.Core.IO
+                           Colog.Core.Severity
 
   build-depends:       base >= 4.10 && < 4.13
 
