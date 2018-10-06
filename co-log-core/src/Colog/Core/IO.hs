@@ -3,6 +3,7 @@ module Colog.Core.IO
     , logStringStderr
     , logStringHandle
     , withLogStringFile
+    , liftLogIO
     ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
