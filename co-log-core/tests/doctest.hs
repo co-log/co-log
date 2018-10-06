@@ -1,4 +1,8 @@
-module Main ( main ) where
-import qualified Test.DocTest as Doctest
+module Main
+       ( main
+       ) where
+
+import Test.DocTest (doctest)
+
 main :: IO ()
-main = Doctest.doctest [ "-XInstanceSigs", "src" ]
+main = Doctest.doctest ["-XInstanceSigs", "src"]
