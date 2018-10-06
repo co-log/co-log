@@ -5,4 +5,4 @@ module Main
 import Test.DocTest (doctest)
 
 main :: IO ()
-main = Doctest.doctest ["-XInstanceSigs", "src"]
+main = doctest ["-XInstanceSigs", "src"]
