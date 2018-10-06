@@ -10,11 +10,21 @@ import System.IO (Handle, IOMode( AppendMode ), hPutStrLn, stderr, withFile)
 import Colog.Core.Action (LogAction (..))
 
 
-{- | Action that prints 'String' to stdout. -}
+{- | Action that prints 'String' to stdout.
+
+>>> unLogAction logStringStdout "foo"
+foo
+
+-}
 logStringStdout :: MonadIO m => LogAction m String
 logStringStdout = LogAction (liftIO . putStrLn)
 
-{- | Action that prints 'String' to stderr. -}
+{- | Action that prints 'String' to stderr.
+
+>>> unLogAction logStringStderr "foo"
+foo
+
+-}
 logStringStderr :: MonadIO m => LogAction m String
 logStringStderr = logStringHandle stderr
 
