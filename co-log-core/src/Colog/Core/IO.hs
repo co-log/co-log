@@ -10,12 +10,10 @@ import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.IO (Handle, IOMode( AppendMode ), hPutStrLn, stderr, withFile)
 import Colog.Core.Action (LogAction (..))
 
-
 {- | Action that prints 'String' to stdout.
 
 >>> unLogAction logStringStdout "foo"
 foo
-
 -}
 logStringStdout :: MonadIO m => LogAction m String
 logStringStdout = LogAction (liftIO . putStrLn)
@@ -24,7 +22,6 @@ logStringStdout = LogAction (liftIO . putStrLn)
 
 >>> unLogAction logStringStderr "foo"
 foo
-
 -}
 logStringStderr :: MonadIO m => LogAction m String
 logStringStderr = logStringHandle stderr
