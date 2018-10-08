@@ -12,6 +12,8 @@ The change log is available [on GitHub][2].
   `withLogStringFile` from `Colog.Actions` to `Colog.Core.IO`
 * [#48](https://github.com/kowainik/co-log/issues/48)
   Adds `liftLogIO` function.
+* [#49](https://github.com/kowainik/co-log/issues/49)
+  Adds `<&` and `&>`operators for `unLogAction`.
 
 
 0.1.0
