@@ -7,8 +7,8 @@
 module Colog.Core.Action
        ( -- * Core type and instances
          LogAction (..)
-        , (<&)
-        , (&>)
+       , (<&)
+       , (&>)
 
          -- * 'Semigroup' combinators
        , foldActions
