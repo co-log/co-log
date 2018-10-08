@@ -125,11 +125,13 @@ doesn't make sense. Instead you want:
 infix 5 <&
 (<&) :: LogAction m msg -> msg -> m ()
 (<&) = unLogAction
+{-# INLINE (<&) #-}
 
 -- | A flipped version of '<&'
 infix 5 &>
 (&>) :: msg -> LogAction m msg -> m ()
 (&>) = flip unLogAction
+{-# INLINE (&>) #-}
 
 ----------------------------------------------------------------------------
 -- Combinators
