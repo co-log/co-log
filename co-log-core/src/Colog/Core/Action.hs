@@ -7,6 +7,8 @@
 module Colog.Core.Action
        ( -- * Core type and instances
          LogAction (..)
+        , (<&)
+        , (&>)
 
          -- * 'Semigroup' combinators
        , foldActions
@@ -111,6 +113,23 @@ instance Applicative m => Monoid (LogAction m a) where
     mconcat :: [LogAction m a] -> LogAction m a
     mconcat = foldActions
     {-# INLINE mconcat #-}
+
+
+{- | Operator version of 'unLogAction'
+
+Note that because of the types, something like:
+> action <& msg1 <& msg2
+doesn't make sense. Instead you want:
+> action <& msg1 >> action <& msg2
+-}
+infix 5 <&
+(<&) :: LogAction m msg -> msg -> m ()
+(<&) = unLogAction
+
+-- | A flipped version of <&
+infix 5 &>
+(&>) :: msg -> LogAction m msg -> m ()
+(&>) = flip unLogAction
 
 ----------------------------------------------------------------------------
 -- Combinators
