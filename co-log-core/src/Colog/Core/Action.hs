@@ -40,6 +40,7 @@ module Colog.Core.Action
        ) where
 
 import Control.Monad (when, (>=>))
+import Data.Coerce (coerce)
 import Data.Foldable (for_)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.Monoid (Monoid (..))
@@ -124,7 +125,7 @@ doesn't make sense. Instead you want:
 -}
 infix 5 <&
 (<&) :: LogAction m msg -> msg -> m ()
-(<&) = unLogAction
+(<&) = coerce
 {-# INLINE (<&) #-}
 
 -- | A flipped version of '<&'
