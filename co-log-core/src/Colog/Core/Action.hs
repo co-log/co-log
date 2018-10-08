@@ -122,13 +122,27 @@ Note that because of the types, something like:
 > action <& msg1 <& msg2
 doesn't make sense. Instead you want:
 > action <& msg1 >> action <& msg2
+
+In addition, because '<&' has higher precedence
+than the other operators in this module,
+the following:
+> f >$< action <& msg
+should be replaced by
+> (f >$< action) <& msg
+
 -}
 infix 5 <&
 (<&) :: LogAction m msg -> msg -> m ()
 (<&) = coerce
 {-# INLINE (<&) #-}
 
--- | A flipped version of '<&'
+{- | A flipped version of '<&'
+
+It shares the same precedence as '<&',
+so make sure to surround lower precedence
+operators in parentheses:
+> (f >$< action) <& msg
+-}
 infix 5 &>
 (&>) :: msg -> LogAction m msg -> m ()
 (&>) = flip unLogAction
