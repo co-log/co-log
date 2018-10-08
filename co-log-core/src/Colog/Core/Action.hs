@@ -129,7 +129,6 @@ the following:
 > f >$< action <& msg
 should be replaced by
 > (f >$< action) <& msg
-
 -}
 infix 5 <&
 (<&) :: LogAction m msg -> msg -> m ()
@@ -141,7 +140,7 @@ infix 5 <&
 It shares the same precedence as '<&',
 so make sure to surround lower precedence
 operators in parentheses:
-> (f >$< action) <& msg
+> msg &> (f >$< action)
 -}
 infix 5 &>
 (&>) :: msg -> LogAction m msg -> m ()
