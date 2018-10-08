@@ -126,7 +126,7 @@ infix 5 <&
 (<&) :: LogAction m msg -> msg -> m ()
 (<&) = unLogAction
 
--- | A flipped version of <&
+-- | A flipped version of '<&'
 infix 5 &>
 (&>) :: msg -> LogAction m msg -> m ()
 (&>) = flip unLogAction
