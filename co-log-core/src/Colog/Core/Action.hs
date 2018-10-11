@@ -210,7 +210,12 @@ cmap :: (a -> b) -> LogAction m b -> LogAction m a
 cmap f (LogAction action) = LogAction (action . f)
 {-# INLINE cmap #-}
 
--- | Operator version of 'cmap'.
+{- | Operator version of 'cmap'.
+
+>>> logString = LogAction putStrLn
+>>> 1 &> (show >$< logString)
+1
+-}
 infixr 3 >$<
 (>$<) :: (a -> b) -> LogAction m b -> LogAction m a
 (>$<) = cmap
@@ -219,6 +224,12 @@ infixr 3 >$<
 {- | This combinator is @>$@ from contravariant functor. Replaces all locations
 in the output with the same value. The default definition is
 @contramap . const@, so this is a more efficient version.
+
+>>> logString = LogAction putStrLn
+>>> "Hello?" &> ("OUT OF SERVICE" >$ logString)
+OUT OF SERVICE
+>>> ("OUT OF SERVICE" >$ logString) <& 42
+OUT OF SERVICE
 -}
 infixl 4 >$
 (>$) :: b -> LogAction m b -> LogAction m a
@@ -270,17 +281,40 @@ cmapM :: Monad m => (a -> m b) -> LogAction m b -> LogAction m a
 cmapM f (LogAction action) = LogAction (f >=> action)
 {-# INLINE cmapM #-}
 
--- | @divide@ combinator from @Divisible@ type class.
+{- | @divide@ combinator from @Divisible@ type class.
+
+>>> logString = LogAction putStrLn
+>>> logInt = LogAction print
+>>> "ABC" &> divide (\s -> (s, length s)) logString logInt
+ABC
+3
+-}
 divide :: (Applicative m) => (a -> (b, c)) -> LogAction m b -> LogAction m c -> LogAction m a
 divide f (LogAction actionB) (LogAction actionC) = LogAction $ \(f -> (b, c)) ->
     actionB b *> actionC c
 
--- | @conquer@ combinator from @Divisible@ type class.
+{- | @conquer@ combinator from @Divisible@ type class.
+
+Concretely, this is a logAction that does nothing:
+
+>>> conquer <& "hello?"
+>>> "hello?" &> conquer 
+-}
 conquer :: Applicative m => LogAction m a
 conquer = LogAction $ const (pure ())
 
 
--- | Operator version of @'divide' 'id'@.
+{- | Operator version of @'divide' 'id'@.
+
+>>> logString = LogAction putStrLn
+>>> logInt = LogAction print
+>>> (logString >*< logInt) <& ("foo", 1)
+foo
+1
+>>> (logInt >*< logString) <& (1, "foo")
+1
+foo
+-}
 infixr 4 >*<
 (>*<) :: (Applicative m) => LogAction m a -> LogAction m b -> LogAction m (a, b)
 (LogAction actionA) >*< (LogAction actionB) = LogAction $ \(a, b) ->
@@ -288,12 +322,21 @@ infixr 4 >*<
 {-# INLINE (>*<) #-}
 
 infixr 4 >*
+{-| Perform a constant log action after another.
+
+>>> logString = LogAction putStrLn
+>>> logHello = LogAction (const (putStrLn "Hello!"))
+>>> "Greetings!" &> (logString >* logHello)
+Greetings!
+Hello!
+-}
 (>*) :: Applicative m => LogAction m a -> LogAction m () -> LogAction m a
 (LogAction actionA) >* (LogAction actionB) = LogAction $ \a ->
     actionA a *> actionB ()
 {-# INLINE (>*) #-}
 
 infixr 4 *<
+-- | A flipped version of '>*'
 (*<) :: Applicative m => LogAction m () -> LogAction m a -> LogAction m a
 (LogAction actionA) *< (LogAction actionB) = LogAction $ \a ->
     actionA () *> actionB a
@@ -303,11 +346,28 @@ infixr 4 *<
 lose :: (a -> Void) -> LogAction m a
 lose f = LogAction (absurd . f)
 
--- | @choose@ combinator from @Decidable@ type class.
+{- | @choose@ combinator from @Decidable@ type class.
+
+>>> logInt    = LogAction print
+>>> logString = LogAction print
+>>> f = choose (\a -> if a < 0 then Left "Negative" else Right a)
+>>> f logString logInt <& 1
+1
+>>> f logString logInt <& (-1)
+"Negative"
+-}
 choose :: (a -> Either b c) -> LogAction m b -> LogAction m c -> LogAction m a
 choose f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC . f)
 
--- | Operator version of @'choose' 'id'@.
+{- | Operator version of @'choose' 'id'@.
+
+>>> dontPrintInt = LogAction (const (putStrLn "Not printing Int"))
+>>> butPrintStrings = LogAction putStrLn
+>>> Left 1 &> (dontPrintInt >|< butPrintStrings)
+Not printing Int
+>>> (dontPrintInt >|< butPrintStrings) <& Right ":)"
+:)
+-}
 infixr 3 >|<
 (>|<) :: LogAction m a -> LogAction m b -> LogAction m (Either a b)
 (LogAction actionA) >|< (LogAction actionB) = LogAction (either actionA actionB)
@@ -315,6 +375,10 @@ infixr 3 >|<
 
 {- | If @msg@ is 'Monoid' then 'extract' performs given log action by passing
 'mempty' to it.
+
+>>> logPrint :: LogAction IO [Int]; logPrint = LogAction print
+>>> extract logPrint
+[]
 -}
 extract :: Monoid msg => LogAction m msg -> m ()
 extract action = unLogAction action mempty
