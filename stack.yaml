@@ -8,7 +8,6 @@ extra-deps:
   - base-noprelude-4.11.1.0
   - contravariant-1.5
   - relude-0.3.0
-  - time-1.9.2
 
   - typerep-map-0.3.0
   - primitive-0.6.4.0  # needed for typerep-map
