@@ -336,7 +336,6 @@ foo.g.f2
 >>> unLogAction (logToStdout =>> f =>> g) "foo"
 foo.g.f1
 foo.g.f2
-
 -}
 extend :: Semigroup msg => (LogAction m msg -> m ()) -> LogAction m msg -> LogAction m msg
 extend f (LogAction action) = LogAction $ \m -> f $ LogAction $ \m' -> action (m <> m')
