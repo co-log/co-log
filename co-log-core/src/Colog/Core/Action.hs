@@ -301,7 +301,7 @@ Concretely, this is a logAction that does nothing:
 >>> "hello?" &> conquer 
 -}
 conquer :: Applicative m => LogAction m a
-conquer = LogAction $ const (pure ())
+conquer = mempty
 
 
 {- | Operator version of @'divide' 'id'@.
