@@ -295,7 +295,7 @@ divide f (LogAction actionB) (LogAction actionC) = LogAction $ \(f -> (b, c)) ->
 
 {- | @conquer@ combinator from @Divisible@ type class.
 
-Concretely, this is a logAction that does nothing:
+Concretely, this is a 'LogAction' that does nothing:
 
 >>> conquer <& "hello?"
 >>> "hello?" &> conquer 
