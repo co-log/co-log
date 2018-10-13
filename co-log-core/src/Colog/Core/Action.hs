@@ -51,6 +51,10 @@ import Data.Void (Void, absurd)
 import Data.Functor.Contravariant (Contravariant (..))
 #endif
 
+{- $setup
+>>> import Colog.Core.IO
+-}
+
 ----------------------------------------------------------------------------
 -- Core data type with instances
 ----------------------------------------------------------------------------
@@ -212,8 +216,7 @@ cmap f (LogAction action) = LogAction (action . f)
 
 {- | Operator version of 'cmap'.
 
->>> logString = LogAction putStrLn
->>> 1 &> (show >$< logString)
+>>> 1 &> (show >$< logStringStdout)
 1
 -}
 infixr 3 >$<
@@ -225,10 +228,9 @@ infixr 3 >$<
 in the output with the same value. The default definition is
 @contramap . const@, so this is a more efficient version.
 
->>> logString = LogAction putStrLn
->>> "Hello?" &> ("OUT OF SERVICE" >$ logString)
+>>> "Hello?" &> ("OUT OF SERVICE" >$ logStringStdout)
 OUT OF SERVICE
->>> ("OUT OF SERVICE" >$ logString) <& 42
+>>> ("OUT OF SERVICE" >$ logStringStdout) <& 42
 OUT OF SERVICE
 -}
 infixl 4 >$
@@ -283,9 +285,8 @@ cmapM f (LogAction action) = LogAction (f >=> action)
 
 {- | @divide@ combinator from @Divisible@ type class.
 
->>> logString = LogAction putStrLn
 >>> logInt = LogAction print
->>> "ABC" &> divide (\s -> (s, length s)) logString logInt
+>>> "ABC" &> divide (\s -> (s, length s)) logStringStdout logInt
 ABC
 3
 -}
@@ -306,12 +307,11 @@ conquer = mempty
 
 {- | Operator version of @'divide' 'id'@.
 
->>> logString = LogAction putStrLn
 >>> logInt = LogAction print
->>> (logString >*< logInt) <& ("foo", 1)
+>>> (logStringStdout >*< logInt) <& ("foo", 1)
 foo
 1
->>> (logInt >*< logString) <& (1, "foo")
+>>> (logInt >*< logStringStdout) <& (1, "foo")
 1
 foo
 -}
@@ -324,9 +324,8 @@ infixr 4 >*<
 infixr 4 >*
 {-| Perform a constant log action after another.
 
->>> logString = LogAction putStrLn
 >>> logHello = LogAction (const (putStrLn "Hello!"))
->>> "Greetings!" &> (logString >* logHello)
+>>> "Greetings!" &> (logStringStdout >* logHello)
 Greetings!
 Hello!
 -}
@@ -348,13 +347,12 @@ lose f = LogAction (absurd . f)
 
 {- | @choose@ combinator from @Decidable@ type class.
 
->>> logInt    = LogAction print
->>> logString = LogAction print
+>>> logInt = LogAction print
 >>> f = choose (\a -> if a < 0 then Left "Negative" else Right a)
->>> f logString logInt <& 1
+>>> f logStringStdout logInt <& 1
 1
->>> f logString logInt <& (-1)
-"Negative"
+>>> f logStringStdout logInt <& (-1)
+Negative
 -}
 choose :: (a -> Either b c) -> LogAction m b -> LogAction m c -> LogAction m a
 choose f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC . f)
@@ -362,10 +360,9 @@ choose f (LogAction actionB) (LogAction actionC) = LogAction (either actionB act
 {- | Operator version of @'choose' 'id'@.
 
 >>> dontPrintInt = LogAction (const (putStrLn "Not printing Int"))
->>> butPrintStrings = LogAction putStrLn
->>> Left 1 &> (dontPrintInt >|< butPrintStrings)
+>>> Left 1 &> (dontPrintInt >|< logStringStdout)
 Not printing Int
->>> (dontPrintInt >|< butPrintStrings) <& Right ":)"
+>>> (dontPrintInt >|< logStringStdout) <& Right ":)"
 :)
 -}
 infixr 3 >|<
@@ -386,18 +383,17 @@ extract action = unLogAction action mempty
 -- TODO: write better motivation for comonads
 {- | This is a /comonadic extend/. It allows you to chain different transformations on messages.
 
->>> logToStdout = LogAction putStrLn
 >>> f (LogAction l) = l ".f1" *> l ".f2"
 >>> g (LogAction l) = l ".g"
->>> unLogAction logToStdout "foo"
+>>> unLogAction logStringStdout "foo"
 foo
->>> unLogAction (extend f logToStdout) "foo"
+>>> unLogAction (extend f logStringStdout) "foo"
 foo.f1
 foo.f2
->>> unLogAction (extend g $ extend f logToStdout) "foo"
+>>> unLogAction (extend g $ extend f logStringStdout) "foo"
 foo.g.f1
 foo.g.f2
->>> unLogAction (logToStdout =>> f =>> g) "foo"
+>>> unLogAction (logStringStdout =>> f =>> g) "foo"
 foo.g.f1
 foo.g.f2
 -}
