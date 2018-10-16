@@ -3,6 +3,7 @@ resolver: lts-12.9
 packages:
   - co-log
   - co-log-core
+  - co-log-benchmark
 
 extra-deps:
   - base-noprelude-4.11.1.0
