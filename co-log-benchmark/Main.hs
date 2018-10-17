@@ -21,7 +21,7 @@ import Text.Printf
 -- | List of benchmarks.
 benchs :: [(String, IO ())]
 benchs =
-  [("baseline", run (LogAction (\_ -> pure ())) ["message"::String])
+  [("baseline", run mempty ["message"::String])
   ,("stdout<string",
      let la = logStringStdout 
      in run la ["message"])
