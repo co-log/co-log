@@ -78,7 +78,6 @@ script:
     else
       stack build co-log-core --test --bench --no-run-benchmarks --no-terminal
       stack build co-log      --test --bench --no-run-benchmarks --no-terminal
-      stack build co-log-benchmark --test --bench --no-run-benchmarks --no-terminal
     fi
 
 
