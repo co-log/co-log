@@ -9,6 +9,7 @@ import Colog
 import Control.Monad
 import Control.Exception
 import Data.Foldable
+import Data.Semigroup ((<>))
 import System.Environment
 import System.IO
 import System.Process.Typed
@@ -16,6 +17,7 @@ import System.Posix.Process
 import qualified Data.Text.Encoding
 import GHC.Stack
 import Text.Printf
+import Prelude
 
 
 -- | List of benchmarks.
