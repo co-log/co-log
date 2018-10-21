@@ -24,6 +24,9 @@ import Prelude
 benchs :: [(String, IO ())]
 benchs =
   [("baseline", run mempty ["message"::String])
+  ,("stdout<print",
+     let la = logPrint
+     in run la [5])
   ,("stdout<string",
      let la = logStringStdout 
      in run la ["message"])
