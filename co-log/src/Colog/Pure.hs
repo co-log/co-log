@@ -27,7 +27,7 @@ runPureLogT :: Functor m => PureLoggerT msg m a -> m (a, [msg])
 runPureLogT = fmap (second toList) . usingStateT mempty . runPureLoggerT
 
 -- | 'PureLoggerT' specialized to 'Identity'
-type PureLogger msg a = PureLoggerT msg Identity a
+type PureLogger msg = PureLoggerT msg Identity
 
 -- | Returns result value of 'PureLogger' and list of logged messages.
 runPureLog :: PureLogger msg a -> (a, [msg])
