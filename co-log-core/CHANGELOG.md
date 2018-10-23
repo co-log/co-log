@@ -7,6 +7,8 @@ The change log is available [on GitHub][2].
 0.1.1
 =====
 
+* [#63](https://github.com/kowainik/co-log/issues/63)
+  Add `logPrint` and `logPrintStderr` to Colog.Core.IO
 * [#46](https://github.com/kowainik/co-log/issues/46):
   Moves `logStringStdout`, `logStringStderr`, `logStringHandle`,
   `withLogStringFile` from `Colog.Actions` to `Colog.Core.IO`
