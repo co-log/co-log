@@ -1,5 +1,7 @@
 module Colog.Core.IO 
-    ( logStringStdout
+    ( logPrint
+    , logPrintStderr
+    , logStringStdout
     , logStringStderr
     , logStringHandle
     , withLogStringFile
@@ -7,8 +9,24 @@ module Colog.Core.IO
     ) where
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import System.IO (Handle, IOMode( AppendMode ), hPutStrLn, stderr, withFile)
+import System.IO (Handle, IOMode( AppendMode ), hPrint, hPutStrLn, stderr, withFile)
 import Colog.Core.Action (LogAction (..))
+
+{- | Action that prints to stdout using 'Show'.
+
+>>> unLogAction logPrint 5
+5
+-}
+logPrint :: (Show s, MonadIO m) => LogAction m s
+logPrint = LogAction (liftIO . print)
+
+{- | Action that prints to stderr using 'Show'.
+
+>>> unLogAction logPrintStderr 5
+5
+-}
+logPrintStderr :: (Show s, MonadIO m) => LogAction m s
+logPrintStderr = LogAction (liftIO . hPrint stderr)
 
 {- | Action that prints 'String' to stdout.
 

@@ -14,9 +14,9 @@ import Control.Concurrent (threadDelay)
 
 import Colog (pattern D, LogAction, Message (..), PureLogger, WithLog, cmapM, cmap, defaultFieldMap,
               fmtMessage, fmtRichMessageDefault, log, logException, logInfo, logMessagePure, logMsg,
-              logMsgs, logStringStdout, logTextStderr, logTextStdout, logWarning, runPureLog,
-              upgradeMessageAction, usingLoggerT, withLog, withLogTextFile, (*<), (>$), (>$<), (>*),
-              (>*<), (>|<))
+              logMsgs, logPrint, logStringStdout, logTextStderr, logTextStdout, logWarning,
+              runPureLog, upgradeMessageAction, usingLoggerT, withLog, withLogTextFile, (*<), (>$),
+              (>$<), (>*), (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
 
@@ -72,16 +72,12 @@ carToTuple (Car make model engine) = (make, (model, engine))
 stringL :: LogAction IO String
 stringL = logStringStdout
 
--- Combinator that allows to log any showable value
-showL :: Show a => LogAction IO a
-showL = cmap show stringL
-
 -- Returns log action that logs given string ignoring its input.
 constL :: String -> LogAction IO a
 constL s = s >$ stringL
 
 intL :: LogAction IO Int
-intL = showL
+intL = logPrint
 
 -- log actions that logs single car module
 carL :: LogAction IO Car
