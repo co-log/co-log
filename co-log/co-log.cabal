@@ -97,3 +97,15 @@ executable readme
   build-tool-depends:  markdown-unlit:markdown-unlit
   ghc-options:         -Wall -pgmL markdown-unlit
   default-language:    Haskell2010
+
+test-suite property
+  build-depends:        base >= 4.9 && < 5
+                      , hedgehog
+                      , co-log
+                      , co-log-core
+  default-language:     Haskell2010
+  default-extensions:   TemplateHaskell
+                      , FlexibleContexts
+  hs-source-dirs:       test
+  main-is:              Property.hs
+  type:                 exitcode-stdio-1.0
