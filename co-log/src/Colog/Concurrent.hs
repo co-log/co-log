@@ -156,7 +156,7 @@ import Colog.Concurrent.Internal
 withBackgroundLogger :: MonadIO m => Capacity -> LogAction IO msg -> (LogAction m msg -> IO a) -> IO a
 withBackgroundLogger cap logger action =
    bracket (forkBackgroundLogger cap logger)
-           (killBackgroundLogger)
+           killBackgroundLogger
            (action . convertToLogAction)
 
 -- | Default capacity size, (4096)
@@ -220,7 +220,7 @@ forkBackgroundLogger (Capacity cap) logAction = do
     (\_ ->
        (do msgs <- atomically $ many $ readTBQueue queue
            for_ msgs $ unLogAction logAction)
-         `finally` (atomically $ writeTVar isAlive False))
+         `finally` atomically (writeTVar isAlive False))
   pure $ BackgroundWorker tid (writeTBQueue queue) isAlive
 
 
@@ -275,8 +275,8 @@ mkBackgroundThread (Capacity cap) = do
   tid <- forkFinally 
     (forever $ join $ atomically $ readTBQueue queue)
     (\_ ->
-       (sequence_ =<< (atomically $ many $ readTBQueue queue))
-       `finally` (atomically $ writeTVar isAlive False))
+       (sequence_ =<< atomically (many $ readTBQueue queue))
+       `finally` atomically (writeTVar isAlive False))
   pure $ BackgroundWorker tid (writeTBQueue queue) isAlive
 
 -- | Run logger action asynchronously in the worker thread.
@@ -284,7 +284,7 @@ mkBackgroundThread (Capacity cap) = do
 -- logger takes any thread related context it will be
 -- read from the other thread.
 runInBackgroundThread :: BackgroundWorker (IO ()) -> LogAction IO msg -> LogAction IO msg
-runInBackgroundThread bt logAction = LogAction $ \msg -> do
+runInBackgroundThread bt logAction = LogAction $ \msg ->
   atomically $ backgroundWorkerWrite bt $ unLogAction logAction msg
 
 -- $worker-thread-usage

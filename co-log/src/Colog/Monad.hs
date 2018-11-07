@@ -12,7 +12,6 @@ module Colog.Monad
        , usingLoggerT
        ) where
 
-import Control.Monad.Reader (MonadReader (..), ReaderT)
 import Control.Monad.Trans.Class (MonadTrans (..))
 
 import Colog.Core (HasLog (..), LogAction (..), overLogAction)
@@ -92,4 +91,4 @@ app:Application finished.
 @
 -}
 usingLoggerT :: Monad m => LogAction m msg -> LoggerT msg m a -> m a
-usingLoggerT action =  flip runReaderT (liftLogAction action) . runLoggerT
+usingLoggerT action =  usingReaderT (liftLogAction action) . runLoggerT
