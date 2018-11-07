@@ -10,7 +10,7 @@ module Colog.Rotation
        ) where
 
 import Data.Maybe (mapMaybe)
-import Data.Semigroup (Max (..))
+import Relude.Extra.Foldable1 (maximum1)
 import System.FilePath.Posix ((<.>))
 import System.IO (hFileSize)
 
@@ -57,13 +57,12 @@ withLogRotation sizeLimit filesLimit path cleanup mkAction cont = do
     cont $ rotationAction handleRef
   where
     rotationAction :: IORef Handle -> LogAction m msg
-    rotationAction refHandle
-      = LogAction $ \msg -> do
+    rotationAction refHandle = LogAction $ \msg -> do
         handle <- liftIO $ readIORef refHandle
         mkAction handle <& msg
 
         whenM
-          (liftIO $ isFileSizeLimitReached sizeLimit handle)
+          (isFileSizeLimitReached sizeLimit handle)
           (cleanupAndRotate refHandle)
 
     cleanupAndRotate :: IORef Handle -> m ()
@@ -80,39 +79,40 @@ isLimitedBy :: Integer -> Limit -> Bool
 isLimitedBy _ Unlimited = False
 isLimitedBy size (LimitTo limit)
   | size <= 0 = False
-  | otherwise = limit > (fromInteger size :: Natural)
+  | otherwise = (toInteger limit :: Integer) > size
 
-isFileSizeLimitReached :: Limit -> Handle -> IO Bool
-isFileSizeLimitReached limit handle = do
+isFileSizeLimitReached :: forall m . MonadIO m => Limit -> Handle -> m Bool
+isFileSizeLimitReached limit handle = liftIO $ do
   fileSize <- hFileSize handle
   pure $ isLimitedBy fileSize limit
 
 -- if you have files node.log.0, node.log.1 and node.log.2 then this function
 -- will return `2` if you give it `node.log`
-maxFileIndex :: FilePath -> IO Int
+maxFileIndex :: FilePath -> IO Natural
 maxFileIndex path = do
   files <- D.listDirectory (POS.takeDirectory path)
   let logFiles = filter (== POS.takeBaseName path) files
-  let maxFile = getMax . foldMap Max <$> nonEmpty (mapMaybe logFileIndex logFiles)
+  let maxFile = maximum1 <$> nonEmpty (mapMaybe logFileIndex logFiles)
   pure $ fromMaybe 0 maxFile
 
 -- given number 4 and path `node.log` renames file `node.log` to `node.log.4`
-renameFileToNumber :: Int -> FilePath -> IO ()
+renameFileToNumber :: Natural -> FilePath -> IO ()
 renameFileToNumber n path = D.renameFile path (path <.> show n)
 
 -- if you give it name like `node.log.4` then it returns `Just 4`
-logFileIndex :: FilePath -> Maybe Int
-logFileIndex path = nonEmpty (POS.takeExtension path) >>= readMaybe . tail
+logFileIndex :: FilePath -> Maybe Natural
+logFileIndex path =
+    nonEmpty (POS.takeExtension path) >>= readMaybe . tail
 
 -- creates list of files with indices who are older on given Limit than the latest one
 getOldFiles :: Limit -> FilePath -> IO [FilePath]
 getOldFiles limit path = do
     currentMaxN <- maxFileIndex path
     files <- D.listDirectory (POS.takeDirectory path)
-    let tuple = map (\a -> (a, toInteger <$> logFileIndex a)) files
+    let tuple = map (\a -> (a, logFileIndex a)) files
     pure $ map fst $ filter (maybe False (isOldFile currentMaxN) . snd) tuple
   where
-    isOldFile :: Int -> Integer -> Bool
+    isOldFile :: Natural -> Natural -> Bool
     isOldFile maxN n = case limit of
                          Unlimited -> False
-                         LimitTo l -> n < toInteger maxN - toInteger l
+                         LimitTo l -> n < maxN - l
