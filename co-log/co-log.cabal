@@ -40,7 +40,7 @@ library
                      , containers >= 0.5.7 && < 0.7
                      , contravariant ^>= 1.5
                      , mtl ^>= 2.2.2
-                     , relude ^>= 0.3.0
+                     , relude ^>= 0.4.0
                      , stm >= 2.4 && < 2.6
                      , text ^>= 1.2.3
                      , time >= 1.8 && < 1.10
