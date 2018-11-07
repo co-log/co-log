@@ -14,6 +14,7 @@ module Colog.Actions
        ) where
 
 import Colog.Core.Action (LogAction (..))
+
 import qualified Data.ByteString.Char8 as BS
 import qualified Data.Text.IO as TIO
 

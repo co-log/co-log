@@ -1,14 +1,20 @@
+-- |
+-- This functionality is not to be considered stable
+-- or ready for production use. While we enourage you
+-- to try it out and report bugs, we cannot assure you
+-- that everything will work as advertised :)
+
 module Colog.Rotation
-       (
-         Limit(..)
+       ( Limit(..)
        , withLogRotation
        ) where
 
 import Data.Maybe (mapMaybe)
 import Data.Semigroup (Max (..))
+import System.FilePath.Posix ((<.>))
 import System.IO (hFileSize)
 
-import Colog.Core.Action (LogAction (..))
+import Colog.Core.Action (LogAction (..), (<&))
 
 import qualified System.Directory as D
 import qualified System.FilePath.Posix as POS
@@ -54,26 +60,27 @@ withLogRotation sizeLimit filesLimit path cleanup mkAction cont = do
     rotationAction refHandle
       = LogAction $ \msg -> do
         handle <- liftIO $ readIORef refHandle
-        unLogAction (mkAction handle) msg
+        mkAction handle <& msg
 
         whenM
           (liftIO $ isFileSizeLimitReached sizeLimit handle)
           (cleanupAndRotate refHandle)
+
     cleanupAndRotate :: IORef Handle -> m ()
     cleanupAndRotate refHandle = liftIO $ do
-      h <- readIORef refHandle
-      hClose h
+      readIORef refHandle >>= hClose
       maxN <- maxFileIndex path
-      renameFileToNumber (succ maxN) path
+      renameFileToNumber (maxN + 1) path
       oldFiles <- getOldFiles filesLimit path
       mapM_ cleanup oldFiles
       newHandle <- openFile path AppendMode
-      modifyIORef' refHandle (const newHandle)
+      writeIORef refHandle newHandle
 
 isLimitedBy :: Integer -> Limit -> Bool
 isLimitedBy _ Unlimited = False
-isLimitedBy size (LimitTo limit) | size <= 0 = False
-                                 | otherwise = limit > (fromInteger size :: Natural)
+isLimitedBy size (LimitTo limit)
+  | size <= 0 = False
+  | otherwise = limit > (fromInteger size :: Natural)
 
 isFileSizeLimitReached :: Limit -> Handle -> IO Bool
 isFileSizeLimitReached limit handle = do
@@ -91,7 +98,7 @@ maxFileIndex path = do
 
 -- given number 4 and path `node.log` renames file `node.log` to `node.log.4`
 renameFileToNumber :: Int -> FilePath -> IO ()
-renameFileToNumber n path = D.renameFile path (path POS.<.> show n)
+renameFileToNumber n path = D.renameFile path (path <.> show n)
 
 -- if you give it name like `node.log.4` then it returns `Just 4`
 logFileIndex :: FilePath -> Maybe Int
@@ -109,4 +116,3 @@ getOldFiles limit path = do
     isOldFile maxN n = case limit of
                          Unlimited -> False
                          LimitTo l -> n < toInteger maxN - toInteger l
-
