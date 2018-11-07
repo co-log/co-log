@@ -79,7 +79,8 @@ script:
       stack build co-log-core --test --bench --no-run-benchmarks --no-terminal
       stack build co-log      --test --bench --no-run-benchmarks --no-terminal
     fi
-
+  - curl https://raw.githubusercontent.com/kowainik/relude/988bbdd3a09df1159917012933780523644880e5/.hlint.yaml -o .hlint-relude.yaml
+  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint -h .hlint-relude.yaml src/ test/    
 
 notifications:
   email: false
