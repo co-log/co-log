@@ -1,6 +1,4 @@
-{-# LANGUAGE ConstraintKinds     #-}
 {-# LANGUAGE InstanceSigs        #-}
-{-# LANGUAGE ScopedTypeVariables #-}
 
 module Colog.Monad
        ( LoggerT (..)
