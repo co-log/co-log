@@ -1,5 +1,5 @@
 {-# LANGUAGE CPP          #-}
-{-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE InstanceSigs #-}
 
 {- | Implements core data types and combinators for logging actions.
 -}
