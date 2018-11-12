@@ -42,6 +42,7 @@ import Data.Time.Clock (UTCTime, getCurrentTime)
 import Data.Time.Format (defaultTimeLocale, formatTime)
 import Data.TypeRepMap (TypeRepMap)
 import GHC.OverloadedLabels (IsLabel (..))
+import GHC.Stack (SrcLoc, srcLocModule, srcLocStartLine)
 import GHC.TypeLits (KnownSymbol, Symbol)
 import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..),
                             setSGRCode)
@@ -120,8 +121,8 @@ showSourceLoc cs = square showCallStack
         (_, loc) : (callerName, _) : _ -> showLoc callerName loc
 
     showLoc :: String -> SrcLoc -> Text
-    showLoc name SrcLoc{..} =
-        toText srcLocModule <> "." <> toText name <> "#" <> show srcLocStartLine
+    showLoc name s =
+        toText (srcLocModule s) <> "." <> toText name <> "#" <> show (srcLocStartLine s)
 
 ----------------------------------------------------------------------------
 -- Externally extensible message
