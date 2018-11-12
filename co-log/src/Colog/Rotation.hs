@@ -75,11 +75,12 @@ withLogRotation sizeLimit filesLimit path cleanup mkAction cont = do
       newHandle <- openFile path AppendMode
       writeIORef refHandle newHandle
 
+-- Checks whether an input is strictly larger than the limit
 isLimitedBy :: Integer -> Limit -> Bool
 isLimitedBy _ Unlimited = False
 isLimitedBy size (LimitTo limit)
   | size <= 0 = False
-  | otherwise = (toInteger limit :: Integer) > size
+  | otherwise = toInteger limit > size
 
 isFileSizeLimitReached :: forall m . MonadIO m => Limit -> Handle -> m Bool
 isFileSizeLimitReached limit handle = liftIO $ do
@@ -109,9 +110,16 @@ getOldFiles :: Limit -> FilePath -> IO [FilePath]
 getOldFiles limit path = do
     currentMaxN <- maxFileIndex path
     files <- D.listDirectory (POS.takeDirectory path)
-    let tuple = map (\a -> (a, logFileIndex a)) files
-    pure $ map fst $ filter (maybe False (isOldFile currentMaxN) . snd) tuple
+    pure $ mapMaybe (takeFileIndex >=> guardFileIndex currentMaxN) files
   where
+    takeFileIndex  :: FilePath -> Maybe (FilePath, Natural)
+    takeFileIndex p = (p,) <$> logFileIndex path
+
+    guardFileIndex :: Natural -> (FilePath, Natural) -> Maybe FilePath
+    guardFileIndex maxN (p, n)
+      | isOldFile maxN n = Nothing
+      | otherwise       = Just p
+
     isOldFile :: Natural -> Natural -> Bool
     isOldFile maxN n = case limit of
                          Unlimited -> False

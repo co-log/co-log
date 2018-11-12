@@ -1,4 +1,3 @@
-{-# LANGUAGE ConstraintKinds     #-}
 {-# LANGUAGE InstanceSigs        #-}
 
 module Colog.Monad
