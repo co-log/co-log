@@ -28,6 +28,7 @@ module Colog.Message
          -- * Externally extensible message type
        , FieldType
        , MessageField (..)
+       , unMessageField
        , FieldMap
        , defaultFieldMap
 
@@ -160,9 +161,12 @@ newtype MessageField m fieldName = MessageField
 -}
 newtype MessageField (m :: Type -> Type) (fieldName :: Symbol) where
     MessageField
-        :: forall fieldName m .
-           { unMesssageField :: m (FieldType fieldName) }
+        :: forall fieldName m . m (FieldType fieldName)
         -> MessageField m fieldName
+
+unMessageField :: forall fieldName m . MessageField m fieldName 
+               -> m (FieldType fieldName)
+unMessageField (MessageField f) = f
 
 instance (KnownSymbol fieldName, a ~ m (FieldType fieldName))
       => IsLabel fieldName (a -> TM.WrapTypeable (MessageField m)) where
@@ -177,7 +181,7 @@ extractField
     :: Applicative m
     => Maybe (MessageField m fieldName)
     -> m (Maybe (FieldType fieldName))
-extractField = traverse unMesssageField
+extractField = traverse unMessageField
 
 -- same as:
 -- extractField = \case
