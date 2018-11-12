@@ -1,4 +1,4 @@
-resolver: lts-12.9
+resolver: lts-12.18
 
 packages:
   - co-log

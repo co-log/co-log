@@ -1,5 +1,4 @@
-{-# LANGUAGE CPP          #-}
-{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE CPP #-}
 
 {- | Implements core data types and combinators for logging actions.
 -}
@@ -119,32 +118,53 @@ instance Applicative m => Monoid (LogAction m a) where
     mconcat = foldActions
     {-# INLINE mconcat #-}
 
+#if MIN_VERSION_base(4,12,0)
+instance Contravariant.Contravariant (LogAction m) where
+    contramap = cmap
+    {-# INLINE contramap #-}
 
-{- | Operator version of 'unLogAction'
+    (>$) = (Colog.Core.Action.>$)
+    {-# INLINE (>$) #-}
+#endif
 
-Note that because of the types, something like:
-> action <& msg1 <& msg2
+{- | Operator version of 'unLogAction'. Note that because of the types, something like:
+
+@
+action <& msg1 <& msg2
+@
+
 doesn't make sense. Instead you want:
-> action <& msg1 >> action <& msg2
 
-In addition, because '<&' has higher precedence
-than the other operators in this module,
-the following:
-> f >$< action <& msg
-should be replaced by
-> (f >$< action) <& msg
+@
+action <& msg1 >> action <& msg2
+@
+
+In addition, because '<&' has higher precedence than the other operators in this
+module, the following:
+
+@
+f >$< action <& msg
+@
+
+is equivalent to:
+
+@
+(f >$< action) <& msg
+@
 -}
 infix 5 <&
 (<&) :: LogAction m msg -> msg -> m ()
 (<&) = coerce
 {-# INLINE (<&) #-}
 
-{- | A flipped version of '<&'
+{- | A flipped version of '<&'.
 
-It shares the same precedence as '<&',
-so make sure to surround lower precedence
+It shares the same precedence as '<&', so make sure to surround lower precedence
 operators in parentheses:
-> msg &> (f >$< action)
+
+@
+msg &> (f >$< action)
+@
 -}
 infix 5 &>
 (&>) :: msg -> LogAction m msg -> m ()
@@ -411,10 +431,3 @@ infixr 1 <<=
 (<<=) :: Semigroup msg => (LogAction m msg -> m ()) -> LogAction m msg -> LogAction m msg
 (<<=) = extend
 {-# INLINE (<<=) #-}
-
-
-#if MIN_VERSION_base(4,12,0)
-instance Contravariant.Contravariant (LogAction m) where
-    contramap = cmap
-    (>$)      = (Colog.Core.Action.>$)
-#endif
