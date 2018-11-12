@@ -38,12 +38,10 @@ module Colog.Message
        ) where
 
 import Control.Concurrent (ThreadId, myThreadId)
-import Control.Exception (displayException)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import Data.Time.Format (defaultTimeLocale, formatTime)
 import Data.TypeRepMap (TypeRepMap)
 import GHC.OverloadedLabels (IsLabel (..))
-import GHC.Stack (SrcLoc (..))
 import GHC.TypeLits (KnownSymbol, Symbol)
 import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..),
                             setSGRCode)
