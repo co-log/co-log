@@ -8,7 +8,7 @@
 
 module Main where
 
-import Relude
+import Relude hiding ((>$<), (>$))
 
 import Control.Concurrent (threadDelay)
 
