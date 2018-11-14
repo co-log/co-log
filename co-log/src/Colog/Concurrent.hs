@@ -44,20 +44,25 @@ module Colog.Concurrent
        , forkBackgroundLogger
        , convertToLogAction
          -- ** Worker thread
-         -- $worker-thread 
+         -- $worker-thread
        , mkBackgroundThread
        , runInBackgroundThread
          -- *** Usage example
          -- $worker-thread-usage
        ) where
 
-import Control.Concurrent
-import Control.Concurrent.STM (check)
-import Control.Concurrent.STM.TBQueue
+import Control.Applicative (many)
+import Control.Concurrent (forkFinally, killThread)
+import Control.Concurrent.STM (atomically, check, newTVarIO, readTVar, writeTVar)
+import Control.Concurrent.STM.TBQueue (newTBQueueIO, readTBQueue, writeTBQueue)
 import Control.Exception (bracket, finally)
+import Control.Monad (forever, join)
+import Control.Monad.IO.Class (MonadIO (..))
+import Data.Foldable (for_)
 
+import Colog.Concurrent.Internal (BackgroundWorker (..), Capacity (..))
 import Colog.Core.Action (LogAction (..))
-import Colog.Concurrent.Internal
+
 
 -- $general
 --
@@ -66,19 +71,19 @@ import Colog.Concurrent.Internal
 --   1. Logger in application thread. This logger is evaluated in the
 --   application thread and has an access to all the context available
 --   in that thread and monad, this logger can work in any `m`.
---   
+--
 --   2. Communication channel with backpressure support. In addition to
 --   the channel we have a converter that puts the user message to the
 --   communication channel. This converter works in the user thread.
 --   Such a logger usually works in `IO` but it's possible to make it
 --   work in `STM` as well. At this point library provides only `IO`
---   version, but it can be lifted to any `MonadIO` by the user. 
+--   version, but it can be lifted to any `MonadIO` by the user.
 --
 --   3. Logger thread. This is the thread that performs actual write to
 --   the sinks. Loggers there do not have access to the users thread
 --   state, unless that state was passed in the message.
--- 
--- 
+--
+--
 -- @
 --
 --  +-------------------------+                  +--------------------------------+
@@ -114,7 +119,7 @@ import Colog.Concurrent.Internal
 --                                       +---| sink-2|
 --                                           +-------+
 -- @
--- 
+--
 -- In this approach application will be concurrently write logs to the logger, then
 -- logger will be concurrently writing to all sinks.
 
@@ -130,7 +135,7 @@ import Colog.Concurrent.Internal
 --
 
 -- | An exception safe way to create background logger.  This method will fork
--- a thread that will run 'shared worker', see schema above. 
+-- a thread that will run 'shared worker', see schema above.
 --
 -- @Capacity@ - provides a backpressure mechanism and tells how many messages
 -- in flight are allowed. In most cases 'defCapacity' will work well.
@@ -140,7 +145,7 @@ import Colog.Concurrent.Internal
 -- application state or thread info, so you should only pass methods that serialize
 -- and dump data there.
 --
--- @ 
+-- @
 -- import qualified Data.Aeson as Aeson
 --
 -- main :: IO ()
@@ -156,13 +161,13 @@ import Colog.Concurrent.Internal
 withBackgroundLogger :: MonadIO m => Capacity -> LogAction IO msg -> (LogAction m msg -> IO a) -> IO a
 withBackgroundLogger cap logger action =
    bracket (forkBackgroundLogger cap logger)
-           (killBackgroundLogger)
+           killBackgroundLogger
            (action . convertToLogAction)
 
 -- | Default capacity size, (4096)
 defCapacity :: Capacity
 defCapacity = Capacity 4096
- 
+
 
 -- $extended-api
 -- Extended API explains how asynchronous logging is working and provides basic
@@ -172,7 +177,7 @@ defCapacity = Capacity 4096
 -- $background-worker
 -- The main abstraction for the concurrent worker is 'BackgroundWorker'. This
 -- is a wrapper of the thread, that has communication channel to talk to, and threadId.
--- 
+--
 -- Background worker may provide a backpressure mechanism, but does not provide
 -- notification of completeness unless it's included in the message itself.
 
@@ -220,7 +225,7 @@ forkBackgroundLogger (Capacity cap) logAction = do
     (\_ ->
        (do msgs <- atomically $ many $ readTBQueue queue
            for_ msgs $ unLogAction logAction)
-         `finally` (atomically $ writeTVar isAlive False))
+         `finally` atomically (writeTVar isAlive False))
   pure $ BackgroundWorker tid (writeTBQueue queue) isAlive
 
 
@@ -237,7 +242,7 @@ forkBackgroundLogger (Capacity cap) logAction = do
 convertToLogAction :: MonadIO m => BackgroundWorker msg -> LogAction m msg
 convertToLogAction logger = LogAction $ \msg ->
   liftIO $ atomically $ backgroundWorkerWrite logger msg
-  
+
 -- $worker-thread
 -- While generic background logger is enough for the most
 -- of the usecases, sometimes you may want even more.
@@ -247,7 +252,7 @@ convertToLogAction logger = LogAction $ \msg ->
 --   1. You need to modify logger, for example different
 --   threads wants to write to different sources. Or you
 --   want to change lgo mechanism in runtime.
---   
+--
 --   2. You may want to implement some notification
 --   machinery that allows you to guarantee that your
 --   logs were written before processing further.
@@ -272,11 +277,11 @@ mkBackgroundThread :: Capacity -> IO (BackgroundWorker (IO ()))
 mkBackgroundThread (Capacity cap) = do
   queue <- newTBQueueIO cap
   isAlive <- newTVarIO True
-  tid <- forkFinally 
+  tid <- forkFinally
     (forever $ join $ atomically $ readTBQueue queue)
     (\_ ->
-       (sequence_ =<< (atomically $ many $ readTBQueue queue))
-       `finally` (atomically $ writeTVar isAlive False))
+       (sequence_ =<< atomically (many $ readTBQueue queue))
+       `finally` atomically (writeTVar isAlive False))
   pure $ BackgroundWorker tid (writeTBQueue queue) isAlive
 
 -- | Run logger action asynchronously in the worker thread.
@@ -284,7 +289,7 @@ mkBackgroundThread (Capacity cap) = do
 -- logger takes any thread related context it will be
 -- read from the other thread.
 runInBackgroundThread :: BackgroundWorker (IO ()) -> LogAction IO msg -> LogAction IO msg
-runInBackgroundThread bt logAction = LogAction $ \msg -> do
+runInBackgroundThread bt logAction = LogAction $ \msg ->
   atomically $ backgroundWorkerWrite bt $ unLogAction logAction msg
 
 -- $worker-thread-usage
@@ -297,22 +302,21 @@ runInBackgroundThread bt logAction = LogAction $ \msg -> do
 -- notificationLogger :: MonadIO m => LoggerAction m msg -> LoggerAction m (M msg)
 -- notificationLogger logger = 'LoggerAction' $ \(M lock msg) ->
 --    (unLogger logger msg) `finally` (putMVar lock ())
--- 
+--
 -- example = __do__
 --    worker <- 'mkBackgroundWorker' 'defCapacity'
 --    lock <- newEmptyMVar
 --    -- Log message with default logger.
 --    'unLogger'
---       ('runInBackgroundThread' worker 
+--       ('runInBackgroundThread' worker
 --       (notificationLogger $ 'Colog.Action.withLogByteStringFile' "\/var\/log\/myapp\/log")
---       (M lock "my message") 
+--       (M lock "my message")
 --    -- Log message with a different logger.
 --    'unLogger'
---       ('runInBackgroundThread' worker 
+--       ('runInBackgroundThread' worker
 --       ('Colog.Action.withLogByteStringFile' "/var/log/myapp/log")
---       ("another message") 
+--       ("another message")
 --    -- Block until first message is logged.
 --    _ <- takeMVar lock
 -- @
 --
-

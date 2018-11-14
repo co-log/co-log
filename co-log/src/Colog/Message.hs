@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP                   #-}
 {-# LANGUAGE DataKinds             #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
@@ -6,7 +7,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedLabels      #-}
 {-# LANGUAGE TypeFamilies          #-}
-{-# LANGUAGE CPP                   #-}
 
 {- | 'Message' with 'Severity', and logging functions for them.
 -}
@@ -14,6 +14,7 @@
 module Colog.Message
        ( -- * Basic message type
          Message (..)
+       , unMessageField
        , log
        , logDebug
        , logInfo
@@ -33,13 +34,20 @@ module Colog.Message
        , upgradeMessageAction
        ) where
 
+import Prelude hiding (log)
+
 import Control.Concurrent (ThreadId, myThreadId)
-import Control.Exception (displayException)
+import Control.Exception (Exception, displayException)
+import Control.Monad.IO.Class (MonadIO (..))
+import Data.Kind (Type)
+import Data.Semigroup ((<>))
+import Data.Text (Text)
 import Data.Time.Clock (UTCTime, getCurrentTime)
 import Data.Time.Format (defaultTimeLocale, formatTime)
 import Data.TypeRepMap (TypeRepMap)
+import GHC.Exts (IsList (..))
 import GHC.OverloadedLabels (IsLabel (..))
-import GHC.Stack (SrcLoc (..))
+import GHC.Stack (CallStack, SrcLoc (..), callStack, getCallStack, withFrozenCallStack)
 import GHC.TypeLits (KnownSymbol, Symbol)
 import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..),
                             setSGRCode)
@@ -47,6 +55,7 @@ import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Fo
 import Colog.Core (LogAction, Severity (..), cmap)
 import Colog.Monad (WithLog, logMsg)
 
+import qualified Data.Text as T
 import qualified Data.TypeRepMap as TM
 
 ----------------------------------------------------------------------------
@@ -83,7 +92,7 @@ logError = withFrozenCallStack (log Error)
 
 -- | Logs 'Exception' message.
 logException :: forall e m env . (WithLog env Message m, Exception e) => e -> m ()
-logException = withFrozenCallStack (logError . toText . displayException)
+logException = withFrozenCallStack (logError . T.pack . displayException)
 
 -- | Prettifies 'Message' type.
 fmtMessage :: Message -> Text
@@ -101,9 +110,9 @@ showSeverity = \case
     Error   -> color Red    "[Error]   "
  where
     color :: Color -> Text -> Text
-    color c txt = toText (setSGRCode [SetColor Foreground Vivid c])
+    color c txt = T.pack (setSGRCode [SetColor Foreground Vivid c])
         <> txt
-        <> toText (setSGRCode [Reset])
+        <> T.pack (setSGRCode [Reset])
 
 square :: Text -> Text
 square t = "[" <> t <> "] "
@@ -119,7 +128,7 @@ showSourceLoc cs = square showCallStack
 
     showLoc :: String -> SrcLoc -> Text
     showLoc name SrcLoc{..} =
-        toText srcLocModule <> "." <> toText name <> "#" <> show srcLocStartLine
+        T.pack srcLocModule <> "." <> T.pack name <> "#" <> T.pack (show srcLocStartLine)
 
 ----------------------------------------------------------------------------
 -- Externally extensible message
@@ -156,17 +165,17 @@ newtype MessageField m fieldName = MessageField
 @
 -}
 newtype MessageField (m :: Type -> Type) (fieldName :: Symbol) where
-    MessageField
-        :: forall fieldName m .
-           { unMesssageField :: m (FieldType fieldName) }
-        -> MessageField m fieldName
+    MessageField :: forall fieldName m . m (FieldType fieldName) -> MessageField m fieldName
+
+unMessageField :: forall fieldName m . MessageField m fieldName -> m (FieldType fieldName)
+unMessageField (MessageField f) = f
 
 instance (KnownSymbol fieldName, a ~ m (FieldType fieldName))
       => IsLabel fieldName (a -> TM.WrapTypeable (MessageField m)) where
-#if MIN_VERSION_base_noprelude(4,11,0)
+#if MIN_VERSION_base(4,11,0)
     fromLabel field = TM.WrapTypeable $ MessageField @fieldName field
 #else
-    fromLabel field = TM.WrapTypeable $ MessageField  @_ @fieldName field    
+    fromLabel field = TM.WrapTypeable $ MessageField  @_ @fieldName field
 #endif
     {-# INLINE fromLabel #-}
 
@@ -174,7 +183,7 @@ extractField
     :: Applicative m
     => Maybe (MessageField m fieldName)
     -> m (Maybe (FieldType fieldName))
-extractField = traverse unMesssageField
+extractField = traverse unMessageField
 
 -- same as:
 -- extractField = \case
@@ -227,13 +236,13 @@ fmtRichMessageDefault RichMessage{..} = do
      <> messageText
 
     showTime :: UTCTime -> Text
-    showTime t = square $ toText $
+    showTime t = square $ T.pack $
           formatTime defaultTimeLocale "%H:%M:%S." t
        ++ take 3 (formatTime defaultTimeLocale "%q" t)
        ++ formatTime defaultTimeLocale " %e %b %Y %Z" t
 
     showThreadId :: ThreadId -> Text
-    showThreadId = square . show
+    showThreadId = square . T.pack . show
 
 {- | Allows to extend basic 'Message' type with given dependent map of fields.
 -}

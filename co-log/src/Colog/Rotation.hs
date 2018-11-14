@@ -9,13 +9,19 @@ module Colog.Rotation
        , withLogRotation
        ) where
 
-import Data.Maybe (mapMaybe)
-import Relude.Extra.Foldable1 (maximum1)
+import Control.Monad (when, (>=>))
+import Control.Monad.IO.Class (MonadIO (..))
+import Data.IORef (IORef, newIORef, readIORef, writeIORef)
+import Data.List.NonEmpty (nonEmpty)
+import Data.Maybe (fromMaybe, mapMaybe)
+import Numeric.Natural (Natural)
 import System.FilePath.Posix ((<.>))
-import System.IO (hFileSize)
+import System.IO (Handle, IOMode (AppendMode), hClose, hFileSize, openFile)
+import Text.Read (readMaybe)
 
 import Colog.Core.Action (LogAction (..), (<&))
 
+import qualified Data.List.NonEmpty as NE
 import qualified System.Directory as D
 import qualified System.FilePath.Posix as POS
 
@@ -61,9 +67,8 @@ withLogRotation sizeLimit filesLimit path cleanup mkAction cont = do
         handle <- liftIO $ readIORef refHandle
         mkAction handle <& msg
 
-        whenM
-          (isFileSizeLimitReached sizeLimit handle)
-          (cleanupAndRotate refHandle)
+        isLimitReached <- isFileSizeLimitReached sizeLimit handle
+        when isLimitReached $ cleanupAndRotate refHandle
 
     cleanupAndRotate :: IORef Handle -> m ()
     cleanupAndRotate refHandle = liftIO $ do
@@ -93,7 +98,7 @@ maxFileIndex :: FilePath -> IO Natural
 maxFileIndex path = do
   files <- D.listDirectory (POS.takeDirectory path)
   let logFiles = filter (== POS.takeBaseName path) files
-  let maxFile = maximum1 <$> nonEmpty (mapMaybe logFileIndex logFiles)
+  let maxFile = maximum <$> nonEmpty (mapMaybe logFileIndex logFiles)
   pure $ fromMaybe 0 maxFile
 
 -- given number 4 and path `node.log` renames file `node.log` to `node.log.4`
@@ -103,7 +108,7 @@ renameFileToNumber n path = D.renameFile path (path <.> show n)
 -- if you give it name like `node.log.4` then it returns `Just 4`
 logFileIndex :: FilePath -> Maybe Natural
 logFileIndex path =
-    nonEmpty (POS.takeExtension path) >>= readMaybe . tail
+    nonEmpty (POS.takeExtension path) >>= readMaybe . NE.tail
 
 -- creates list of files with indices who are older on given Limit than the latest one
 getOldFiles :: Limit -> FilePath -> IO [FilePath]

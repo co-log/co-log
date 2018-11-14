@@ -1,4 +1,4 @@
-{-# LANGUAGE InstanceSigs        #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module Colog.Monad
        ( LoggerT (..)
@@ -10,8 +10,13 @@ module Colog.Monad
        , usingLoggerT
        ) where
 
-import Control.Monad.Reader (MonadReader (..), ReaderT)
+import Prelude hiding (log)
+
+import Control.Monad.IO.Class (MonadIO (..))
+import Control.Monad.Reader (MonadReader (..), ReaderT (..), asks)
 import Control.Monad.Trans.Class (MonadTrans (..))
+import Data.Foldable (traverse_)
+import GHC.Stack (HasCallStack)
 
 import Colog.Core (HasLog (..), LogAction (..), overLogAction)
 

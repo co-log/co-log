@@ -5,4 +5,8 @@ module Main
 import Test.DocTest (doctest)
 
 main :: IO ()
-main = doctest ["-XInstanceSigs", "src"]
+main = doctest
+    [ "-XInstanceSigs"
+    , "-XViewPatterns"
+    , "src"
+    ]

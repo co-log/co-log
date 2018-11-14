@@ -71,15 +71,16 @@ install:
       stack ghc -- --version
       stack build --only-dependencies --no-terminal
     fi
+
 script:
   - |
     if [ -z "$STACK_YAML" ]; then
-       echo 'No tests'
+       cabal new-test co-log-core
     else
       stack build co-log-core --test --bench --no-run-benchmarks --no-terminal
       stack build co-log      --test --bench --no-run-benchmarks --no-terminal
     fi
-
+  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint co-log-core/ co-log/src/
 
 notifications:
   email: false

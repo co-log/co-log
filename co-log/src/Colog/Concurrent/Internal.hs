@@ -1,15 +1,17 @@
 {-# LANGUAGE CPP #-}
--- |
---
--- This is internal module, use it on your own risk.
--- The implementation here may be changed without a
--- version bump.
+
+{- | This is internal module, use it on your own risk. The implementation here
+may be changed without a version bump.
+-}
+
 module Colog.Concurrent.Internal
-       ( BackgroundWorker(..)
-       , Capacity(..)
+       ( BackgroundWorker (..)
+       , Capacity (..)
        ) where
 
-import Control.Concurrent
+import Control.Concurrent (ThreadId)
+import Control.Concurrent.STM (STM, TVar)
+import Numeric.Natural (Natural)
 
 -- | A wrapper type that carries capacity. The internal
 -- type may be differrent for the different GHC versions.
@@ -24,7 +26,7 @@ newtype Capacity = Capacity Int
 data BackgroundWorker msg = BackgroundWorker
   { backgroundWorkerThreadId :: !ThreadId
     -- ^ Background 'ThreadId'.
-  , backgroundWorkerWrite :: msg -> STM ()
+  , backgroundWorkerWrite    :: msg -> STM ()
     -- ^ Method for communication with the thread.
-  , backgroundWorkerIsAlive :: TVar Bool
+  , backgroundWorkerIsAlive  :: TVar Bool
   }

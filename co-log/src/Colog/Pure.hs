@@ -11,9 +11,15 @@ module Colog.Pure
        , logMessagePure
        ) where
 
-import Data.Sequence ((|>))
+import Control.Monad.State (MonadState, StateT (..), modify')
+import Control.Monad.Trans.Class (MonadTrans)
+import Data.Bifunctor (second)
+import Data.Foldable (toList)
+import Data.Functor.Identity (Identity (..))
+import Data.Sequence (Seq, (|>))
 
 import Colog.Core.Action (LogAction (..))
+
 
 {- | Pure monad transformer for logging. Can log any @msg@ messages. Allows to
 log messages by storing them in the internal state.
@@ -24,7 +30,7 @@ newtype PureLoggerT msg m a = PureLoggerT
 
 -- | Returns result value of 'PureLoggerT' and list of logged messages.
 runPureLogT :: Functor m => PureLoggerT msg m a -> m (a, [msg])
-runPureLogT = fmap (second toList) . usingStateT mempty . runPureLoggerT
+runPureLogT = fmap (second toList) . flip runStateT mempty . runPureLoggerT
 
 -- | 'PureLoggerT' specialized to 'Identity'
 type PureLogger msg = PureLoggerT msg Identity
