@@ -1,18 +1,20 @@
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE DeriveAnyClass    #-}
 {-# LANGUAGE FlexibleContexts  #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms   #-}
 {-# LANGUAGE TypeApplications  #-}
 
 module Main where
 
-import Relude
+import Prelude hiding (log)
 
 import Control.Concurrent (threadDelay)
+import Control.Exception (Exception)
+import Control.Monad.IO.Class (MonadIO (..))
+import Data.Semigroup ((<>))
 
-import Colog (pattern D, LogAction, Message (..), PureLogger, WithLog, cmapM, cmap, defaultFieldMap,
+import Colog (pattern D, LogAction, Message (..), PureLogger, WithLog, cmap, cmapM, defaultFieldMap,
               fmtMessage, fmtRichMessageDefault, log, logException, logInfo, logMessagePure, logMsg,
               logMsgs, logPrint, logStringStdout, logTextStderr, logTextStdout, logWarning,
               runPureLog, upgradeMessageAction, usingLoggerT, withLog, withLogTextFile, (*<), (>$),

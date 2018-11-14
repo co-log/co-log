@@ -225,7 +225,7 @@ forkBackgroundLogger (Capacity cap) logAction = do
     (\_ ->
        (do msgs <- atomically $ many $ readTBQueue queue
            for_ msgs $ unLogAction logAction)
-         `finally` (atomically $ writeTVar isAlive False))
+         `finally` atomically (writeTVar isAlive False))
   pure $ BackgroundWorker tid (writeTBQueue queue) isAlive
 
 
@@ -281,7 +281,7 @@ mkBackgroundThread (Capacity cap) = do
     (forever $ join $ atomically $ readTBQueue queue)
     (\_ ->
        (sequence_ =<< atomically (many $ readTBQueue queue))
-       `finally` (atomically $ writeTVar isAlive False))
+       `finally` atomically (writeTVar isAlive False))
   pure $ BackgroundWorker tid (writeTBQueue queue) isAlive
 
 -- | Run logger action asynchronously in the worker thread.
