@@ -48,7 +48,7 @@ import Data.Semigroup (Semigroup (..), stimesMonoid)
 import Data.Void (Void, absurd)
 
 #if MIN_VERSION_base(4,12,0)
-import Data.Functor.Contravariant (Contravariant (..))
+import qualified Data.Functor.Contravariant as Contravariant
 #endif
 
 {- $setup
@@ -299,7 +299,7 @@ divide f (LogAction actionB) (LogAction actionC) = LogAction $ \(f -> (b, c)) ->
 Concretely, this is a 'LogAction' that does nothing:
 
 >>> conquer <& "hello?"
->>> "hello?" &> conquer 
+>>> "hello?" &> conquer
 -}
 conquer :: Applicative m => LogAction m a
 conquer = mempty
@@ -414,8 +414,7 @@ infixr 1 <<=
 
 
 #if MIN_VERSION_base(4,12,0)
-instance Contravariant (LogAction m) where
+instance Contravariant.Contravariant (LogAction m) where
     contramap = cmap
     (>$)      = (Colog.Core.Action.>$)
-
 #endif
