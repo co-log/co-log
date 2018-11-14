@@ -13,9 +13,14 @@ module Colog.Actions
        , withLogTextFile
        ) where
 
+import Control.Monad.IO.Class (MonadIO (..))
+import System.IO (Handle, IOMode (AppendMode), stderr, withFile)
+
 import Colog.Core.Action (LogAction (..))
 
-import qualified Data.ByteString.Char8 as BS
+import qualified Data.ByteString as BS
+import qualified Data.ByteString.Char8 as BS8
+import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 
 ----------------------------------------------------------------------------
@@ -23,19 +28,19 @@ import qualified Data.Text.IO as TIO
 ----------------------------------------------------------------------------
 
 {- | Action that prints 'ByteString' to stdout. -}
-logByteStringStdout :: MonadIO m => LogAction m ByteString
-logByteStringStdout = LogAction putBSLn
+logByteStringStdout :: MonadIO m => LogAction m BS.ByteString
+logByteStringStdout = LogAction $ liftIO . BS8.putStrLn
 
 {- | Action that prints 'ByteString' to stderr. -}
-logByteStringStderr :: MonadIO m => LogAction m ByteString
+logByteStringStderr :: MonadIO m => LogAction m BS.ByteString
 logByteStringStderr = logByteStringHandle stderr
 
 {- | Action that prints 'ByteString' to 'Handle'. -}
-logByteStringHandle :: MonadIO m => Handle -> LogAction m ByteString
-logByteStringHandle handle = LogAction $ liftIO . BS.hPutStrLn handle
+logByteStringHandle :: MonadIO m => Handle -> LogAction m BS.ByteString
+logByteStringHandle handle = LogAction $ liftIO . BS8.hPutStrLn handle
 
 {- | Action that prints 'ByteString' to file. See 'withLogStringFile' for details. -}
-withLogByteStringFile :: MonadIO m => FilePath -> (LogAction m ByteString -> IO r) -> IO r
+withLogByteStringFile :: MonadIO m => FilePath -> (LogAction m BS.ByteString -> IO r) -> IO r
 withLogByteStringFile path action = withFile path AppendMode $ action . logByteStringHandle
 
 ----------------------------------------------------------------------------
@@ -43,18 +48,18 @@ withLogByteStringFile path action = withFile path AppendMode $ action . logByteS
 ----------------------------------------------------------------------------
 
 {- | Action that prints 'Text' to stdout. -}
-logTextStdout :: MonadIO m => LogAction m Text
-logTextStdout = LogAction putTextLn
+logTextStdout :: MonadIO m => LogAction m T.Text
+logTextStdout = LogAction $ liftIO . TIO.putStrLn
 
 {- | Action that prints 'Text' to stderr. -}
-logTextStderr :: MonadIO m => LogAction m Text
+logTextStderr :: MonadIO m => LogAction m T.Text
 logTextStderr = logTextHandle stderr
 
 {- | Action that prints 'Text' to 'Handle'. -}
-logTextHandle :: MonadIO m => Handle -> LogAction m Text
+logTextHandle :: MonadIO m => Handle -> LogAction m T.Text
 logTextHandle handle = LogAction $ liftIO . TIO.hPutStrLn handle
 
 {- | Action that prints 'Text' to file. See 'withLogStringFile' for details. -}
-withLogTextFile :: MonadIO m => FilePath -> (LogAction m Text -> IO r) -> IO r
+withLogTextFile :: MonadIO m => FilePath -> (LogAction m T.Text -> IO r) -> IO r
 withLogTextFile path action = withFile path AppendMode $ action . logTextHandle
 

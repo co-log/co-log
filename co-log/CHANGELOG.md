@@ -10,6 +10,9 @@ The change log is available [on GitHub][2].
 * [#46](https://github.com/kowainik/co-log/issues/46):
   Moves `logStringStdout`, `logStringStderr`, `logStringHandle`,
   `withLogStringFile` from `Colog.Actions` to `Colog.Core.IO`
+* [#77](https://github.com/kowainik/co-log/issues/77):
+  Remove `relude` from dependencies.
+  Add HLint check to Travis CI.
 
 0.1.0
 =====
