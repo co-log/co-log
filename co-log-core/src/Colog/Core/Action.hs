@@ -136,7 +136,7 @@ action <& msg1 <& msg2
 doesn't make sense. Instead you want:
 
 @
-action <& msg1 >> action <& msg2
+action <& msg1 \>\> action <& msg2
 @
 
 In addition, because '<&' has higher precedence than the other operators in this
