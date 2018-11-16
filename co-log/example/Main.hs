@@ -1,9 +1,15 @@
-{-# LANGUAGE DataKinds         #-}
-{-# LANGUAGE DeriveAnyClass    #-}
-{-# LANGUAGE FlexibleContexts  #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE PatternSynonyms   #-}
-{-# LANGUAGE TypeApplications  #-}
+{-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE DeriveAnyClass             #-}
+{-# LANGUAGE DerivingStrategies         #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE InstanceSigs               #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE PatternSynonyms            #-}
+{-# LANGUAGE TypeApplications           #-}
+{-# LANGUAGE TypeSynonymInstances       #-}
 
 module Main where
 
@@ -12,13 +18,14 @@ import Prelude hiding (log)
 import Control.Concurrent (threadDelay)
 import Control.Exception (Exception)
 import Control.Monad.IO.Class (MonadIO (..))
+import Control.Monad.Reader (MonadReader, ReaderT (..))
 import Data.Semigroup ((<>))
 
-import Colog (pattern D, LogAction, Message (..), PureLogger, WithLog, cmap, cmapM, defaultFieldMap,
-              fmtMessage, fmtRichMessageDefault, log, logException, logInfo, logMessagePure, logMsg,
-              logMsgs, logPrint, logStringStdout, logTextStderr, logTextStdout, logWarning,
-              runPureLog, upgradeMessageAction, usingLoggerT, withLog, withLogTextFile, (*<), (>$),
-              (>$<), (>*), (>*<), (>|<))
+import Colog (pattern D, HasLog (..), LogAction, Message (..), PureLogger, WithLog, cmap, cmapM,
+              defaultFieldMap, fmtMessage, fmtRichMessageDefault, liftLogIO, log, logException,
+              logInfo, logMessagePure, logMsg, logMsgs, logPrint, logStringStdout, logTextStderr,
+              logTextStdout, logWarning, runPureLog, upgradeMessageAction, usingLoggerT, withLog,
+              withLogTextFile, (*<), (>$), (>$<), (>*), (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
 
@@ -40,10 +47,6 @@ app = do
     addApp msg = msg { messageText = "app: " <> messageText msg }
 
 
-foo :: (WithLog env String m, WithLog env Int m) => m ()
-foo = do
-    logMsg ("String message..." :: String)
-    logMsg @Int 42
 
 data ExampleException = ExampleException
     deriving (Show, Exception)
@@ -92,6 +95,50 @@ carL = carToTuple
         )
 
 ----------------------------------------------------------------------------
+-- Custom monad and logger actions of different types
+----------------------------------------------------------------------------
+
+data Env m = Env
+    { envLogString :: LogAction m String
+    , envLogInt    :: LogAction m Int
+    }
+
+instance HasLog (Env m) String m where
+    getLogAction :: Env m -> LogAction m String
+    getLogAction = envLogString
+
+    setLogAction :: LogAction m String -> Env m -> Env m
+    setLogAction newAction env = env { envLogString = newAction }
+
+instance HasLog (Env m) Int m where
+    getLogAction :: Env m -> LogAction m Int
+    getLogAction = envLogInt
+
+    setLogAction :: LogAction m Int -> Env m -> Env m
+    setLogAction newAction env = env { envLogInt = newAction }
+
+newtype FooM a = FooM
+    { runFooM :: ReaderT (Env FooM) IO a
+    } deriving newtype (Functor, Applicative, Monad, MonadIO, MonadReader (Env FooM))
+
+usingFooM :: Env FooM -> FooM a -> IO a
+usingFooM env = flip runReaderT env . runFooM
+
+foo :: (WithLog env String m, WithLog env Int m) => m ()
+foo = do
+    logMsg ("String message..." :: String)
+    logMsg @Int 42
+
+logFoo :: IO ()
+logFoo = usingFooM env foo
+  where
+    env :: Env FooM
+    env = Env
+        { envLogString = liftLogIO logStringStdout
+        , envLogInt    = liftLogIO logPrint
+        }
+
+----------------------------------------------------------------------------
 -- main runner
 ----------------------------------------------------------------------------
 
@@ -120,3 +167,5 @@ main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
         pureAction = usingLoggerT logMessagePure example
     let ((), msgs) = runPureLog pureAction
     usingLoggerT simpleMessageAction $ logMsgs msgs
+
+    logFoo
