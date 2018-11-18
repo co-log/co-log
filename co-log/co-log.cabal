@@ -99,10 +99,13 @@ executable readme
   default-language:    Haskell2010
 
 test-suite test-co-log
-  build-depends:        base >= 4.9 && < 5
+  build-depends:        base-noprelude >= 4.10 && < 4.13
+                      , relude ^>= 0.3.0
                       , hedgehog ^>= 0.6
                       , co-log
                       , co-log-core
+  mixins:               base-noprelude
+                      , relude (Relude as Prelude)
   default-language:     Haskell2010
   default-extensions:   TemplateHaskell
                         FlexibleContexts

@@ -57,4 +57,4 @@ main = do
   hSetBuffering stdout LineBuffering
   hSetBuffering stderr LineBuffering
   tests
-  pure ()
+  ifM tests exitSuccess exitFailure
