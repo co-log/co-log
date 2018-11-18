@@ -98,7 +98,7 @@ executable readme
   ghc-options:         -Wall -pgmL markdown-unlit
   default-language:    Haskell2010
 
-test-suite property
+test-suite test-co-log
   build-depends:        base >= 4.9 && < 5
                       , hedgehog
                       , co-log
