@@ -12,11 +12,11 @@ import Colog.Core (LogAction)
 
 data LogAST
     = LogMsg
-  | AND LogAST LogAST deriving Show
+    | AND LogAST LogAST deriving Show
 
-validateAST :: LogAST -> String -> [String]
-validateAST LogMsg msg = [msg]
-validateAST (AND a b) msg = validateAST a msg ++ validateAST b msg
+listLogMessages :: LogAST -> String -> [String]
+listLogMessages LogMsg msg = [msg]
+listLogMessages (AND a b) msg = listLogMessages a msg ++ listLogMessages b msg
 
 processAST :: LogAction (PureLogger String) String -> String -> [String]
 processAST action msg = snd $ runPureLog $ usingLoggerT action $ logMsg msg
@@ -36,7 +36,7 @@ prop_test_validate :: Property
 prop_test_validate = property $ do
   msg <- forAll $ Gen.string (Range.constant 1 100) Gen.unicode
   ast <- forAll genAST
-  processAST (toLoggerAction ast) msg === validateAST ast msg
+  processAST (toLoggerAction ast) msg === listLogMessages ast msg
 
 prop_test_assoc :: Property
 prop_test_assoc = property $ do
