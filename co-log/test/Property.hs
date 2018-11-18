@@ -10,7 +10,8 @@ import Colog.Pure (PureLogger, runPureLog, logMessagePure)
 import Colog.Monad (usingLoggerT, logMsg)
 import Colog.Core (LogAction)
 
-data LogAST = LogMsg
+data LogAST
+    = LogMsg
   | AND LogAST LogAST deriving Show
 
 validateAST :: LogAST -> String -> [String]
