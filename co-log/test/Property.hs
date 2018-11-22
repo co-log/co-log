@@ -56,5 +56,4 @@ main :: IO ()
 main = do
   hSetBuffering stdout LineBuffering
   hSetBuffering stderr LineBuffering
-  tests
   ifM tests exitSuccess exitFailure
