@@ -3,6 +3,11 @@
 `co-log-core` uses [PVP Versioning][1].
 The change log is available [on GitHub][2].
 
+## 0.1.2
+
+* [#85](https://github.com/kowainik/co-log/issues/85):
+  Move `overLogAction` to `HasLog` typeclass
+
 ## 0.1.1 — Nov 15, 2018
 
 * [#63](https://github.com/kowainik/co-log/issues/63):
