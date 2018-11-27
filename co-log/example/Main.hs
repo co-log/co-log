@@ -25,7 +25,7 @@ import Colog (pattern D, HasLog (..), LogAction, Message (..), PureLogger, WithL
               defaultFieldMap, fmtMessage, fmtRichMessageDefault, liftLogIO, log, logException,
               logInfo, logMessagePure, logMsg, logMsgs, logPrint, logStringStdout, logTextStderr,
               logTextStdout, logWarning, runPureLog, upgradeMessageAction, usingLoggerT, withLog,
-              withLogTextFile, (*<), (>$), (>$<), (>*), (>*<), (>|<))
+              withLogTextFile, (*<), (<&), (>$), (>$<), (>*), (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
 
@@ -53,6 +53,23 @@ data ExampleException = ExampleException
 
 exceptionL :: (WithLog env Message m) => m ()
 exceptionL = logException ExampleException
+
+----------------------------------------------------------------------------
+-- Message passing with pipes: &> and <&
+
+-- Remember:
+-- (<&) :: LogAction m msg -> msg -> m ()
+----------------------------------------------------------------------------
+
+data Collatz = Collatz {even :: Bool, n :: Int, iteration :: Int}
+
+collatz :: LogAction IO String -> Collatz -> IO ()
+collatz logger (Collatz False 1 iter) =
+    logger <& ("Found 1 after " ++ show iter ++ " iterations")
+collatz logger (Collatz even' x iter) = do
+    logger <& (show x ++ " on iteration " ++ show iter)
+    let newN = if even' then x `div` 2 else 3 * x + 1
+    collatz logger $ Collatz (newN `mod` 2 == 0) newN (iter + 1)
 
 ----------------------------------------------------------------------------
 -- Section with contravariant combinators example
