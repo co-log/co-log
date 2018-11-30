@@ -15,6 +15,7 @@ import Colog.Core.Action (LogAction)
 TODO: laws
 -}
 class HasLog env msg m where
+    {-# MINIMAL getLogAction, (setLogAction | overLogAction) #-}
     getLogAction :: env -> LogAction m msg
     setLogAction :: LogAction m msg -> env -> env
     setLogAction = overLogAction . const
@@ -22,8 +23,11 @@ class HasLog env msg m where
     overLogAction :: (LogAction m msg -> LogAction m msg) -> env -> env
     overLogAction f env = setLogAction (f $ getLogAction env) env
     {-# INLINE overLogAction #-}
-    {-# MINIMAL getLogAction, (setLogAction | overLogAction) #-}
 
 instance HasLog (LogAction m msg) msg m where
+    {-# INLINE getLogAction #-}
     getLogAction = id
+    {-# INLINE setLogAction #-}
+    setLogAction = flip const
+    {-# INLINE overLogAction #-}
     overLogAction = id
