@@ -28,6 +28,6 @@ instance HasLog (LogAction m msg) msg m where
     {-# INLINE getLogAction #-}
     getLogAction = id
     {-# INLINE setLogAction #-}
-    setLogAction = flip const
+    setLogAction = const
     {-# INLINE overLogAction #-}
     overLogAction = id
