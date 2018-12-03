@@ -6,7 +6,6 @@
 
 module Colog.Core.Class
        ( HasLog (..)
-       , overLogAction
        ) where
 
 import Colog.Core.Action (LogAction)
@@ -16,13 +15,19 @@ import Colog.Core.Action (LogAction)
 TODO: laws
 -}
 class HasLog env msg m where
+    {-# MINIMAL getLogAction, (setLogAction | overLogAction) #-}
     getLogAction :: env -> LogAction m msg
     setLogAction :: LogAction m msg -> env -> env
+    setLogAction = overLogAction . const
+    {-# INLINE setLogAction #-}
+    overLogAction :: (LogAction m msg -> LogAction m msg) -> env -> env
+    overLogAction f env = setLogAction (f $ getLogAction env) env
+    {-# INLINE overLogAction #-}
 
 instance HasLog (LogAction m msg) msg m where
+    {-# INLINE getLogAction #-}
     getLogAction = id
+    {-# INLINE setLogAction #-}
     setLogAction = const
-
-overLogAction :: HasLog env msg m => (LogAction m msg -> LogAction m msg) -> env -> env
-overLogAction over env = setLogAction (over $ getLogAction env) env
-{-# INLINE overLogAction #-}
+    {-# INLINE overLogAction #-}
+    overLogAction = id
