@@ -4,12 +4,15 @@ module Main
   ( main
   ) where
 
+import Data.Bifunctor (bimap, second)
+import Data.Coerce (coerce)
+import Data.List (intercalate)
 import Data.Time.Clock
 import Colog
 import Control.Monad
 import Control.Exception
 import Data.Foldable
-import Data.Semigroup ((<>))
+import Data.Semigroup ((<>),Max(..))
 import System.Environment
 import System.IO
 import System.Process.Typed
@@ -106,3 +109,13 @@ timeProcess n = do
       runProcess_ cfg
   t' <- getCurrentTime
   pure $ t' `diffUTCTime` t
+
+-- |  Function that takes list of pairs - benchmark name
+-- and result and generates markdown table.
+genTable pairs = intercalate "\n" rows
+  where
+    pairs' = ("Benchmark", "Result") : ("---","---:") : fmap (second show) pairs
+    f = (Max).length
+    (fMax,sMax) = coerce $ foldMap (bimap f f)  pairs'
+    rows = fmap (\(b,r) -> b <> replicate (fMax - (length b)) ' ' <> " | "
+                             <> replicate (sMax - (length r)) ' ' <> r) pairs'
