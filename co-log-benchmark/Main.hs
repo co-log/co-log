@@ -112,10 +112,14 @@ timeProcess n = do
 
 -- |  Function that takes list of pairs - benchmark name
 -- and result and generates markdown table.
+genTable :: [(String,String)] -> String
 genTable pairs = intercalate "\n" rows
   where
-    pairs' = ("Benchmark", "Result") : ("---","---:") : fmap (second show) pairs
+    pairs' = ("Benchmark", "Result") : ("---","---:") : pairs
+    f:: String -> Max Int
     f = (Max).length
+    filler :: Max Int -> String -> String
+    filler m w = replicate (m - length w) ' '
     (fMax,sMax) = coerce $ foldMap (bimap f f)  pairs'
-    rows = fmap (\(b,r) -> b <> replicate (fMax - (length b)) ' ' <> " | "
-                             <> replicate (sMax - (length r)) ' ' <> r) pairs'
+    rows = fmap (\(b,r) -> b <> filler fMax b <> " | "
+                             <> filler sMax r <> r) pairs'
