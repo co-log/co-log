@@ -84,9 +84,8 @@ main :: IO ()
 main = getArgs >>= \case
   [] -> do
      putStrLn "Dump 10k messages (in a forked process):"
-     for_ benchs $ \(name, _) -> do
-       t <- timeProcess name
-       printf "%-50s %s\n" name (show t)
+     results <- runBenchmarks benchs
+     putStrLn $ genTable results
   (name:_) -> case name `lookup` benchs of
      Nothing -> pure ()
      Just f  -> f
@@ -109,6 +108,11 @@ timeProcess n = do
       runProcess_ cfg
   t' <- getCurrentTime
   pure $ t' `diffUTCTime` t
+
+runBenchmarks :: [(String, IO ())] -> IO [(String, String)]
+runBenchmarks bs = for bs $ \(name, _) -> do
+  t <- timeProcess name
+  pure (name, show t)
 
 -- |  Function that takes list of pairs - benchmark name
 -- and result and generates markdown table.
