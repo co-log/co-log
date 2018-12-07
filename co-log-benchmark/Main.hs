@@ -13,6 +13,7 @@ import Control.Monad
 import Control.Exception
 import Data.Foldable
 import Data.Semigroup ((<>),Max(..))
+import Data.Traversable
 import System.Environment
 import System.IO
 import System.Process.Typed
@@ -122,7 +123,7 @@ genTable pairs = intercalate "\n" rows
     pairs' = ("Benchmark", "Result") : ("---","---:") : pairs
     f:: String -> Max Int
     f = (Max).length
-    filler :: Max Int -> String -> String
+    filler :: Int -> String -> String
     filler m w = replicate (m - length w) ' '
     (fMax,sMax) = coerce $ foldMap (bimap f f)  pairs'
     rows = fmap (\(b,r) -> b <> filler fMax b <> " | "
