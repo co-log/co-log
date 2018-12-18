@@ -16,6 +16,7 @@ module Colog.Core.Action
        , cfilter
        , cmap
        , (>$<)
+       , cmapMaybe
        , (Colog.Core.Action.>$)
        , cmapM
 
@@ -243,6 +244,11 @@ infixr 3 >$<
 (>$<) :: (a -> b) -> LogAction m b -> LogAction m a
 (>$<) = cmap
 {-# INLINE (>$<) #-}
+
+-- | 'cmap' for convertions that may fail
+cmapMaybe :: Applicative m => (a -> Maybe b) -> LogAction m b -> LogAction m a
+cmapMaybe f (LogAction action) = LogAction (maybe (pure ()) action . f)
+{-# INLINE cmapMaybe #-}
 
 {- | This combinator is @>$@ from contravariant functor. Replaces all locations
 in the output with the same value. The default definition is
