@@ -1,14 +1,6 @@
-resolver: lts-12.18
+resolver: lts-13.2
 
 packages:
   - co-log
   - co-log-core
   - co-log-benchmark
-
-extra-deps:
-  - base-noprelude-4.11.1.0
-  - contravariant-1.5
-  - relude-0.3.0
-
-  - typerep-map-0.3.0
-  - primitive-0.6.4.0  # needed for typerep-map

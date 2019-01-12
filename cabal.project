@@ -1,1 +1,4 @@
-packages: co-log-core/ co-log/ co-log-benchmark/
+packages:
+    co-log-core
+    co-log
+    co-log-benchmark

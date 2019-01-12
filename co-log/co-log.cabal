@@ -16,13 +16,13 @@ license:             MPL-2.0
 license-file:        LICENSE
 author:              Kowainik, Alexander Vershilov
 maintainer:          xrom.xkov@gmail.com
-copyright:           2018 Kowainik
+copyright:           2018-present Kowainik
 category:            Logging
 build-type:          Simple
 extra-doc-files:     CHANGELOG.md
 tested-with:         GHC == 8.2.2
                    , GHC == 8.4.4
-                   , GHC == 8.6.2
+                   , GHC == 8.6.3
 
 source-repository head
   type:                git
@@ -112,7 +112,7 @@ executable readme
 
 test-suite test-co-log
   build-depends:        base-noprelude >= 4.10 && < 4.13
-                      , relude ^>= 0.3.0
+                      , relude ^>= 0.4.0
                       , hedgehog ^>= 0.6
                       , co-log
                       , co-log-core
