@@ -1,32 +1,32 @@
+cabal-version:       2.0
 name:                co-log-benchmark
-version:             0.1.0.0
-synopsis:            benchmarks of the co-log library
+version:             0.0.0
+synopsis:            Benchmarks of the co-log library.
 description:         Set of benchmarks that can be used to verify
-                     that colog library does not introduce unnesessarily
+                     that @co-log@ library does not introduce unnesessarily
                      overhead for your use-case. And check that colog
                      library behaves on par with other frameworks.
 license:             MPL-2.0
 license-file:        LICENSE
-author:              Alexander Vershilov
--- maintainer:          alexander.vershilov@gmail.com
-copyright:           2018 Kowainik
-category:            Logging
+author:              Alexander Vershilov, Kowainik
+maintainer:          Kowainik
+copyright:           2018-present Kowainik
+category:            Logging, Benchmarks
 build-type:          Simple
 extra-source-files:  CHANGELOG.md
-cabal-version:       >=1.10
 
 source-repository    head
   type:              git
   location:          https://github.com/kowainik/co-log.git
 
-executable co-log-features-bench
+executable co-log-bench
   main-is:             Main.hs
-  -- other-modules:
-  -- other-extensions:
-  build-depends:       base >=4.10 && <4.13,
-                       co-log,
-                       text,
-                       time,
-                       typed-process,
-                       unix
+  build-depends:       base >= 4.10 && < 4.13
+                     , bytestring
+                     , co-log
+                     , text
+                     , time
+                     , typed-process
+                     , unix
+  ghc-options:         -Wall
   default-language:    Haskell2010
