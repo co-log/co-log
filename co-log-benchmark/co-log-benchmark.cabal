@@ -15,7 +15,7 @@ category:            Logging, Benchmarks
 build-type:          Simple
 extra-source-files:  CHANGELOG.md
 
-source-repository    head
+source-repository head
   type:              git
   location:          https://github.com/kowainik/co-log.git
 

@@ -52,6 +52,7 @@ library
                      , stm >= 2.4 && < 2.6
                      , text ^>= 1.2.3
                      , time >= 1.8 && < 1.10
+                     , chronos >= 1.0.4
                      , transformers ^>= 0.5
                      , typerep-map ^>= 0.3.0
 
