@@ -1,6 +1,7 @@
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms   #-}
+{-# LANGUAGE TypeApplications  #-}
 
 module Main
        ( main
@@ -10,6 +11,7 @@ import Control.Exception (onException)
 import Control.Monad (replicateM_)
 import Data.Bifunctor (bimap)
 import Data.Coerce (coerce)
+import Data.Maybe (fromMaybe)
 import Data.Semigroup (Max (..), (<>))
 import Data.Time.Clock (NominalDiffTime, diffUTCTime, getCurrentTime)
 import Data.Traversable (for)
@@ -116,7 +118,7 @@ benchs =
 
     nest :: HasCallStack => Int -> IO a -> IO a
     nest 0 f = f
-    nest n f = (nest (n-1) f) `onException` (pure ()) -- force nesting
+    nest n f = nest (n - 1) f `onException` pure () -- force nesting
 
 main :: IO ()
 main = getArgs >>= \case
@@ -124,9 +126,8 @@ main = getArgs >>= \case
         putStrLn "Dump 10k messages (in a forked process):"
         results <- runBenchmarks benchs
         putStr $ genTable results
-    name:_ -> case name `lookup` benchs of
-        Nothing -> putStrLn "No benchmark with such name"
-        Just f  -> f
+    name:_ -> fromMaybe (putStrLn "No benchmark with such name") $
+        name `lookup` benchs
 
 {- | Measure the running time of the process. The process allowed to dump data
 to stdout or /dev/null. We measure the total running time of the process, and do
@@ -137,7 +138,7 @@ timeProcess :: String -> IO NominalDiffTime
 timeProcess n = do
     t <- getCurrentTime
     pid <- getProcessID
-    withFile "/dev/null" AppendMode $ \fnull1 -> do
+    withFile "/dev/null" AppendMode $ \fnull1 ->
         withFile "/dev/null" AppendMode $ \fnull2 -> do
             let cfg = setStdin  closed
                     $ setStdout (useHandleClose fnull1)
@@ -197,8 +198,4 @@ genTable rawResults = unlines rows
             ]
 
         fmtRat :: Rational -> String
-        fmtRat r =
-              take 4
-            $ dropWhile (/= '.')
-            $ show
-            $ (fromRational r :: Double)
+        fmtRat = take 4 . dropWhile (/= '.') . show . fromRational @Double
