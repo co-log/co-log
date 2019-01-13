@@ -138,7 +138,7 @@ types. The type family is open so you can add new instances.
 -}
 type family FieldType (fieldName :: Symbol) :: Type
 type instance FieldType "threadId" = ThreadId
-type instance FieldType "utcTime"  = C.Time
+type instance FieldType "posixTime"  = C.Time
 
 {- | @newtype@ wrapper. Stores monadic ability to extract value of 'FieldType'.
 
@@ -195,17 +195,17 @@ extractField = traverse unMessageField
 type FieldMap (m :: Type -> Type) = TypeRepMap (MessageField m)
 
 {- | Default message map that contains actions to extract 'ThreadId' and
-'UTCTime'. Basically, the following mapping:
+'posixTime'. Basically, the following mapping:
 
 @
 "threadId" -> myThreadId
-"utcTime"  -> getCurrentTime
+"posixTime"  -> getCurrentTime
 @
 -}
 defaultFieldMap :: MonadIO m => FieldMap m
 defaultFieldMap = fromList
     [ #threadId (liftIO myThreadId)
-    , #utcTime  (liftIO C.now)
+    , #posixTime  (liftIO C.now)
     ]
 
 -- | Contains additional data to 'Message' to display more verbose information.
@@ -223,8 +223,8 @@ data RichMessage (m :: Type -> Type) = RichMessage
 fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
 fmtRichMessageDefault RichMessage{..} = do
     maybeThreadId <- extractField $ TM.lookup @"threadId" richMessageMap
-    maybeUtcTime  <- extractField $ TM.lookup @"utcTime"  richMessageMap
-    pure $ formatRichMessage maybeThreadId maybeUtcTime richMessageMsg
+    maybePosixTime  <- extractField $ TM.lookup @"posixTime"  richMessageMap
+    pure $ formatRichMessage maybeThreadId maybePosixTime richMessageMsg
   where
     formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Message -> Text
     formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Message{..} =
@@ -236,9 +236,9 @@ fmtRichMessageDefault RichMessage{..} = do
 
     showTime :: C.Time -> Text
     showTime t = square $ T.pack $ show $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
-        where
-          timePrecision = C.SubsecondPrecisionFixed 3
-          datetimeFormat = C.DatetimeFormat (Just ' ') (Just ' ') (Just ':')
+      where
+        timePrecision = C.SubsecondPrecisionFixed 3
+        datetimeFormat = C.DatetimeFormat (Just ' ') (Just ' ') (Just ':')
 
     showThreadId :: ThreadId -> Text
     showThreadId = square . T.pack . show
