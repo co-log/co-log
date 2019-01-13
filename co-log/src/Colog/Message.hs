@@ -42,9 +42,8 @@ import Control.Monad.IO.Class (MonadIO (..))
 import Data.Kind (Type)
 import Data.Semigroup ((<>))
 import Data.Text (Text)
-import Data.Time.Clock (UTCTime, getCurrentTime)
-import Data.Time.Format (defaultTimeLocale, formatTime)
 import Data.TypeRepMap (TypeRepMap)
+import Data.Text.Lazy.Builder (toLazyText)
 import GHC.Exts (IsList (..))
 import GHC.OverloadedLabels (IsLabel (..))
 import GHC.Stack (CallStack, SrcLoc (..), callStack, getCallStack, withFrozenCallStack)
@@ -57,6 +56,7 @@ import Colog.Monad (WithLog, logMsg)
 
 import qualified Data.Text as T
 import qualified Data.TypeRepMap as TM
+import qualified Chronos as C
 
 ----------------------------------------------------------------------------
 -- Plain message
@@ -139,7 +139,7 @@ types. The type family is open so you can add new instances.
 -}
 type family FieldType (fieldName :: Symbol) :: Type
 type instance FieldType "threadId" = ThreadId
-type instance FieldType "utcTime"  = UTCTime
+type instance FieldType "utcTime"  = C.Time
 
 {- | @newtype@ wrapper. Stores monadic ability to extract value of 'FieldType'.
 
@@ -206,7 +206,7 @@ type FieldMap (m :: Type -> Type) = TypeRepMap (MessageField m)
 defaultFieldMap :: MonadIO m => FieldMap m
 defaultFieldMap = fromList
     [ #threadId (liftIO myThreadId)
-    , #utcTime  (liftIO getCurrentTime)
+    , #utcTime  (liftIO C.now)
     ]
 
 -- | Contains additional data to 'Message' to display more verbose information.
@@ -227,7 +227,7 @@ fmtRichMessageDefault RichMessage{..} = do
     maybeUtcTime  <- extractField $ TM.lookup @"utcTime"  richMessageMap
     pure $ formatRichMessage maybeThreadId maybeUtcTime richMessageMsg
   where
-    formatRichMessage :: Maybe ThreadId -> Maybe UTCTime -> Message -> Text
+    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Message -> Text
     formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Message{..} =
         showSeverity messageSeverity
      <> time
@@ -235,11 +235,11 @@ fmtRichMessageDefault RichMessage{..} = do
      <> thread
      <> messageText
 
-    showTime :: UTCTime -> Text
-    showTime t = square $ T.pack $
-          formatTime defaultTimeLocale "%H:%M:%S." t
-       ++ take 3 (formatTime defaultTimeLocale "%q" t)
-       ++ formatTime defaultTimeLocale " %e %b %Y %Z" t
+    showTime :: C.Time -> Text
+    showTime t = square $ T.pack $ show $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
+        where
+          timePrecision = C.SubsecondPrecisionFixed 3
+          datetimeFormat = C.DatetimeFormat (Just ' ') (Just ' ') (Just ':')
 
     showThreadId :: ThreadId -> Text
     showThreadId = square . T.pack . show
