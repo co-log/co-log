@@ -42,6 +42,7 @@ import Control.Monad.IO.Class (MonadIO (..))
 import Data.Kind (Type)
 import Data.Semigroup ((<>))
 import Data.Text (Text)
+import Data.Text.Lazy (toStrict)
 import Data.TypeRepMap (TypeRepMap)
 import GHC.Exts (IsList (..))
 import GHC.OverloadedLabels (IsLabel (..))
@@ -54,6 +55,7 @@ import Colog.Core (LogAction, Severity (..), cmap)
 import Colog.Monad (WithLog, logMsg)
 
 import qualified Data.Text as T
+import qualified Data.Text.Lazy.Builder as TB
 import qualified Data.TypeRepMap as TM
 import qualified Chronos as C
 
@@ -235,7 +237,7 @@ fmtRichMessageDefault RichMessage{..} = do
      <> messageText
 
     showTime :: C.Time -> Text
-    showTime t = square $ T.pack $ show $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
+    showTime t = square $ toStrict $ TB.toLazyText $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
       where
         timePrecision = C.SubsecondPrecisionFixed 3
         datetimeFormat = C.DatetimeFormat (Just ' ') (Just ' ') (Just ':')
