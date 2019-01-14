@@ -1,6 +1,6 @@
 cabal-version:       2.0
 name:                co-log
-version:             0.2.0
+version:             0.3.0
 synopsis:            Composable Contravariant Comonadic Logging Library
 description:
     The default implementation of logging based on
