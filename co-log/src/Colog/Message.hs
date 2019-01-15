@@ -54,10 +54,10 @@ import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Fo
 import Colog.Core (LogAction, Severity (..), cmap)
 import Colog.Monad (WithLog, logMsg)
 
+import qualified Chronos as C
 import qualified Data.Text as T
 import qualified Data.Text.Lazy.Builder as TB
 import qualified Data.TypeRepMap as TM
-import qualified Chronos as C
 
 ----------------------------------------------------------------------------
 -- Plain message

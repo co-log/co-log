@@ -3,7 +3,7 @@
 `co-log` uses [PVP Versioning][1].
 The change log is available [on GitHub][2].
 
-## 0.3.0 — Jan 14, 2019
+## Unreleased: 0.3.0
 
 * [#77](https://github.com/kowainik/co-log/issues/77):
   Use chronos time formatter.
