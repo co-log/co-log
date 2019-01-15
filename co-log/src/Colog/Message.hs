@@ -42,8 +42,7 @@ import Control.Monad.IO.Class (MonadIO (..))
 import Data.Kind (Type)
 import Data.Semigroup ((<>))
 import Data.Text (Text)
-import Data.Time.Clock (UTCTime, getCurrentTime)
-import Data.Time.Format (defaultTimeLocale, formatTime)
+import Data.Text.Lazy (toStrict)
 import Data.TypeRepMap (TypeRepMap)
 import GHC.Exts (IsList (..))
 import GHC.OverloadedLabels (IsLabel (..))
@@ -55,7 +54,9 @@ import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Fo
 import Colog.Core (LogAction, Severity (..), cmap)
 import Colog.Monad (WithLog, logMsg)
 
+import qualified Chronos as C
 import qualified Data.Text as T
+import qualified Data.Text.Lazy.Builder as TB
 import qualified Data.TypeRepMap as TM
 
 ----------------------------------------------------------------------------
@@ -139,7 +140,7 @@ types. The type family is open so you can add new instances.
 -}
 type family FieldType (fieldName :: Symbol) :: Type
 type instance FieldType "threadId" = ThreadId
-type instance FieldType "utcTime"  = UTCTime
+type instance FieldType "posixTime"  = C.Time
 
 {- | @newtype@ wrapper. Stores monadic ability to extract value of 'FieldType'.
 
@@ -196,17 +197,17 @@ extractField = traverse unMessageField
 type FieldMap (m :: Type -> Type) = TypeRepMap (MessageField m)
 
 {- | Default message map that contains actions to extract 'ThreadId' and
-'UTCTime'. Basically, the following mapping:
+'posixTime'. Basically, the following mapping:
 
 @
 "threadId" -> myThreadId
-"utcTime"  -> getCurrentTime
+"posixTime"  -> getCurrentTime
 @
 -}
 defaultFieldMap :: MonadIO m => FieldMap m
 defaultFieldMap = fromList
     [ #threadId (liftIO myThreadId)
-    , #utcTime  (liftIO getCurrentTime)
+    , #posixTime  (liftIO C.now)
     ]
 
 -- | Contains additional data to 'Message' to display more verbose information.
@@ -224,10 +225,10 @@ data RichMessage (m :: Type -> Type) = RichMessage
 fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
 fmtRichMessageDefault RichMessage{..} = do
     maybeThreadId <- extractField $ TM.lookup @"threadId" richMessageMap
-    maybeUtcTime  <- extractField $ TM.lookup @"utcTime"  richMessageMap
-    pure $ formatRichMessage maybeThreadId maybeUtcTime richMessageMsg
+    maybePosixTime  <- extractField $ TM.lookup @"posixTime"  richMessageMap
+    pure $ formatRichMessage maybeThreadId maybePosixTime richMessageMsg
   where
-    formatRichMessage :: Maybe ThreadId -> Maybe UTCTime -> Message -> Text
+    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Message -> Text
     formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Message{..} =
         showSeverity messageSeverity
      <> time
@@ -235,11 +236,11 @@ fmtRichMessageDefault RichMessage{..} = do
      <> thread
      <> messageText
 
-    showTime :: UTCTime -> Text
-    showTime t = square $ T.pack $
-          formatTime defaultTimeLocale "%H:%M:%S." t
-       ++ take 3 (formatTime defaultTimeLocale "%q" t)
-       ++ formatTime defaultTimeLocale " %e %b %Y %Z" t
+    showTime :: C.Time -> Text
+    showTime t = square $ toStrict $ TB.toLazyText $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
+      where
+        timePrecision = C.SubsecondPrecisionFixed 3
+        datetimeFormat = C.DatetimeFormat (Just ' ') (Just ' ') (Just ':')
 
     showThreadId :: ThreadId -> Text
     showThreadId = square . T.pack . show

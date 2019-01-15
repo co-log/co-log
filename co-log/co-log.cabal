@@ -1,6 +1,6 @@
 cabal-version:       2.0
 name:                co-log
-version:             0.2.0
+version:             0.3.0
 synopsis:            Composable Contravariant Comonadic Logging Library
 description:
     The default implementation of logging based on
@@ -51,7 +51,7 @@ library
                      , mtl ^>= 2.2.2
                      , stm >= 2.4 && < 2.6
                      , text ^>= 1.2.3
-                     , time >= 1.8 && < 1.10
+                     , chronos ^>= 1.0.4
                      , transformers ^>= 0.5
                      , typerep-map ^>= 0.3.0
 
