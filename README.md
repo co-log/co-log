@@ -43,4 +43,4 @@ library.
 | `Message{callstack} > format > stdout`     | `  9.367ms` |
 | `Message{callstack:5} > format > stdout`   | `  9.441ms` |
 | `Message{callstack:50} > format > stdout`  | `  9.305ms` |
-| `Message{Time,ThreadId} > format > stdout` | `154.880ms` |
+| `Message{Time,ThreadId} > format > stdout` | ` 53.870ms` |
