@@ -23,7 +23,7 @@ See [How to start using `co-log`?](co-log/README.md) for simple example of the
 `co-log` is compared with basic functions like `putStrLn`. Since IO overhead is
 big enough, every benchmark dumps 10K messages to output. If benchmark name
 doesn't contain `Message` then this benchmark simply dumps string `"message"`
-to output, othwerwise it works with `Message` data type from the `co-log`
+to output, otherwise it works with `Message` data type from the `co-log`
 library.
 
 | Benchmarks                                 | Time        |
