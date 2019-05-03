@@ -27,7 +27,7 @@ import qualified Colog.Core.Action as LA
 #if !MIN_VERSION_base(4,12,0)
 instance Contravariant (LogAction m) where
     contramap = LA.cmap
-    {-# INLINE contramap#-}
+    {-# INLINE contramap #-}
     (>$) = (LA.>$)
     {-# INLINE (>$) #-}
 #endif

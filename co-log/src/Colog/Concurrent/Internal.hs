@@ -5,6 +5,8 @@ Copyright:  (c) 2018-2019 Kowainik
 License:    MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
+__NOTE:__ Many thanks to Alexander Vershilov for the implementation.
+
 This is internal module, use it on your own risk. The implementation here may be
 changed without a version bump.
 -}
@@ -29,9 +31,9 @@ newtype Capacity = Capacity Int
 -- | Wrapper for the background thread that may
 -- receive messages to process.
 data BackgroundWorker msg = BackgroundWorker
-  { backgroundWorkerThreadId :: !ThreadId
-    -- ^ Background 'ThreadId'.
-  , backgroundWorkerWrite    :: msg -> STM ()
-    -- ^ Method for communication with the thread.
-  , backgroundWorkerIsAlive  :: TVar Bool
-  }
+    { backgroundWorkerThreadId :: !ThreadId
+      -- ^ Background 'ThreadId'.
+    , backgroundWorkerWrite    :: msg -> STM ()
+      -- ^ Method for communication with the thread.
+    , backgroundWorkerIsAlive  :: TVar Bool
+    }

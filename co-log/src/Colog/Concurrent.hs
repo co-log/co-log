@@ -3,6 +3,8 @@ Copyright:  (c) 2018-2019 Kowainik
 License:    MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
+__NOTE:__ Many thanks to Alexander Vershilov for the implementation.
+
 For the speed reasons you may want to dump logs asynchronously.
 This is especially useful when application threads are CPU
 bound while logs emitting is I/O bound. This approach
