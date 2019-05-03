@@ -471,14 +471,14 @@ in duplicate logger <& ([3, 4], [42, 10])
 
 __Implementation note:__
 
-True and fair translation of the @duplication@ function from the 'Comonad'
+True and fair translation of the @duplicate@ function from the 'Comonad'
 interface should result in the 'LogAction' of the following form:
 
 @
 msg -> msg -> m ()
 @
 
-In order to capture this behavior, 'duplication' should have the following type:
+In order to capture this behavior, 'duplicate' should have the following type:
 
 @
 duplicate :: Semigroup msg => LogAction m msg -> LogAction (Compose ((->) msg) m) msg
