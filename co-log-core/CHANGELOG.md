@@ -9,6 +9,8 @@ The change log is available [on GitHub][2].
   Move `overLogAction` to `HasLog` typeclass
 * [#101](https://github.com/kowainik/co-log/issues/101):
   Add `logActionL` lens with default implementation to `HasLog` type class.
+* [#99](https://github.com/kowainik/co-log/issues/99):
+  Add comonadic combinators: `duplicate` and `multiplicate`.
 
 ## 0.1.1 — Nov 15, 2018
 
