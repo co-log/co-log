@@ -1,7 +1,12 @@
 {-# LANGUAGE CPP #-}
 
-{- | This is internal module, use it on your own risk. The implementation here
-may be changed without a version bump.
+{- |
+Copyright:  (c) 2018-2019 Kowainik
+License:    MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+This is internal module, use it on your own risk. The implementation here may be
+changed without a version bump.
 -}
 
 module Colog.Concurrent.Internal

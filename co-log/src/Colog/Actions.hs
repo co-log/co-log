@@ -1,3 +1,11 @@
+{- |
+Copyright:  (c) 2018-2019 Kowainik
+License:    MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+Logging actions for various text types.
+-}
+
 module Colog.Actions
        (
          -- * 'ByteString' actions
@@ -62,4 +70,3 @@ logTextHandle handle = LogAction $ liftIO . TIO.hPutStrLn handle
 {- | Action that prints 'Text' to file. See 'withLogStringFile' for details. -}
 withLogTextFile :: MonadIO m => FilePath -> (LogAction m T.Text -> IO r) -> IO r
 withLogTextFile path action = withFile path AppendMode $ action . logTextHandle
-

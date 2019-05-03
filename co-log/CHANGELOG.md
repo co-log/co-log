@@ -1,12 +1,27 @@
-# Change log
+# Changelog
 
 `co-log` uses [PVP Versioning][1].
-The change log is available [on GitHub][2].
+The changelog is available [on GitHub][2].
 
-## Unreleased: 0.3.0
+## Unreleased: 0.3.0.0
 
 * [#77](https://github.com/kowainik/co-log/issues/77):
-  Use chronos time formatter.
+  **Important:** Use `chronos` time formatter. This is a breaking change because
+  default field map in `RichMessage` now contains different type representing
+  time. If you use your custom formatter for time, you should change it.
+  Othwerwise no observable differences in the library API usage will be noticed.
+* [#103](https://github.com/kowainik/co-log/issues/103):
+  **Breaking change:** make `Message` data type polymorhic over the type of severity.
+
+  **Migration guide:** this change is done in backwards-compatible way. If you
+  use any fields of the `Message` data type, you should rename them according to
+  the following scheme:
+  ```haskell
+  messageSeverity -> msgSeverity
+  messageStack    -> msgStack
+  messageText     -> msgText
+  ```
+* Export more formatting functions to make implementation of custom formatters easier.
 
 ## 0.2.0 — Nov 15, 2018
 

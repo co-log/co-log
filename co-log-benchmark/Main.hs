@@ -22,7 +22,7 @@ import System.Posix.Process (getProcessID)
 import System.Process.Typed (closed, proc, runProcess_, setStderr, setStdin, setStdout,
                              useHandleClose)
 
-import Colog (pattern D, LogAction, Message (..), cmap, cmapM, defaultFieldMap, fmtMessage,
+import Colog (pattern D, LogAction, Message, Msg (..), cmap, cmapM, defaultFieldMap, fmtMessage,
               fmtRichMessageDefault, logByteStringStderr, logByteStringStdout, logPrint,
               logStringStdout, logTextStdout, upgradeMessageAction, (<&))
 
@@ -86,15 +86,15 @@ benchs =
 
     , bench "Message{callstack} > format > stdout" $
         let la = cmap fmtMessage logTextStdout
-        in runLA la (Message D callStack "message")
+        in runLA la (Msg D callStack "message")
 
     , bench "Message{callstack:5} > format > stdout" $
         let la = cmap fmtMessage logTextStdout
-        in nest 5 $ runLA la (Message D callStack "message")
+        in nest 5 $ runLA la (Msg D callStack "message")
 
     , bench "Message{callstack:50} > format > stdout" $
         let la = cmap fmtMessage logTextStdout
-        in nest 50 $ runLA la (Message D callStack "message")
+        in nest 50 $ runLA la (Msg D callStack "message")
 
     , bench "Message{Time,ThreadId} > format > stdout" $ do
         let richMessageAction = cmapM fmtRichMessageDefault logTextStdout
@@ -106,7 +106,7 @@ benchs =
     samples10K = 10000
 
     msg :: Message
-    msg = Message D emptyCallStack "message"
+    msg = Msg D emptyCallStack "message"
 
     -- run @LogAction IO@ over single message 10K times
     runLA :: LogAction IO a -> a -> IO ()

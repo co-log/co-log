@@ -7,28 +7,42 @@
 {-# LANGUAGE OverloadedLabels      #-}
 {-# LANGUAGE TypeFamilies          #-}
 
-{- | 'Message' with 'Severity', and logging functions for them.
+{- |
+Copyright:  (c) 2018-2019 Kowainik
+License:    MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+This module contains logging messages data types along with the formatting and
+logging actions for them.
 -}
 
 module Colog.Message
        ( -- * Basic message type
-         Message (..)
-       , unMessageField
+         Msg (..)
+       , Message
        , log
        , logDebug
        , logInfo
        , logWarning
        , logError
        , logException
+
+         -- * Formatting functions
        , fmtMessage
+       , showSeverity
+       , showSourceLoc
 
          -- * Externally extensible message type
+         -- ** Field of the dependent map
        , FieldType
        , MessageField (..)
+       , unMessageField
+       , extractField
+         -- ** Dependent map that allows to extend logging message
        , FieldMap
        , defaultFieldMap
 
-       , RichMessage
+       , RichMessage (..)
        , fmtRichMessageDefault
        , upgradeMessageAction
        ) where
@@ -62,31 +76,43 @@ import qualified Data.TypeRepMap as TM
 -- Plain message
 ----------------------------------------------------------------------------
 
--- | Consist of the message 'Severity' level and the message itself.
-data Message = Message
-    { messageSeverity :: !Severity
-    , messageStack    :: !CallStack
-    , messageText     :: !Text
+{- | General logging message data type. Contains the following fields:
+
+1. Polymorhic severity. This can be anything you want if you need more
+flexibility.
+2. Function 'CallStack'. It provides useful information about source code
+locations where each particular function was called.
+3. Custom text for logging.
+-}
+data Msg sev = Msg
+    { msgSeverity :: !sev
+    , msgStack    :: !CallStack
+    , msgText     :: !Text
     }
 
--- | Logs the message with given 'Severity'.
-log :: WithLog env Message m => Severity -> Text -> m ()
-log messageSeverity messageText =
-    withFrozenCallStack (logMsg Message{ messageStack = callStack, .. })
+{- | 'Msg' parametrized by the 'Severity' type. Most formatting functions in
+this module work with 'Severity' from @co-log-core@.
+-}
+type Message = Msg Severity
 
--- | Logs the message with 'Debug' severity.
+-- | Logs the message with given severity @sev@.
+log :: WithLog env (Msg sev) m => sev -> Text -> m ()
+log msgSeverity msgText =
+    withFrozenCallStack (logMsg Msg{ msgStack = callStack, .. })
+
+-- | Logs the message with the 'Debug' severity.
 logDebug :: WithLog env Message m => Text -> m ()
 logDebug = withFrozenCallStack (log Debug)
 
--- | Logs the message with 'Info' severity.
+-- | Logs the message with the 'Info' severity.
 logInfo :: WithLog env Message m => Text -> m ()
 logInfo = withFrozenCallStack (log Info)
 
--- | Logs the message with 'Warning' severity.
+-- | Logs the message with the 'Warning' severity.
 logWarning :: WithLog env Message m => Text -> m ()
 logWarning = withFrozenCallStack (log Warning)
 
--- | Logs the message with 'Error' severity.
+-- | Logs the message with the 'Error' severity.
 logError :: WithLog env Message m => Text -> m ()
 logError = withFrozenCallStack (log Error)
 
@@ -94,14 +120,29 @@ logError = withFrozenCallStack (log Error)
 logException :: forall e m env . (WithLog env Message m, Exception e) => e -> m ()
 logException = withFrozenCallStack (logError . T.pack . displayException)
 
--- | Prettifies 'Message' type.
-fmtMessage :: Message -> Text
-fmtMessage Message{..} =
-    showSeverity messageSeverity
- <> showSourceLoc messageStack
- <> messageText
+{- | Formats the 'Message' type in according to the following format:
 
--- | Prints severity in different colours
+@
+[Severity] [SourceLocation] \<Text message\>
+@
+
+__Examples:__
+
+@
+[Warning] [Main.app#39] Starting application...
+[Debug]   [Main.example#34] app: First message...
+@
+
+See 'fmtRichMessageDefault' for richer format.
+-}
+fmtMessage :: Message -> Text
+fmtMessage Msg{..} =
+    showSeverity msgSeverity
+    <> showSourceLoc msgStack
+    <> msgText
+
+{- | Formats severity in different colours with alignment.
+-}
 showSeverity :: Severity -> Text
 showSeverity = \case
     Debug   -> color Green  "[Debug]   "
@@ -110,13 +151,20 @@ showSeverity = \case
     Error   -> color Red    "[Error]   "
  where
     color :: Color -> Text -> Text
-    color c txt = T.pack (setSGRCode [SetColor Foreground Vivid c])
+    color c txt =
+        T.pack (setSGRCode [SetColor Foreground Vivid c])
         <> txt
         <> T.pack (setSGRCode [Reset])
 
 square :: Text -> Text
 square t = "[" <> t <> "] "
 
+{- | Show source code locations in the following format:
+
+@
+[Main.example#35]
+@
+-}
 showSourceLoc :: CallStack -> Text
 showSourceLoc cs = square showCallStack
   where
@@ -167,6 +215,7 @@ newtype MessageField m fieldName = MessageField
 newtype MessageField (m :: Type -> Type) (fieldName :: Symbol) where
     MessageField :: forall fieldName m . m (FieldType fieldName) -> MessageField m fieldName
 
+-- | Extracts field from the 'MessageField' constructor.
 unMessageField :: forall fieldName m . MessageField m fieldName -> m (FieldType fieldName)
 unMessageField (MessageField f) = f
 
@@ -179,6 +228,7 @@ instance (KnownSymbol fieldName, a ~ m (FieldType fieldName))
 #endif
     {-# INLINE fromLabel #-}
 
+-- | Helper function to deal with 'MessageField' when looking it up in the 'FieldMap'.
 extractField
     :: Applicative m
     => Maybe (MessageField m fieldName)
@@ -196,17 +246,17 @@ extractField = traverse unMessageField
 type FieldMap (m :: Type -> Type) = TypeRepMap (MessageField m)
 
 {- | Default message map that contains actions to extract 'ThreadId' and
-'posixTime'. Basically, the following mapping:
+'C.Time'. Basically, the following mapping:
 
 @
-"threadId" -> myThreadId
-"posixTime"  -> getCurrentTime
+"threadId"  -> 'myThreadId'
+"posixTime" -> 'C.now'
 @
 -}
 defaultFieldMap :: MonadIO m => FieldMap m
 defaultFieldMap = fromList
-    [ #threadId (liftIO myThreadId)
-    , #posixTime  (liftIO C.now)
+    [ #threadId  (liftIO myThreadId)
+    , #posixTime (liftIO C.now)
     ]
 
 -- | Contains additional data to 'Message' to display more verbose information.
@@ -218,22 +268,31 @@ data RichMessage (m :: Type -> Type) = RichMessage
 {- | Formats 'RichMessage' in the following way:
 
 @
-[Severity] [Time] [SourceLocation] [ThreadId] <Text message>
+[Severity] [Time] [SourceLocation] [ThreadId] \<Text message\>
 @
+
+__Examples:__
+
+@
+[Debug]   [03 05 2019 05:23:19.058] [Main.example#34] [ThreadId 11] app: First message...
+[Info]    [03 05 2019 05:23:19.059] [Main.example#35] [ThreadId 11] app: Second message...
+@
+
+See 'fmtMessage' if you don't need both time and thread id.
 -}
 fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
 fmtRichMessageDefault RichMessage{..} = do
-    maybeThreadId <- extractField $ TM.lookup @"threadId" richMessageMap
-    maybePosixTime  <- extractField $ TM.lookup @"posixTime"  richMessageMap
+    maybeThreadId  <- extractField $ TM.lookup @"threadId"  richMessageMap
+    maybePosixTime <- extractField $ TM.lookup @"posixTime" richMessageMap
     pure $ formatRichMessage maybeThreadId maybePosixTime richMessageMsg
   where
     formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Message -> Text
-    formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Message{..} =
-        showSeverity messageSeverity
+    formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Msg{..} =
+        showSeverity msgSeverity
      <> time
-     <> showSourceLoc messageStack
+     <> showSourceLoc msgStack
      <> thread
-     <> messageText
+     <> msgText
 
     showTime :: C.Time -> Text
     showTime t = square $ toStrict $ TB.toLazyText $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
