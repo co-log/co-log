@@ -1,6 +1,10 @@
 resolver: nightly-2019-05-01
 
 packages:
-  - co-log
   - co-log-core
+  - co-log
+  - co-log-polysemy
   - co-log-benchmark
+
+extra-deps:
+  - polysemy-0.1.2.0
