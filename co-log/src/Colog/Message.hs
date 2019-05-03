@@ -218,6 +218,7 @@ newtype MessageField (m :: Type -> Type) (fieldName :: Symbol) where
 -- | Extracts field from the 'MessageField' constructor.
 unMessageField :: forall fieldName m . MessageField m fieldName -> m (FieldType fieldName)
 unMessageField (MessageField f) = f
+{-# INLINE unMessageField #-}
 
 instance (KnownSymbol fieldName, a ~ m (FieldType fieldName))
       => IsLabel fieldName (a -> TM.WrapTypeable (MessageField m)) where
@@ -234,6 +235,7 @@ extractField
     => Maybe (MessageField m fieldName)
     -> m (Maybe (FieldType fieldName))
 extractField = traverse unMessageField
+{-# INLINE extractField #-}
 
 -- same as:
 -- extractField = \case

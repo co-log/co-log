@@ -43,7 +43,9 @@ type PureLogger msg = PureLoggerT msg Identity
 -- | Returns result value of 'PureLogger' and list of logged messages.
 runPureLog :: PureLogger msg a -> (a, [msg])
 runPureLog = runIdentity . runPureLogT
+{-# INLINE runPureLog #-}
 
 -- | 'LogAction' that prints @msg@ by appending it to the end of the sequence.
 logMessagePure :: Monad m => LogAction (PureLoggerT msg m) msg
 logMessagePure = LogAction $ \msg -> modify' (|> msg)
+{-# INLINE logMessagePure #-}
