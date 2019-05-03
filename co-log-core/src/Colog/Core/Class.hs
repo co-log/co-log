@@ -21,6 +21,9 @@ module Colog.Core.Class
 import Colog.Core.Action (LogAction)
 
 
+-- to inline lens better
+{- HLINT ignore "Redundant lambda" -}
+
 {- | This types class contains simple pair of getter-setter and related
 functions.
 It also provides the useful lens 'logActionL' with the default implementation using type
