@@ -1,13 +1,31 @@
 {-# LANGUAGE PatternSynonyms #-}
 
-{- | This module introduces 'Severity' data type for expressing how severe the
-message is. Also, it contains useful functions for work with 'Severity'.
+{- |
+Copyright:  (c) 2018-2019 Kowainik
+License:    MIT
+Maintainer: Kowainik <xrom.xkov@gmail.com>
 
+This module introduces 'Severity' data type for expressing how severe the
+message is. Also, it contains useful functions and patterns for work with 'Severity'.
+
+
+ +-----------+---------+-----------------------------------------+-----------------------------+
+ | Severity  | Pattern | Meaning                                 | Example                     |
+ +===========+=========+=========================================+=============================+
+ | 'Debug'   | 'D'     | Information useful for debug purposes   | Internal function call logs |
+ +-----------+---------+-----------------------------------------+-----------------------------+
+ | 'Info'    | 'I'     | Normal operational information          | Finish file uploading       |
+ +-----------+---------+-----------------------------------------+-----------------------------+
+ | 'Warning' | 'W'     | General warnings, non-critical failures | Image load error            |
+ +-----------+---------+-----------------------------------------+-----------------------------+
+ | 'Error'   | 'E'     | General errors/severe errors            | Could not connect to the DB |
+ +-----------+---------+-----------------------------------------+-----------------------------+
 -}
 
 module Colog.Core.Severity
        ( Severity (..)
-         -- Patterns
+         -- ** Patterns
+         -- $pattern
        , pattern D
        , pattern I
        , pattern W
@@ -44,6 +62,26 @@ data Severity
     | Error
     deriving (Show, Read, Eq, Ord, Enum, Bounded, Ix)
 
+{- $pattern
+Instead of using full names of the constructors you can instead use one-letter
+patterns. To do so you can import and use the pattern:
+
+@
+import Colog (pattern D)
+
+example :: WithLog env Message m => m ()
+example = log D "I'm using severity pattern"
+@
+
+Moreover, you could use patterns when pattern-matching on severity
+
+@
+errorToStderr :: 'Severity' -> IO ()
+errorToStderr E = hputStrLn stderr "Error severity"
+errorToStderr _ = putStrLn "Something else"
+@
+-}
+
 pattern D, I, W, E :: Severity
 pattern D <- Debug   where D = Debug
 pattern I <- Info    where I = Info
@@ -52,6 +90,6 @@ pattern E <- Error   where E = Error
 {-# COMPLETE D, I, W, E #-}
 
 
--- | Filters messages by given 'Severity'.
+-- | Filters messages by the given 'Severity'.
 filterBySeverity :: Applicative m => Severity -> (a -> Severity) -> LogAction m a -> LogAction m a
 filterBySeverity s fs = cfilter (\a -> fs a >= s)

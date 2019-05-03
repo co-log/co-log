@@ -1,6 +1,11 @@
 {-# LANGUAGE CPP #-}
 
-{- | Implements core data types and combinators for logging actions.
+{- |
+Copyright:  (c) 2018-2019 Kowainik
+License:    MIT
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+Implements core data types and combinators for logging actions.
 -}
 
 module Colog.Core.Action
