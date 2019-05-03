@@ -18,10 +18,10 @@ matrix:
   # Cabal
   - ghc: 8.2.2
   - ghc: 8.4.4
-  - ghc: 8.6.3
+  - ghc: 8.6.5
 
   # stack
-  - ghc: 8.6.3
+  - ghc: 8.6.5
     env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
 
 install:
@@ -41,16 +41,16 @@ install:
     fi
 
 script:
+  # HLint check
+  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint co-log-core/ co-log/src/ co-log-benchmark/
   - |
     if [ -z "$STACK_YAML" ]; then
        cabal new-test all
     else
-      stack build co-log-core --test --bench --no-run-benchmarks --no-terminal
-      stack build co-log      --test --bench --no-run-benchmarks --no-terminal
+      stack test  co-log-core      --system-ghc
+      stack test  co-log           --system-ghc
+      stack build co-log-benchmark --system-ghc
     fi
-
-  # HLint check
-  - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint co-log-core/ co-log/src/ co-log-benchmark/
 
 notifications:
   email: false

@@ -1,4 +1,4 @@
-cabal-version:       2.0
+cabal-version:       2.4
 name:                co-log
 version:             0.3.0.0
 synopsis:            Composable Contravariant Comonadic Logging Library
@@ -24,13 +24,40 @@ extra-doc-files:     CHANGELOG.md
                    , README.md
 tested-with:         GHC == 8.2.2
                    , GHC == 8.4.4
-                   , GHC == 8.6.3
+                   , GHC == 8.6.5
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/co-log.git
 
+common common-options
+  build-depends:       base >= 4.10.0.0 && < 4.13
+
+  ghc-options:         -Wall
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+                       -freverse-errors
+                       -Wpartial-fields
+  default-language:    Haskell2010
+
+  default-extensions:  ConstraintKinds
+                       DeriveGeneric
+                       GeneralizedNewtypeDeriving
+                       LambdaCase
+                       OverloadedStrings
+                       RecordWildCards
+                       ScopedTypeVariables
+                       StandaloneDeriving
+                       TupleSections
+                       TypeApplications
+                       ViewPatterns
+
 library
+  import:              common-options
   hs-source-dirs:      src
   exposed-modules:     Colog
                            Colog.Actions
@@ -42,8 +69,7 @@ library
                            Colog.Pure
                            Colog.Rotation
 
-  build-depends:       base >= 4.10 && < 4.13
-                     , ansi-terminal ^>= 0.8
+  build-depends:       ansi-terminal ^>= 0.9
                      , bytestring ^>= 0.10.8
                      , co-log-core ^>= 0.1.1
                      , containers >= 0.5.7 && < 0.7
@@ -57,72 +83,33 @@ library
                      , transformers ^>= 0.5
                      , typerep-map ^>= 0.3.0
 
-  ghc-options:         -Wall
-                       -Wincomplete-uni-patterns
-                       -Wincomplete-record-updates
-                       -Wcompat
-                       -Widentities
-                       -Wredundant-constraints
-                       -fhide-source-paths
-                       -freverse-errors
-
-  default-language:    Haskell2010
-  default-extensions:  ConstraintKinds
-                       DeriveGeneric
-                       GeneralizedNewtypeDeriving
-                       LambdaCase
-                       OverloadedStrings
-                       RecordWildCards
-                       ScopedTypeVariables
-                       StandaloneDeriving
-                       TupleSections
-                       TypeApplications
-                       ViewPatterns
-
 executable play-colog
+  import:              common-options
   hs-source-dirs:      example
   main-is:             Main.hs
 
-  build-depends:       base
-                     , co-log
+  build-depends:       co-log
                      , mtl
                      , typerep-map
 
-  ghc-options:         -Wall
-                       -Wincomplete-uni-patterns
-                       -Wincomplete-record-updates
-                       -Wcompat
-                       -Widentities
-                       -Wredundant-constraints
-                       -fhide-source-paths
-                       -freverse-errors
-                       -threaded
+  ghc-options:         -threaded
                        -rtsopts
                        -with-rtsopts=-N
 
-  default-language:    Haskell2010
-
 executable readme
+  import:              common-options
   main-is:             README.lhs
-  build-depends:       base
-                     , co-log
+  build-depends:       co-log
                      , text
 
   build-tool-depends:  markdown-unlit:markdown-unlit
-  ghc-options:         -Wall -pgmL markdown-unlit
-  default-language:    Haskell2010
+  ghc-options:         -pgmL markdown-unlit
 
 test-suite test-co-log
-  build-depends:        base-noprelude >= 4.10 && < 4.13
-                      , relude ^>= 0.4.0
-                      , hedgehog ^>= 0.6
-                      , co-log
-                      , co-log-core
-  mixins:               base-noprelude
-                      , relude (Relude as Prelude)
-  default-language:     Haskell2010
-  default-extensions:   TemplateHaskell
-                        FlexibleContexts
-  hs-source-dirs:       test
-  main-is:              Property.hs
-  type:                 exitcode-stdio-1.0
+  import:              common-options
+  build-depends:       co-log
+                     , co-log-core
+                     , hedgehog ^>= 0.6
+  hs-source-dirs:      test
+  main-is:             Property.hs
+  type:                exitcode-stdio-1.0

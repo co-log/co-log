@@ -1,19 +1,24 @@
 # co-log
 
-[![Hackage](https://img.shields.io/hackage/v/co-log.svg)](https://hackage.haskell.org/package/co-log)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/master/LICENSE)
 [![Build status](https://secure.travis-ci.org/kowainik/co-log.svg)](https://travis-ci.org/kowainik/co-log)
 
-Composable and configurable logging framework. The idea of the approach is
+|               |                                    |                                           |                                                       |
+| :------------ | :--------------------------------- | :---------------------------------------: | :---------------------------------------------------- |
+| `co-log`      | [![Hackage][hk-img]][hk]           | [![Stackage LTS][lts-img]][lts]           | [![Stackage Nightly][nightly-img]][nightly]           |
+| `co-log-core` | [![Hackage][hk-img-core]][hk-core] | [![Stackage LTS][lts-img-core]][lts-core] | [![Stackage Nightly][nightly-img-core]][nightly-core] |
+
+`co-log` is a composable and configurable logging framework. The idea of the approach is
 described in the following blog post:
 
 * [co-log: Composable Contravariant Combinatorial Comonadic Configurable Convenient Logging](https://kowainik.github.io/posts/2018-09-25-co-log)
 
-The repository contains two packages:
+The repository contains the following packages:
 
 * [`co-log-core`](co-log-core): lightweight package with basic data types and
   general idea.
 * [`co-log`](co-log): implementation of logging library based on `co-log-core`.
+* [`co-log-benchmark`](co-log-benchmark): Benchmarks of the `co-log` library.
 
 See [How to start using `co-log`?](co-log/README.md) for simple example of the
 `co-log` library usage.
@@ -44,3 +49,17 @@ library.
 | `Message{callstack:5} > format > stdout`   | `  9.441ms` |
 | `Message{callstack:50} > format > stdout`  | `  9.305ms` |
 | `Message{Time,ThreadId} > format > stdout` | ` 53.870ms` |
+
+
+[hk-img]: https://img.shields.io/hackage/v/co-log.svg
+[hk-img-core]: https://img.shields.io/hackage/v/co-log-core.svg
+[hk]: https://hackage.haskell.org/package/co-log
+[hk-core]: https://hackage.haskell.org/package/co-log-core
+[lts-img]: http://stackage.org/package/co-log/badge/lts
+[lts-img-core]: http://stackage.org/package/co-log-core/badge/lts
+[lts]: http://stackage.org/lts/package/co-log
+[lts-core]: http://stackage.org/lts/package/co-log-core
+[nightly-img]: http://stackage.org/package/co-log/badge/nightly
+[nightly-img-core]: http://stackage.org/package/co-log-core/badge/nightly
+[nightly]: http://stackage.org/nightly/package/co-log
+[nightly-core]: http://stackage.org/nightly/package/co-log-core
