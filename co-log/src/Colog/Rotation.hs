@@ -1,8 +1,14 @@
--- |
--- This functionality is not to be considered stable
--- or ready for production use. While we enourage you
--- to try it out and report bugs, we cannot assure you
--- that everything will work as advertised :)
+{- |
+Copyright:  (c) 2018-2019 Kowainik
+License:    MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+Stability:  experimental
+
+__NOTE:__ This functionality is not to be considered stable
+or ready for production use. While we enourage you
+to try it out and report bugs, we cannot assure you
+that everything will work as advertised :)
+-}
 
 module Colog.Rotation
        ( Limit(..)
@@ -26,6 +32,11 @@ import qualified System.Directory as D
 import qualified System.FilePath.Posix as POS
 
 
+{- | Limit for the logger rotation. Used for two purposes:
+
+1. Limit the number of kept files.
+2. Limit the size of the files.
+-}
 data Limit = LimitTo Natural | Unlimited deriving (Eq, Ord)
 
 {- | Logger rotation action. Takes name of the logging file @file.foo@. Always

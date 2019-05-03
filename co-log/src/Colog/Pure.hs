@@ -1,4 +1,9 @@
-{- | Pure implementation of logging action.
+{- |
+Copyright:  (c) 2018-2019 Kowainik
+License:    MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+Pure implementation of logging action.
 -}
 
 module Colog.Pure

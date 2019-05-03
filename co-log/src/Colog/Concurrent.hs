@@ -1,32 +1,39 @@
--- |
--- For the speed reasons you may want to dump logs asynchronously.
--- This is especially useful when application threads are CPU
--- bound while logs emitting is I/O bound. This approach
--- allows to mitigate bottlenecks from the I/O.
---
--- When writing an application user should be aware of the tradeoffs
--- that concurrent log system can provide, in this module we explain
--- potential tradeoffs and describe if certain building blocks are
--- affected or not.
---
---   1. Unbounded memory usage - if there is no backpressure mechanism
---   the user threads, they may generate more logs that can be
---   written in the same amount of time. In those cases messages will
---   be accumulated in memory. That will lead to extended GC times and
---   application may be killed by the operating systems mechanisms.
---
---   2. Persistence requirement - sometimes application may want to
---   ensure that logs were written before it can continue. This is not
---   a case with concurrent log systems in general, and some logs may
---   be lost when application exits before dumping all logs.
---
---   3. Non-precise logging - sometimes it may happen that there can be
---   logs reordering (in case if thread was moved to another capability).
---
--- In case if your application is a subject of those problems you may
--- consider not using concurrent logging system in other cases concurrent
--- logger may be a good default for you.
---
+{- |
+Copyright:  (c) 2018-2019 Kowainik
+License:    MPL-2.0
+Maintainer: Kowainik <xrom.xkov@gmail.com>
+
+__NOTE:__ Many thanks to Alexander Vershilov for the implementation.
+
+For the speed reasons you may want to dump logs asynchronously.
+This is especially useful when application threads are CPU
+bound while logs emitting is I/O bound. This approach
+allows to mitigate bottlenecks from the I/O.
+
+When writing an application user should be aware of the tradeoffs
+that concurrent log system can provide, in this module we explain
+potential tradeoffs and describe if certain building blocks are
+affected or not.
+
+  1. Unbounded memory usage - if there is no backpressure mechanism
+  the user threads, they may generate more logs that can be
+  written in the same amount of time. In those cases messages will
+  be accumulated in memory. That will lead to extended GC times and
+  application may be killed by the operating systems mechanisms.
+
+  2. Persistence requirement - sometimes application may want to
+  ensure that logs were written before it can continue. This is not
+  a case with concurrent log systems in general, and some logs may
+  be lost when application exits before dumping all logs.
+
+  3. Non-precise logging - sometimes it may happen that there can be
+  logs reordering (in case if thread was moved to another capability).
+
+In case if your application is a subject of those problems you may
+consider not using concurrent logging system in other cases concurrent
+logger may be a good default for you.
+-}
+
 module Colog.Concurrent
        ( -- $general
          -- * Simple API.

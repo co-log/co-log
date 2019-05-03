@@ -21,11 +21,11 @@ import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Reader (MonadReader, ReaderT (..))
 import Data.Semigroup ((<>))
 
-import Colog (pattern D, HasLog (..), LogAction, Message (..), PureLogger, WithLog, cmap, cmapM,
-              defaultFieldMap, fmtMessage, fmtRichMessageDefault, liftLogIO, log, logException,
-              logInfo, logMessagePure, logMsg, logMsgs, logPrint, logStringStdout, logTextStderr,
-              logTextStdout, logWarning, runPureLog, upgradeMessageAction, usingLoggerT, withLog,
-              withLogTextFile, (*<), (<&), (>$), (>$<), (>*), (>*<), (>|<))
+import Colog (pattern D, HasLog (..), LogAction, Message, Msg (..), PureLogger, WithLog, cmap,
+              cmapM, defaultFieldMap, fmtMessage, fmtRichMessageDefault, liftLogIO, log,
+              logException, logInfo, logMessagePure, logMsg, logMsgs, logPrint, logStringStdout,
+              logTextStderr, logTextStdout, logWarning, runPureLog, upgradeMessageAction,
+              usingLoggerT, withLog, withLogTextFile, (*<), (<&), (>$), (>$<), (>*), (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
 
@@ -44,7 +44,7 @@ app = do
         logInfo "Application finished..."
   where
     addApp :: Message -> Message
-    addApp msg = msg { messageText = "app: " <> messageText msg }
+    addApp msg = msg { msgText = "app: " <> msgText msg }
 
 
 

@@ -22,8 +22,9 @@ license-file:        LICENSE
 author:              Kowainik
 maintainer:          xrom.xkov@gmail.com
 copyright:           2018-present Kowainik
-category:            Logging
+category:            Logging, Contravariant, Comonad
 build-type:          Simple
+stability:           stable
 extra-doc-files:     CHANGELOG.md
 tested-with:         GHC == 8.2.2
                    , GHC == 8.4.4
