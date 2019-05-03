@@ -1,4 +1,4 @@
-cabal-version:       2.0
+cabal-version:       2.4
 name:                co-log-core
 version:             0.1.1
 synopsis:            Composable Contravariant Comonadic Logging Library
@@ -21,14 +21,14 @@ license:             MPL-2.0
 license-file:        LICENSE
 author:              Kowainik
 maintainer:          xrom.xkov@gmail.com
-copyright:           2018-present Kowainik
+copyright:           2018-2019 Kowainik
 category:            Logging, Contravariant, Comonad
 build-type:          Simple
 stability:           stable
 extra-doc-files:     CHANGELOG.md
 tested-with:         GHC == 8.2.2
                    , GHC == 8.4.4
-                   , GHC == 8.6.3
+                   , GHC == 8.6.5
 
 source-repository head
   type:                git
