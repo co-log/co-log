@@ -45,12 +45,24 @@ class HasLog env msg m where
     {-# INLINE logActionL #-}
 
 instance HasLog (LogAction m msg) msg m where
-    {-# INLINE getLogAction #-}
+    getLogAction :: LogAction m msg -> LogAction m msg
     getLogAction = id
-    {-# INLINE setLogAction #-}
+    {-# INLINE getLogAction #-}
+
+    setLogAction :: LogAction m msg -> LogAction m msg -> LogAction m msg
     setLogAction = const
-    {-# INLINE overLogAction #-}
+    {-# INLINE setLogAction #-}
+
+    overLogAction
+        :: (LogAction m msg -> LogAction m msg)
+        -> LogAction m msg
+        -> LogAction m msg
     overLogAction = id
+    {-# INLINE overLogAction #-}
+
+    logActionL :: Lens' (LogAction m msg) (LogAction m msg)
+    logActionL = \f s -> s <$ f s
+    {-# INLINE logActionL #-}
 
 ----------------------------------------------------------------------------
 -- Lens
