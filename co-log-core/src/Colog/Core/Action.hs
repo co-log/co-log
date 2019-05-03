@@ -42,11 +42,13 @@ module Colog.Core.Action
        , extend
        , (=>>)
        , (<<=)
+       , duplicate
+       , multiplicate
        ) where
 
 import Control.Monad (when, (>=>))
 import Data.Coerce (coerce)
-import Data.Foldable (for_)
+import Data.Foldable (fold, for_)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.Monoid (Monoid (..))
 import Data.Semigroup (Semigroup (..), stimesMonoid)
@@ -174,12 +176,8 @@ msg &> (f >$< action)
 -}
 infix 5 &>
 (&>) :: msg -> LogAction m msg -> m ()
-(&>) = flip unLogAction
+(&>) = flip (<&)
 {-# INLINE (&>) #-}
-
-----------------------------------------------------------------------------
--- Combinators
-----------------------------------------------------------------------------
 
 {- | Joins some 'Foldable' of 'LogAction's into single 'LogAction' using
 'Semigroup' instance for 'LogAction'. This is basically specialized version of
@@ -190,6 +188,10 @@ foldActions actions = LogAction $ \a -> for_ actions $ \(LogAction action) -> ac
 {-# INLINE foldActions #-}
 {-# SPECIALIZE foldActions :: Applicative m => [LogAction m a]          -> LogAction m a #-}
 {-# SPECIALIZE foldActions :: Applicative m => NonEmpty (LogAction m a) -> LogAction m a #-}
+
+----------------------------------------------------------------------------
+-- Contravariant combinators
+----------------------------------------------------------------------------
 
 {- | Takes predicate and performs given logging action only if predicate returns
 'True' on input logging message.
@@ -314,6 +316,10 @@ cmapM :: Monad m => (a -> m b) -> LogAction m b -> LogAction m a
 cmapM f (LogAction action) = LogAction (f >=> action)
 {-# INLINE cmapM #-}
 
+----------------------------------------------------------------------------
+-- Divisible combinators
+----------------------------------------------------------------------------
+
 {- | @divide@ combinator from @Divisible@ type class.
 
 >>> logInt = LogAction print
@@ -335,7 +341,6 @@ Concretely, this is a 'LogAction' that does nothing:
 conquer :: Applicative m => LogAction m a
 conquer = mempty
 
-
 {- | Operator version of @'divide' 'id'@.
 
 >>> logInt = LogAction print
@@ -352,7 +357,6 @@ infixr 4 >*<
     actionA a *> actionB b
 {-# INLINE (>*<) #-}
 
-infixr 4 >*
 {-| Perform a constant log action after another.
 
 >>> logHello = LogAction (const (putStrLn "Hello!"))
@@ -360,17 +364,22 @@ infixr 4 >*
 Greetings!
 Hello!
 -}
+infixr 4 >*
 (>*) :: Applicative m => LogAction m a -> LogAction m () -> LogAction m a
 (LogAction actionA) >* (LogAction actionB) = LogAction $ \a ->
     actionA a *> actionB ()
 {-# INLINE (>*) #-}
 
-infixr 4 *<
 -- | A flipped version of '>*'
+infixr 4 *<
 (*<) :: Applicative m => LogAction m () -> LogAction m a -> LogAction m a
 (LogAction actionA) *< (LogAction actionB) = LogAction $ \a ->
     actionA () *> actionB a
 {-# INLINE (*<) #-}
+
+----------------------------------------------------------------------------
+-- Decidable combinators
+----------------------------------------------------------------------------
 
 -- | @lose@ combinator from @Decidable@ type class.
 lose :: (a -> Void) -> LogAction m a
@@ -400,6 +409,10 @@ infixr 3 >|<
 (>|<) :: LogAction m a -> LogAction m b -> LogAction m (Either a b)
 (LogAction actionA) >|< (LogAction actionB) = LogAction (either actionA actionB)
 {-# INLINE (>|<) #-}
+
+----------------------------------------------------------------------------
+-- Comonadic combinators
+----------------------------------------------------------------------------
 
 {- | If @msg@ is 'Monoid' then 'extract' performs given log action by passing
 'mempty' to it.
@@ -442,3 +455,66 @@ infixr 1 <<=
 (<<=) :: Semigroup msg => (LogAction m msg -> m ()) -> LogAction m msg -> LogAction m msg
 (<<=) = extend
 {-# INLINE (<<=) #-}
+
+{- | Converts any 'LogAction' that can log single message to the 'LogAction'
+that can log two messages. The new 'LogAction' behaves in the following way:
+
+1. Joins two messages of type @msg@ using '<>' operator from 'Semigroup'.
+2. Passes resulted message to the given 'LogAction'.
+
+>>> :{
+let logger :: LogAction IO [Int]
+    logger = logPrint
+in duplicate logger <& ([3, 4], [42, 10])
+:}
+[3,4,42,10]
+
+__Implementation note:__
+
+True and fair translation of the @duplicate@ function from the 'Comonad'
+interface should result in the 'LogAction' of the following form:
+
+@
+msg -> msg -> m ()
+@
+
+In order to capture this behavior, 'duplicate' should have the following type:
+
+@
+duplicate :: Semigroup msg => LogAction m msg -> LogAction (Compose ((->) msg) m) msg
+@
+
+However, it's quite awkward to work with such type. It's a known fact that the
+following two types are isomorphic (see functions 'curry' and 'uncurry'):
+
+@
+a -> b -> c
+(a, b) -> c
+@
+
+So using this fact we can come up with the simpler interface.
+-}
+duplicate :: forall msg m . Semigroup msg => LogAction m msg -> LogAction m (msg, msg)
+duplicate (LogAction l) = LogAction $ \(msg1, msg2) -> l (msg1 <> msg2)
+{-# INLINE duplicate #-}
+
+
+{- | Like 'duplicate' but why stop on a pair of two messages if you can log any
+'Foldable' of messages?
+
+>>> :{
+let logger :: LogAction IO [Int]
+    logger = logPrint
+in multiplicate logger <& replicate 5 [1..3]
+:}
+[1,2,3,1,2,3,1,2,3,1,2,3,1,2,3]
+-}
+multiplicate
+    :: forall f msg m .
+       (Foldable f, Monoid msg)
+    => LogAction m msg
+    -> LogAction m (f msg)
+multiplicate (LogAction l) = LogAction $ \msgs -> l (fold msgs)
+{-# INLINE multiplicate #-}
+{-# SPECIALIZE multiplicate :: Monoid msg => LogAction m msg -> LogAction m [msg] #-}
+{-# SPECIALIZE multiplicate :: Monoid msg => LogAction m msg -> LogAction m (NonEmpty msg) #-}
