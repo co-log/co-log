@@ -77,7 +77,7 @@ Several examples:
 
 1. @'runLogAction' mempty@: interprets the 'Log' effect by ignoring all messages.
 2. @'runLogAction' 'Colog.Core.IO.logStringStdout'@: interprets 'Log' effect by
-   allowing to log 'String'.
+   allowing to log 'String' to @stdout@.
 -}
 runLogAction
     :: forall m msg r a .
