@@ -22,6 +22,8 @@ The changelog is available [on GitHub][2].
   messageText     -> msgText
   ```
 * Export more formatting functions to make implementation of custom formatters easier.
+* [#96](https://github.com/kowainik/co-log/issues/96):
+  Add `simpleMessageAction` and `richMessageAction` to work with `Message`s.
 
 ## 0.2.0 — Nov 15, 2018
 
