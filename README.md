@@ -3,15 +3,10 @@
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/master/LICENSE)
 [![Build status](https://secure.travis-ci.org/kowainik/co-log.svg)](https://travis-ci.org/kowainik/co-log)
 
-`co-log`:
-[![Hackage](https://img.shields.io/hackage/v/co-log.svg)](https://hackage.haskell.org/package/co-log)
-[![Stackage LTS](http://stackage.org/package/co-log/badge/lts)](http://stackage.org/lts/package/co-log)
-[![Stackage Nightly](http://stackage.org/package/co-log/badge/nightly)](http://stackage.org/nightly/package/co-log)
-
-`co-log-core`:
-[![Hackage](https://img.shields.io/hackage/v/co-log-core.svg)](https://hackage.haskell.org/package/co-log-core)
-[![Stackage LTS](http://stackage.org/package/co-log-core/badge/lts)](http://stackage.org/lts/package/co-log-core)
-[![Stackage Nightly](http://stackage.org/package/co-log-core/badge/nightly)](http://stackage.org/nightly/package/co-log-core)
+|               |                                    |                                           |                                                       |
+| :------------ | :--------------------------------- | :---------------------------------------: | :---------------------------------------------------- |
+| `co-log`      | [![Hackage][hk-img]][hk]           | [![Stackage LTS][lts-img]][lts]           | [![Stackage Nightly][nightly-img]][nightly]           |
+| `co-log-core` | [![Hackage][hk-img-core]][hk-core] | [![Stackage LTS][lts-img-core]][lts-core] | [![Stackage Nightly][nightly-img-core]][nightly-core] |
 
 `co-log` is a composable and configurable logging framework. The idea of the approach is
 described in the following blog post:
@@ -54,3 +49,17 @@ library.
 | `Message{callstack:5} > format > stdout`   | `  9.441ms` |
 | `Message{callstack:50} > format > stdout`  | `  9.305ms` |
 | `Message{Time,ThreadId} > format > stdout` | ` 53.870ms` |
+
+
+[hk-img]: https://img.shields.io/hackage/v/co-log.svg
+[hk-img-core]: https://img.shields.io/hackage/v/co-log-core.svg
+[hk]: https://hackage.haskell.org/package/co-log
+[hk-core]: https://hackage.haskell.org/package/co-log-core
+[lts-img]: http://stackage.org/package/co-log/badge/lts
+[lts-img-core]: http://stackage.org/package/co-log-core/badge/lts
+[lts]: http://stackage.org/lts/package/co-log
+[lts-core]: http://stackage.org/lts/package/co-log-core
+[nightly-img]: http://stackage.org/package/co-log/badge/nightly
+[nightly-img-core]: http://stackage.org/package/co-log-core/badge/nightly
+[nightly]: http://stackage.org/nightly/package/co-log
+[nightly-core]: http://stackage.org/nightly/package/co-log-core

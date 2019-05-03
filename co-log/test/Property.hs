@@ -3,16 +3,17 @@
 
 module Main where
 
+import Data.Semigroup ((<>))
+import Hedgehog (MonadGen, Property, checkSequential, discover, forAll, property, (===))
 import System.Exit (exitFailure, exitSuccess)
 import System.IO (BufferMode (..), hSetBuffering, stderr, stdout)
-
-import Hedgehog (MonadGen, Property, checkSequential, discover, forAll, property, (===))
-import qualified Hedgehog.Gen as Gen
-import qualified Hedgehog.Range as Range
 
 import Colog.Core (LogAction)
 import Colog.Monad (logMsg, usingLoggerT)
 import Colog.Pure (PureLogger, logMessagePure, runPureLog)
+
+import qualified Hedgehog.Gen as Gen
+import qualified Hedgehog.Range as Range
 
 
 data LogAST
