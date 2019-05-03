@@ -7,7 +7,7 @@ Copyright:  (c) 2018-2019 Kowainik
 License:    MIT
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
-Provides type class for objects that has access to 'LogAction'.
+Provides type class for values that has access to 'LogAction'.
 -}
 
 module Colog.Core.Class
