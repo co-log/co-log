@@ -330,6 +330,7 @@ ABC
 divide :: (Applicative m) => (a -> (b, c)) -> LogAction m b -> LogAction m c -> LogAction m a
 divide f (LogAction actionB) (LogAction actionC) = LogAction $ \(f -> (b, c)) ->
     actionB b *> actionC c
+{-# INLINE divide #-}
 
 {- | @conquer@ combinator from @Divisible@ type class.
 
@@ -340,6 +341,7 @@ Concretely, this is a 'LogAction' that does nothing:
 -}
 conquer :: Applicative m => LogAction m a
 conquer = mempty
+{-# INLINE conquer #-}
 
 {- | Operator version of @'divide' 'id'@.
 
@@ -384,6 +386,7 @@ infixr 4 *<
 -- | @lose@ combinator from @Decidable@ type class.
 lose :: (a -> Void) -> LogAction m a
 lose f = LogAction (absurd . f)
+{-# INLINE lose #-}
 
 {- | @choose@ combinator from @Decidable@ type class.
 
@@ -396,6 +399,7 @@ Negative
 -}
 choose :: (a -> Either b c) -> LogAction m b -> LogAction m c -> LogAction m a
 choose f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC . f)
+{-# INLINE choose #-}
 
 {- | Operator version of @'choose' 'id'@.
 
@@ -423,6 +427,7 @@ infixr 3 >|<
 -}
 extract :: Monoid msg => LogAction m msg -> m ()
 extract action = unLogAction action mempty
+{-# INLINE extract #-}
 
 -- TODO: write better motivation for comonads
 {- | This is a /comonadic extend/. It allows you to chain different transformations on messages.
@@ -443,6 +448,7 @@ foo.g.f2
 -}
 extend :: Semigroup msg => (LogAction m msg -> m ()) -> LogAction m msg -> LogAction m msg
 extend f (LogAction action) = LogAction $ \m -> f $ LogAction $ \m' -> action (m <> m')
+{-# INLINE extend #-}
 
 -- | 'extend' with the arguments swapped. Dual to '>>=' for a 'Monad'.
 infixl 1 =>>

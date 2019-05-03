@@ -91,5 +91,11 @@ pattern E <- Error   where E = Error
 
 
 -- | Filters messages by the given 'Severity'.
-filterBySeverity :: Applicative m => Severity -> (a -> Severity) -> LogAction m a -> LogAction m a
+filterBySeverity
+    :: Applicative m
+    => Severity
+    -> (a -> Severity)
+    -> LogAction m a
+    -> LogAction m a
 filterBySeverity s fs = cfilter (\a -> fs a >= s)
+{-# INLINE filterBySeverity #-}

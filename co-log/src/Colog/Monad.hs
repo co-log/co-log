@@ -37,6 +37,7 @@ newtype LoggerT msg m a = LoggerT
 instance MonadTrans (LoggerT msg) where
     lift :: Monad m => m a -> LoggerT msg m a
     lift = LoggerT . lift
+    {-# INLINE lift #-}
 
 type WithLog env msg m = (MonadReader env m, HasLog env msg m, HasCallStack)
 
@@ -56,10 +57,12 @@ logMsg :: forall msg env m . WithLog env msg m => msg -> m ()
 logMsg msg = do
     LogAction log <- asks getLogAction
     log msg
+{-# INLINE logMsg #-}
 
 -- | Logs multiple messages.
 logMsgs :: forall msg env f m . (Foldable f, WithLog env msg m) => f msg -> m ()
 logMsgs = traverse_ logMsg
+{-# INLINE logMsgs #-}
 
 {- | Performs given monadic logging action by applying function to every logging record.
 
@@ -72,9 +75,11 @@ app = 'withLog' ('cmap' ("app:" ++)) $ __do__
 -}
 withLog :: WithLog env msg m => (LogAction m msg -> LogAction m msg) -> m a -> m a
 withLog = local . overLogAction
+{-# INLINE withLog #-}
 
 liftLogAction :: (Monad m, MonadTrans t) => LogAction m msg -> LogAction (t m) msg
 liftLogAction (LogAction action) = LogAction (lift . action)
+{-# INLINE liftLogAction #-}
 
 {- | Runner for 'LoggerT' monad. Let's consider one simple example of monadic
 action you have:
@@ -103,4 +108,4 @@ app:Application finished.
 @
 -}
 usingLoggerT :: Monad m => LogAction m msg -> LoggerT msg m a -> m a
-usingLoggerT action =  flip runReaderT (liftLogAction action) . runLoggerT
+usingLoggerT action = flip runReaderT (liftLogAction action) . runLoggerT
