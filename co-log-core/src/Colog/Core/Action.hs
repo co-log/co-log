@@ -484,7 +484,7 @@ In order to capture this behavior, 'duplicate' should have the following type:
 duplicate :: Semigroup msg => LogAction m msg -> LogAction (Compose ((->) msg) m) msg
 @
 
-However, it's quite awkward to work with such type. It's as known fact that the
+However, it's quite awkward to work with such type. It's a known fact that the
 following two types are isomorphic (see functions 'curry' and 'uncurry'):
 
 @
