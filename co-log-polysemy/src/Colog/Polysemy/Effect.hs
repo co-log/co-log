@@ -87,6 +87,7 @@ runLogAction
     -> Sem r a
 runLogAction (LogAction action) = interpret $ \case
     Log msg -> sendM $ action msg
+{-# INLINE runLogAction #-}
 
 {- | Run 'Log' as the 'Trace' effect. This function can be useful if you have an
 interpreter for the 'Trace' effect and you want to log strings using that
@@ -99,6 +100,7 @@ runLogAsTrace
     -> Sem r a
 runLogAsTrace = interpret $ \case
    Log msg -> trace msg
+{-# INLINE runLogAsTrace #-}
 
 {- | Run 'Log' as the 'Output' effect. This function can be useful if you have an
 interpreter for the 'Output' effect and you want to log messages using that
@@ -111,6 +113,7 @@ runLogAsOutput
     -> Sem r a
 runLogAsOutput = interpret $ \case
    Log msg -> output msg
+{-# INLINE runLogAsOutput #-}
 
 {- | Run 'Trace' as the 'Log' effect. This function can be useful if you have an
 interpreter for the 'Log' effect and you want to log strings using that
@@ -123,6 +126,7 @@ runTraceAsLog
     -> Sem r a
 runTraceAsLog = interpret $ \case
    Trace msg -> log msg
+{-# INLINE runTraceAsLog #-}
 
 {- | Run 'Output' as the 'Log' effect. This function can be useful if you have an
 interpreter for the 'Log' effect and you want to log messages using that
@@ -135,3 +139,4 @@ runOutputAsLog
     -> Sem r a
 runOutputAsLog = interpret $ \case
    Output msg -> log msg
+{-# INLINE runOutputAsLog #-}
