@@ -1,0 +1,94 @@
+cabal-version:       2.4
+name:                co-log-polysemy
+version:             0.0.0.0
+synopsis:            Composable Contravariant Comonadic Logging Library
+description:
+    Implementation of the [co-log](http://hackage.haskell.org/package/co-log-core)
+    logging based on the [polysemy](http://hackage.haskell.org/package/polysemy)
+    extensible effects library.
+    .
+    The ideas behind this package are described in the following blog post:
+    .
+    * [co-log: Composable Contravariant Combinatorial Comonadic Configurable Convenient Logging](https://kowainik.github.io/posts/2018-09-25-co-log)
+    .
+    For the taggless final implementation of the @co-log@ ideas se the following package:
+    .
+    * [co-log](http://hackage.haskell.org/package/co-log)
+
+homepage:            https://github.com/kowainik/co-log
+bug-reports:         https://github.com/kowainik/co-log/issues
+license:             MPL-2.0
+license-file:        LICENSE
+author:              Kowainik
+maintainer:          xrom.xkov@gmail.com
+copyright:           2019 Kowainik
+category:            Logging, Contravariant, Comonad, Effects
+build-type:          Simple
+stability:           provisional
+extra-doc-files:     CHANGELOG.md
+                   , README.md
+tested-with:         GHC == 8.6.5
+
+source-repository head
+  type:                git
+  location:            https://github.com/kowainik/co-log.git
+
+common common-options
+  if impl(ghc < 8.6)
+      buildable:       False
+  build-depends:       base >= 4.10.0.0 && < 4.13
+
+  ghc-options:         -Wall
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
+                       -Wcompat
+                       -Widentities
+                       -Wredundant-constraints
+                       -fhide-source-paths
+                       -freverse-errors
+                       -Wpartial-fields
+
+                       -- special options to make @polysemy@ fast
+                       -O2
+                       -flate-specialise
+                       -fspecialise-aggressively
+
+  default-language:    Haskell2010
+  default-extensions:  ConstraintKinds
+                       DataKinds
+                       DeriveGeneric
+                       FlexibleContexts
+                       GADTs
+                       GeneralizedNewtypeDeriving
+                       KindSignatures
+                       LambdaCase
+                       OverloadedStrings
+                       RecordWildCards
+                       ScopedTypeVariables
+                       StandaloneDeriving
+                       TupleSections
+                       TypeApplications
+                       TypeOperators
+                       ViewPatterns
+
+library
+  import:              common-options
+  hs-source-dirs:      src
+  exposed-modules:     Colog.Polysemy
+                           Colog.Polysemy.Effect
+
+  build-depends:       co-log-core ^>= 0.1.1
+                     , polysemy ^>= 0.1.2.0
+
+executable play-colog-poly
+  import:              common-options
+  hs-source-dirs:      example
+  main-is:             Main.hs
+
+  build-depends:       co-log-core
+                     , co-log-polysemy
+                     , polysemy
+
+  ghc-options:         -threaded
+                       -rtsopts
+                       -with-rtsopts=-N

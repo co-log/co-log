@@ -3,10 +3,11 @@
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/master/LICENSE)
 [![Build status](https://secure.travis-ci.org/kowainik/co-log.svg)](https://travis-ci.org/kowainik/co-log)
 
-|               |                                    |                                           |                                                       |
-| :------------ | :--------------------------------- | :---------------------------------------: | :---------------------------------------------------- |
-| `co-log`      | [![Hackage][hk-img]][hk]           | [![Stackage LTS][lts-img]][lts]           | [![Stackage Nightly][nightly-img]][nightly]           |
-| `co-log-core` | [![Hackage][hk-img-core]][hk-core] | [![Stackage LTS][lts-img-core]][lts-core] | [![Stackage Nightly][nightly-img-core]][nightly-core] |
+|                   |                                    |                                           |                                                       |
+| :------------     | :--------------------------------- | :---------------------------------------: | :---------------------------------------------------- |
+| `co-log-core`     | [![Hackage][hk-img-core]][hk-core] | [![Stackage LTS][lts-img-core]][lts-core] | [![Stackage Nightly][nightly-img-core]][nightly-core] |
+| `co-log`          | [![Hackage][hk-img]][hk]           | [![Stackage LTS][lts-img]][lts]           | [![Stackage Nightly][nightly-img]][nightly]           |
+| `co-log-polysemy` | [![Hackage][hk-img-ps]][hk-ps]     | [![Stackage LTS][lts-img-ps]][lts-ps]     | [![Stackage Nightly][nightly-img-ps]][nightly-ps]     |
 
 `co-log` is a composable and configurable logging framework. The idea of the approach is
 described in the following blog post:
@@ -17,7 +18,10 @@ The repository contains the following packages:
 
 * [`co-log-core`](co-log-core): lightweight package with basic data types and
   general idea.
-* [`co-log`](co-log): implementation of logging library based on `co-log-core`.
+* [`co-log`](co-log): taggless final implementation of logging library based on
+  `co-log-core`.
+* [`co-log-polysemy`](co-log-polysemy): implementation of logging library based
+  on `co-log-core` and the [`polysemy`](http://hackage.haskell.org/package/polysemy) extensible effects library.
 * [`co-log-benchmark`](co-log-benchmark): Benchmarks of the `co-log` library.
 
 See [How to start using `co-log`?](co-log/README.md) for simple example of the
@@ -52,14 +56,20 @@ library.
 
 
 [hk-img]: https://img.shields.io/hackage/v/co-log.svg
+[hk-img-ps]: https://img.shields.io/hackage/v/co-log-polysemy.svg
 [hk-img-core]: https://img.shields.io/hackage/v/co-log-core.svg
 [hk]: https://hackage.haskell.org/package/co-log
+[hk-ps]: https://hackage.haskell.org/package/co-log-polysemy
 [hk-core]: https://hackage.haskell.org/package/co-log-core
 [lts-img]: http://stackage.org/package/co-log/badge/lts
+[lts-img-ps]: http://stackage.org/package/co-log-polysemy/badge/lts
 [lts-img-core]: http://stackage.org/package/co-log-core/badge/lts
 [lts]: http://stackage.org/lts/package/co-log
+[lts-ps]: http://stackage.org/lts/package/co-log-polysemy
 [lts-core]: http://stackage.org/lts/package/co-log-core
 [nightly-img]: http://stackage.org/package/co-log/badge/nightly
+[nightly-img-ps]: http://stackage.org/package/co-log-polysemy/badge/nightly
 [nightly-img-core]: http://stackage.org/package/co-log-core/badge/nightly
 [nightly]: http://stackage.org/nightly/package/co-log
+[nightly-ps]: http://stackage.org/nightly/package/co-log-polysemy
 [nightly-core]: http://stackage.org/nightly/package/co-log-core
