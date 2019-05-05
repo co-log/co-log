@@ -297,10 +297,14 @@ fmtRichMessageDefault RichMessage{..} = do
      <> msgText
 
     showTime :: C.Time -> Text
-    showTime t = square $ toStrict $ TB.toLazyText $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
+    showTime t =
+        square
+        $ toStrict
+        $ TB.toLazyText
+        $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
       where
         timePrecision = C.SubsecondPrecisionFixed 3
-        datetimeFormat = C.DatetimeFormat (Just ' ') (Just ' ') (Just ':')
+        datetimeFormat = C.DatetimeFormat (Just '-') (Just ' ') (Just ':')
 
     showThreadId :: ThreadId -> Text
     showThreadId = square . T.pack . show

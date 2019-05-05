@@ -19,8 +19,8 @@ homepage:            https://github.com/kowainik/co-log
 bug-reports:         https://github.com/kowainik/co-log/issues
 license:             MPL-2.0
 license-file:        LICENSE
-author:              Kowainik
-maintainer:          xrom.xkov@gmail.com
+author:              Dmitrii Kovanikov
+maintainer:          Kowainik <xrom.xkov@gmail.com>
 copyright:           2019 Kowainik
 category:            Logging, Contravariant, Comonad, Effects
 build-type:          Simple
