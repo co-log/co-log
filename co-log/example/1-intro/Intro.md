@@ -43,7 +43,7 @@ example1 logger = do
 ```
 
 If you want to do logging, you need to pass `LogAction` as an argument to your
-function. In this example we used `LogAction` that takes `String`s as messages
+function. In this example, we are using `LogAction` that takes `String`s as messages
 and performs logging inside `IO` monad.
 
 For convenience, library defines useful operator `<&` that makes logging easier:
