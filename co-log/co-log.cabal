@@ -56,6 +56,14 @@ common common-options
                        TypeApplications
                        ViewPatterns
 
+common tutorial-options
+  import:              common-options
+  build-depends:       co-log
+                     , co-log-core
+
+  build-tool-depends:  markdown-unlit:markdown-unlit
+  ghc-options:         -pgmL markdown-unlit
+
 library
   import:              common-options
   hs-source-dirs:      src
@@ -97,13 +105,13 @@ executable play-colog
                        -with-rtsopts=-N
 
 executable readme
-  import:              common-options
+  import:              tutorial-options
   main-is:             README.lhs
-  build-depends:       co-log
-                     , text
+  build-depends:       text
 
-  build-tool-depends:  markdown-unlit:markdown-unlit
-  ghc-options:         -pgmL markdown-unlit
+executable intro
+  import:              tutorial-options
+  main-is:             example/1-intro/Intro.lhs
 
 test-suite test-co-log
   import:              common-options
