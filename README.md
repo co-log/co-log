@@ -4,7 +4,7 @@
 [![Build status](https://img.shields.io/travis/kowainik/co-log.svg?logo=travis)](https://travis-ci.org/kowainik/co-log)
 
 |                   |                                    |                                           |                                                       |
-| :------------     | :--------------------------------- | :---------------------------------------: | :---------------------------------------------------- |
+| :------------     | :--------------------------------- | :---------------------------------------- | :---------------------------------------------------- |
 | `co-log-core`     | [![Hackage][hk-img-core]][hk-core] | [![Stackage LTS][lts-img-core]][lts-core] | [![Stackage Nightly][nightly-img-core]][nightly-core] |
 | `co-log`          | [![Hackage][hk-img]][hk]           | [![Stackage LTS][lts-img]][lts]           | [![Stackage Nightly][nightly-img]][nightly]           |
 | `co-log-polysemy` | [![Hackage][hk-img-ps]][hk-ps]     | [![Stackage LTS][lts-img-ps]][lts-ps]     | [![Stackage Nightly][nightly-img-ps]][nightly-ps]     |
