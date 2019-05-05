@@ -33,7 +33,7 @@ import Control.Monad.Reader (MonadReader, ReaderT (..))
 
 If you have complex Haskell application, then most likely you also have
 non-trivial settings that configure your application environment. The
-environment may store various parameters important for work your application.
+environment may store various parameters important for the work of your application.
 Interestingly, we can store `LogAction` inside the same environment to use it
 automatically for our logging functions.
 
