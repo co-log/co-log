@@ -33,7 +33,7 @@ performs all logic inside some monad `m`. In the `co-log` library **logger** is 
 value. With such approach, you can modify the way you do logging by simply performing some
 transformations with the value you have.
 
-Let's first look at a very basic example of using just `putStrLn` for logging:
+Let's first look at a very basic example of simply using `putStrLn` for logging:
 
 ```haskell
 example0 :: IO ()
