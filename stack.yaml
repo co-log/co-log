@@ -8,3 +8,4 @@ packages:
 
 extra-deps:
   - polysemy-0.1.2.0
+  - typerep-map-0.3.2
