@@ -29,11 +29,28 @@ newtype LogAction m msg = LogAction
 ```
 
 Logging action is a function from some message of user-defined type `msg` that
-perform all logic inside some monad `m`. In the `co-log` library logging is represented as a
+performs all logic inside some monad `m`. In the `co-log` library **logger** is represented as a
 value. With such approach, you can modify the way you do logging by simply performing some
 transformations with the value you have.
 
-Let's first look at a very basic example of using `LogAction`:
+Let's first look at a very basic example of using just `putStrLn` for logging:
+
+```haskell
+example0 :: IO ()
+example0 = do
+    putStrLn "Example 0: First message"
+    putStrLn "Example 0: Second message"
+```
+
+Using `putStrLn` for logging is a very simple and basic approach for logging.
+When your application becomes bigger and more complex, you might want to bring
+some logging library into it.
+
+Now let's look at how you can `LogAction` instead of `putStrLn` to achieve the
+same goal. With `co-log` you need to have value of type `LogAction` that defines
+how you are going to do logging. So you configure your logging separately and
+then pass and use this `LogAction` value. See the following example for more
+details:
 
 ```haskell
 example1 :: LogAction IO String -> IO ()
@@ -42,11 +59,13 @@ example1 logger = do
     unLogAction logger "Example 1: Second message"
 ```
 
-If you want to do logging, you need to pass `LogAction` as an argument to your
-function. In this example, we are using `LogAction` that takes `String`s as messages
+If you want to do logging with `co-log`, then of the options (and the simplest one)
+is to pass `LogAction` explicitly as an argument to your
+function. In the example above, we are using `LogAction` that takes `String`s as messages
 and performs logging inside `IO` monad.
 
-For convenience, library defines useful operator `<&` that makes logging easier:
+For convenience, library defines useful operator `<&` that makes code more
+concise and simpler:
 
 ```haskell
 example2 :: LogAction IO String -> IO ()
@@ -62,12 +81,18 @@ Here we are going to use the following `LogAction`:
 logStringStdout :: LogAction IO String
 ```
 
-This action uses `putStrLn` underhood.
+This action uses `putStrLn` underhood and just prints given string to `stdout`.
+In this particular case using `LogAction` from `co-log` might seem redundant,
+however, now it's much easier to replace simple `putStrLn` with something more
+complex and useful.
+
+Putting all together, we can now perform our
 
 ```haskell
 main :: IO ()
 main = do
     let logger = logStringStdout
+    example0
     example1 logger
     example2 logger
 ```
@@ -75,6 +100,8 @@ main = do
 And the output is exactly what you expect:
 
 ```
+Example 0: First message
+Example 0: Second message
 Example 1: First message
 Example 1: Second message
 Example 2: First message
