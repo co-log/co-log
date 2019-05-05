@@ -115,7 +115,7 @@ simpleEnv = Env
     }
 ```
 
-Then we need to define function that performs actions of type `App`:
+Then we need to define a function that performs actions of type `App`:
 
 ```haskell
 runApp :: Env App -> App a -> IO a
