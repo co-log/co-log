@@ -59,7 +59,7 @@ example1 logger = do
     unLogAction logger "Example 1: Second message"
 ```
 
-If you want to do logging with `co-log`, then of the options (and the simplest one)
+If you want to do logging with `co-log`, then one of the options (and the simplest one)
 is to pass `LogAction` explicitly as an argument to your
 function. In the example above, we are using `LogAction` that takes `String`s as messages
 and performs logging inside `IO` monad.
