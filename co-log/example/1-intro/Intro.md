@@ -46,7 +46,7 @@ Using `putStrLn` for logging is a very simple and basic approach for logging.
 When your application becomes bigger and more complex, you might want to bring
 some logging library into it.
 
-Now let's look at how you can `LogAction` instead of `putStrLn` to achieve the
+Now let's look at how you can use `LogAction` instead of `putStrLn` to achieve the
 same goal. With `co-log` you need to have value of type `LogAction` that defines
 how you are going to do logging. So you configure your logging separately and
 then pass and use this `LogAction` value. See the following example for more
