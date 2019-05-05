@@ -33,7 +33,7 @@ perform all logic inside some monad `m`. In the `co-log` library logging is repr
 value. With such approach, you can modify the way you do logging by simply performing some
 transformations with the value you have.
 
-Let's first look at very basic example of using `LogAction`:
+Let's first look at a very basic example of using `LogAction`:
 
 ```haskell
 example1 :: LogAction IO String -> IO ()
