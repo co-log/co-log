@@ -132,4 +132,4 @@ main = runApp simpleEnv example
 
 And the output will look like this:
 
-![Output example](https://user-images.githubusercontent.com/4276606/57191747-79579200-6f5b-11e9-92ed-e7b728a2b9a3.png)
+![Output example](https://user-images.githubusercontent.com/4276606/57193360-c001b800-6f6c-11e9-9f0a-6027eda3aa37.png)
