@@ -1,6 +1,6 @@
 {- |
 Copyright:  (c) 2018-2019 Kowainik
-License:    MIT
+License:    MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
 Introduces logging actions working in 'MonadIO'. These actions are very basic

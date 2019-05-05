@@ -2,7 +2,7 @@
 
 {- |
 Copyright:  (c) 2018-2019 Kowainik
-License:    MIT
+License:    MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
 This module introduces 'Severity' data type for expressing how severe the
