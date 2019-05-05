@@ -62,7 +62,7 @@ Here we are going to use the following `LogAction`:
 logStringStdout :: LogAction IO String
 ```
 
-This action just uses `putStrLn` underhood.
+This action uses `putStrLn` underhood.
 
 ```haskell
 main :: IO ()
