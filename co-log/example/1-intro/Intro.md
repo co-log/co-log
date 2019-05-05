@@ -30,7 +30,7 @@ newtype LogAction m msg = LogAction
 
 Logging action is a function from some message of user-defined type `msg` that
 perform all logic inside some monad `m`. In the `co-log` library logging is represented as a
-value. With approach you can modify the way you do logging by simply performing
+value. With such approach, you can modify the way you do logging by simply performing some
 transformations with the value you have.
 
 Let's first look at very basic example of using `LogAction`:
