@@ -48,7 +48,7 @@ some logging library into it.
 
 Now let's look at how you can use `LogAction` instead of `putStrLn` to achieve the
 same goal. With `co-log` you need to have a value of type `LogAction` that defines
-how you are going to do logging. So you configure your logging separately and
+how you are going to do logging. So you configure your logging settings separately and
 then pass and use this `LogAction` value. See the following example for more
 details:
 
