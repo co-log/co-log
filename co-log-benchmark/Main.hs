@@ -98,11 +98,11 @@ benchs =
         in nest 50 $ runLA la (Msg D callStack "message")
 
     , bench "Message{Time,ThreadId} > format > stdout" $ do
-        let richMessageAction = cmapM fmtRichMessageDefault logTextStdout
-        let la = upgradeMessageAction defaultFieldMap richMessageAction
+        let messageAction = cmapM fmtRichMessageDefault logTextStdout
+        let la = upgradeMessageAction defaultFieldMap messageAction
         runLA la msg
 
-    , bench "Message{Time,ThreadId} > format > ByteString > stdout" $ do
+    , bench "Message{Time,ThreadId} > format > ByteString > stdout" $
         runLA richMessageAction msg
     ]
   where
