@@ -2,6 +2,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms   #-}
 {-# LANGUAGE TypeApplications  #-}
+{-# LANGUAGE ViewPatterns      #-}
 
 module Main
        ( main
@@ -24,7 +25,7 @@ import System.Process.Typed (closed, proc, runProcess_, setStderr, setStdin, set
 
 import Colog (pattern D, LogAction, Message, Msg (..), cmap, cmapM, defaultFieldMap, fmtMessage,
               fmtRichMessageDefault, logByteStringStderr, logByteStringStdout, logPrint,
-              logStringStdout, logTextStdout, upgradeMessageAction, (<&))
+              logStringStdout, logTextStdout, richMessageAction, upgradeMessageAction, (<&))
 
 import qualified Data.ByteString.Char8 as ByteString
 import qualified Data.Text.Encoding
@@ -97,9 +98,12 @@ benchs =
         in nest 50 $ runLA la (Msg D callStack "message")
 
     , bench "Message{Time,ThreadId} > format > stdout" $ do
-        let richMessageAction = cmapM fmtRichMessageDefault logTextStdout
-        let la = upgradeMessageAction defaultFieldMap richMessageAction
+        let messageAction = cmapM fmtRichMessageDefault logTextStdout
+        let la = upgradeMessageAction defaultFieldMap messageAction
         runLA la msg
+
+    , bench "Message{Time,ThreadId} > format > ByteString > stdout" $
+        runLA richMessageAction msg
     ]
   where
     samples10K :: Int
@@ -171,7 +175,8 @@ genTable rawResults = unlines rows
     quote s = "`" <> s <> "`"
 
     nameMax, timeMax :: Int
-    (nameMax, timeMax) = coerce $ foldMap (bimap strLen strLen) results
+    (nameMax, max (length @[] "Time for 10K messages") -> timeMax) =
+        coerce $ foldMap (bimap strLen strLen) results
 
     padLeft, padRight :: Char -> Int -> String -> String
     padLeft  c limit s =      replicate (limit - length s) c ++ s
@@ -179,7 +184,7 @@ genTable rawResults = unlines rows
 
     rows :: [String]
     rows = map toTableRow
-        $ (padRight ' ' nameMax "Benchmarks", padRight ' ' timeMax "Time")
+        $ (padRight ' ' nameMax "Benchmarks", padRight ' ' timeMax "Time for 10K messages")
         : (':' : replicate (nameMax - 1) '-', ':' : replicate (timeMax - 1) '-')
         : map (bimap (padRight ' ' nameMax) (padRight ' ' timeMax)) results
 
