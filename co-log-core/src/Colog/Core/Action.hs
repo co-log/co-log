@@ -41,7 +41,7 @@ module Colog.Core.Action
        , (>|<)
 
          -- * Comonadic combinators
-         -- $decidable
+         -- $comonad
        , extract
        , extend
        , (=>>)
