@@ -44,7 +44,15 @@ example0 = do
 
 Using `putStrLn` for logging is a very simple and basic approach for logging.
 When your application becomes bigger and more complex, you might want to bring
-some logging library into it.
+some logging library into it. For example, you might want to do something from
+the following list:
+
+1. Specify messages with the given `Severity` so you can control the verbosity
+   of the output.
+2. Automatically print timestamps, thread ids, source code line of the logging
+   with each message.
+3. You would like to submit some statistics to some web-server with each logging
+   message so later you can have analytics provided by external parties.
 
 Now let's look at how you can use `LogAction` instead of `putStrLn` to achieve the
 same goal. With `co-log` you need to have a value of type `LogAction` that defines
@@ -58,6 +66,11 @@ example1 logger = do
     unLogAction logger "Example 1: First message"
     unLogAction logger "Example 1: Second message"
 ```
+
+> **NOTE:** this function currently does exactly the same thing as in `example0`. However,
+> given `LogAction` can do many different interesting things which you can
+> configure later in one place and automatically get proper behavior for your
+> whole application instead of changing the code of every function.
 
 If you want to do logging with `co-log`, then one of the options (and the simplest one)
 is to pass `LogAction` explicitly as an argument to your
