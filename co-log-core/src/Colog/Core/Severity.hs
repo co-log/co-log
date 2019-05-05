@@ -67,7 +67,7 @@ Instead of using full names of the constructors you can instead use one-letter
 patterns. To do so you can import and use the pattern:
 
 @
-import Colog (pattern D)
+__import__ Colog (__pattern__ D)
 
 example :: WithLog env Message m => m ()
 example = log D "I'm using severity pattern"
@@ -88,7 +88,6 @@ pattern I <- Info    where I = Info
 pattern W <- Warning where W = Warning
 pattern E <- Error   where E = Error
 {-# COMPLETE D, I, W, E #-}
-
 
 -- | Filters messages by the given 'Severity'.
 filterBySeverity

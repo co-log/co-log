@@ -3,7 +3,11 @@ Copyright:  (c) 2018-2019 Kowainik
 License:    MIT
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
-Introduces logging actions working in 'MonadIO'.
+Introduces logging actions working in 'MonadIO'. These actions are very basic
+and inefficient because they use the 'String' data type. If you don't want to
+have extra dependencies and performance of logging is not the bottleneck of your
+application, then these functions should be enough. Otherwise use functions from
+the "Colog.Actions" module from the @co-log@ package.
 -}
 
 module Colog.Core.IO
@@ -27,13 +31,17 @@ import Colog.Core.Action (LogAction (..))
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.IO (Handle, IOMode (AppendMode), hPrint, hPutStrLn, stderr, withFile)
 
+{- $setup
+>>> import Colog.Core.Action
+-}
+
 ----------------------------------------------------------------------------
 -- String
 ----------------------------------------------------------------------------
 
 {- | Action that prints 'String' to stdout.
 
->>> unLogAction logStringStdout "foo"
+>>> logStringStdout <& "foo"
 foo
 -}
 logStringStdout :: MonadIO m => LogAction m String
@@ -43,7 +51,7 @@ logStringStdout = LogAction (liftIO . putStrLn)
 
 {- | Action that prints 'String' to stderr.
 
->>> unLogAction logStringStderr "foo"
+>>> logStringStderr <& "foo"
 foo
 -}
 logStringStderr :: MonadIO m => LogAction m String
@@ -53,7 +61,7 @@ logStringStderr = logStringHandle stderr
 
 {- | Action that prints 'String' to 'Handle'.
 
->>> unLogAction (logStringHandle stderr) "foo"
+>>> logStringHandle stderr <& "foo"
 foo
 -}
 logStringHandle :: MonadIO m => Handle -> LogAction m String
@@ -68,7 +76,7 @@ opening file each time we need to write to it.
 
 Opens file in 'AppendMode'.
 
->>> logger action = unLogAction action "foo"
+>>> logger action = action <& "foo"
 >>> withLogStringFile "/dev/stdout" logger
 foo
 -}
@@ -83,7 +91,7 @@ withLogStringFile path action = withFile path AppendMode $ action . logStringHan
 
 {- | Action that prints to stdout using 'Show'.
 
->>> unLogAction logPrint 5
+>>> logPrint <& 5
 5
 -}
 logPrint :: forall a m . (Show a, MonadIO m) => LogAction m a
@@ -93,7 +101,7 @@ logPrint = LogAction $ liftIO . print
 
 {- | Action that prints to stderr using 'Show'.
 
->>> unLogAction logPrintStderr 5
+>>> logPrintStderr <& 5
 5
 -}
 logPrintStderr :: forall a m . (Show a, MonadIO m) => LogAction m a
@@ -103,7 +111,7 @@ logPrintStderr = logPrintHandle stderr
 
 {- | Action that prints to a 'Handle' using 'Show'.
 
->>> unLogAction (logPrintHandle stderr) 5
+>>> logPrintHandle stderr <& 5
 5
 -}
 logPrintHandle :: forall a m . (Show a, MonadIO m) => Handle -> LogAction m a
@@ -129,7 +137,7 @@ withLogPrintFile path action = withFile path AppendMode $ action . logPrintHandl
 {- | Lifts a LogAction over IO into a more general Monad.
 
 >>> logToStdout = LogAction putStrLn
->>> unLogAction (liftLogIO logToStdout) "foo"
+>>> liftLogIO logToStdout <& "foo"
 foo
 -}
 liftLogIO :: MonadIO m => LogAction IO msg -> LogAction m msg

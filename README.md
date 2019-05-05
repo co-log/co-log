@@ -4,7 +4,7 @@
 [![Build status](https://img.shields.io/travis/kowainik/co-log.svg?logo=travis)](https://travis-ci.org/kowainik/co-log)
 
 |                   |                                    |                                           |                                                       |
-| :------------     | :--------------------------------- | :---------------------------------------: | :---------------------------------------------------- |
+| :------------     | :--------------------------------- | :---------------------------------------- | :---------------------------------------------------- |
 | `co-log-core`     | [![Hackage][hk-img-core]][hk-core] | [![Stackage LTS][lts-img-core]][lts-core] | [![Stackage Nightly][nightly-img-core]][nightly-core] |
 | `co-log`          | [![Hackage][hk-img]][hk]           | [![Stackage LTS][lts-img]][lts]           | [![Stackage Nightly][nightly-img]][nightly]           |
 | `co-log-polysemy` | [![Hackage][hk-img-ps]][hk-ps]     | [![Stackage LTS][lts-img-ps]][lts-ps]     | [![Stackage Nightly][nightly-img-ps]][nightly-ps]     |
@@ -24,8 +24,10 @@ The repository contains the following packages:
   on `co-log-core` and the [`polysemy`](http://hackage.haskell.org/package/polysemy) extensible effects library.
 * [`co-log-benchmark`](co-log-benchmark): Benchmarks of the `co-log` library.
 
-See [How to start using `co-log`?](co-log/README.md) for simple example of the
-`co-log` library usage.
+See the following tutorial series about the library:
+
+* [Intro: Using `LogAction`](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/1-intro/Intro.md)
+* [Using custom monad that stores `LogAction` inside its environment](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/2-custom/Custom.md)
 
 ## Benchmarks
 

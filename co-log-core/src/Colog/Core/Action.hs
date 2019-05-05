@@ -18,6 +18,7 @@ module Colog.Core.Action
        , foldActions
 
          -- * Contravariant combinators
+         -- $contravariant
        , cfilter
        , cmap
        , (>$<)
@@ -26,6 +27,7 @@ module Colog.Core.Action
        , cmapM
 
          -- * Divisible combinators
+         -- $divisible
        , divide
        , conquer
        , (>*<)
@@ -33,11 +35,13 @@ module Colog.Core.Action
        , (*<)
 
          -- * Decidable combinators
+         -- $decidable
        , lose
        , choose
        , (>|<)
 
          -- * Comonadic combinators
+         -- $comonad
        , extract
        , extend
        , (=>>)
@@ -77,8 +81,11 @@ can be either 'IO' or some custom pure monad.
 Key design point here is that 'LogAction' is:
 
 * 'Semigroup'
-* Contravariant
-* Comonad
+* 'Monoid'
+* 'Data.Functor.Contravariant.Contravariant'
+* 'Data.Functor.Contravariant.Divisible.Divisible'
+* 'Data.Functor.Contravariant.Divisible.Decidable'
+* 'Control.Comonad.Comonad'
 -}
 newtype LogAction m msg = LogAction
     { unLogAction :: msg -> m ()
@@ -192,6 +199,16 @@ foldActions actions = LogAction $ \a -> for_ actions $ \(LogAction action) -> ac
 ----------------------------------------------------------------------------
 -- Contravariant combinators
 ----------------------------------------------------------------------------
+
+{- $contravariant
+
+Combinators that implement interface in the spirit of the following typeclass:
+
+@
+__class__ Contravariant f __where__
+    contramap :: (a -> b) -> f b -> f a
+@
+-}
 
 {- | Takes predicate and performs given logging action only if predicate returns
 'True' on input logging message.
@@ -320,6 +337,17 @@ cmapM f (LogAction action) = LogAction (f >=> action)
 -- Divisible combinators
 ----------------------------------------------------------------------------
 
+{- $divisible
+
+Combinators that implement interface in the spirit of the following typeclass:
+
+@
+__class__ Contravariant f => Divisible f __where__
+    conquer :: f a
+    divide  :: (a -> (b, c)) -> f b -> f c -> f a
+@
+-}
+
 {- | @divide@ combinator from @Divisible@ type class.
 
 >>> logInt = LogAction print
@@ -383,6 +411,17 @@ infixr 4 *<
 -- Decidable combinators
 ----------------------------------------------------------------------------
 
+{- $decidable
+
+Combinators that implement interface in the spirit of the following typeclass:
+
+@
+__class__ Divisible f => Decidable f __where__
+    lose   :: (a -> Void) -> f a
+    choose :: (a -> Either b c) -> f b -> f c -> f a
+@
+-}
+
 -- | @lose@ combinator from @Decidable@ type class.
 lose :: (a -> Void) -> LogAction m a
 lose f = LogAction (absurd . f)
@@ -418,6 +457,18 @@ infixr 3 >|<
 -- Comonadic combinators
 ----------------------------------------------------------------------------
 
+{- $comonad
+
+Combinators that implement interface in the spirit of the following typeclass:
+
+@
+__class__ Functor w => Comonad w __where__
+    extract   :: w a -> a
+    duplicate :: w a -> w (w a)
+    extend    :: (w a -> b) -> w a -> w b
+@
+-}
+
 {- | If @msg@ is 'Monoid' then 'extract' performs given log action by passing
 'mempty' to it.
 
@@ -434,15 +485,15 @@ extract action = unLogAction action mempty
 
 >>> f (LogAction l) = l ".f1" *> l ".f2"
 >>> g (LogAction l) = l ".g"
->>> unLogAction logStringStdout "foo"
+>>> logStringStdout <& "foo"
 foo
->>> unLogAction (extend f logStringStdout) "foo"
+>>> extend f logStringStdout <& "foo"
 foo.f1
 foo.f2
->>> unLogAction (extend g $ extend f logStringStdout) "foo"
+>>> (extend g $ extend f logStringStdout) <& "foo"
 foo.g.f1
 foo.g.f2
->>> unLogAction (logStringStdout =>> f =>> g) "foo"
+>>> (logStringStdout =>> f =>> g) <& "foo"
 foo.g.f1
 foo.g.f2
 -}
@@ -477,7 +528,7 @@ in duplicate logger <& ([3, 4], [42, 10])
 
 __Implementation note:__
 
-True and fair translation of the @duplicate@ function from the 'Comonad'
+True and fair translation of the @duplicate@ function from the 'Control.Comonad.Comonad'
 interface should result in the 'LogAction' of the following form:
 
 @
