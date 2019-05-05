@@ -29,20 +29,30 @@ functions.
 It also provides the useful lens 'logActionL' with the default implementation using type
 class methods. The default one could be easily overritten under your instances.
 
-TODO: laws
+Every instance of the this typeclass should satisfy the following laws:
+
+1. __Set-Get:__ @'getLogAction' ('setLogAction' l env) ≡ l@
+2. __Get-Set:__ @'setLogAction' ('getLogAction' env) env ≡ env@
+3. __Set-Set:__ @'setLogAction' l2 ('setLogAction' l1 env) ≡ 'setLogAction' l2 env@
+4. __Set-Over:__ @'overLogAction' f env ≡ 'setLogAction' (f $ 'getLogAction' env) env@
 -}
 class HasLog env msg m where
     {-# MINIMAL getLogAction, (setLogAction | overLogAction) #-}
+
+    -- | Extracts 'LogAction' from the environment.
     getLogAction :: env -> LogAction m msg
 
+    -- | Sets 'LogAction' to the given one inside the environment.
     setLogAction :: LogAction m msg -> env -> env
     setLogAction = overLogAction . const
     {-# INLINE setLogAction #-}
 
+    -- | Applies function to the 'LogAction' inside the environment.
     overLogAction :: (LogAction m msg -> LogAction m msg) -> env -> env
     overLogAction f env = setLogAction (f $ getLogAction env) env
     {-# INLINE overLogAction #-}
 
+    -- | Lens for 'LogAction' inside the environment.
     logActionL :: Lens' env (LogAction m msg)
     logActionL = lens getLogAction (flip setLogAction)
     {-# INLINE logActionL #-}

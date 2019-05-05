@@ -24,8 +24,10 @@ The repository contains the following packages:
   on `co-log-core` and the [`polysemy`](http://hackage.haskell.org/package/polysemy) extensible effects library.
 * [`co-log-benchmark`](co-log-benchmark): Benchmarks of the `co-log` library.
 
-See [How to start using `co-log`?](co-log/README.md) for simple example of the
-`co-log` library usage.
+See the following tutorial series about the library:
+
+* [Intro: Using `LogAction`](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/1-intro/Intro.md)
+* [Using custom monad that stores `LogAction` inside its environment](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/2-custom/Custom.md)
 
 ## Benchmarks
 

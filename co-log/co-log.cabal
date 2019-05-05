@@ -79,7 +79,7 @@ library
 
   build-depends:       ansi-terminal ^>= 0.9
                      , bytestring ^>= 0.10.8
-                     , co-log-core ^>= 0.1.1
+                     , co-log-core ^>= 0.2.0.0
                      , containers >= 0.5.7 && < 0.7
                      , contravariant ^>= 1.5
                      , directory ^>= 1.3.0
@@ -89,11 +89,11 @@ library
                      , text ^>= 1.2.3
                      , chronos ^>= 1.0.4
                      , transformers ^>= 0.5
-                     , typerep-map ^>= 0.3.0
+                     , typerep-map ^>= 0.3.2
 
 executable play-colog
   import:              common-options
-  hs-source-dirs:      example
+  hs-source-dirs:      tutorials
   main-is:             Main.hs
 
   build-depends:       co-log
@@ -111,11 +111,11 @@ executable readme
 
 executable tutorial-intro
   import:              tutorial-options
-  main-is:             example/1-intro/Intro.lhs
+  main-is:             tutorials/1-intro/Intro.lhs
 
 executable tutorial-custom
   import:              tutorial-options
-  main-is:             example/2-custom/Custom.lhs
+  main-is:             tutorials/2-custom/Custom.lhs
   build-depends:       mtl
 
 test-suite test-co-log

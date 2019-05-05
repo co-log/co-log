@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                co-log-core
-version:             0.1.1
+version:             0.2.0.0
 synopsis:            Composable Contravariant Comonadic Logging Library
 description:
     This package provides core types and functions to work with the @LogAction@ data type which is both simple and powerful.
@@ -14,6 +14,12 @@ description:
     The ideas behind this package are described in the following blog post:
     .
     * [co-log: Composable Contravariant Combinatorial Comonadic Configurable Convenient Logging](https://kowainik.github.io/posts/2018-09-25-co-log)
+    .
+    See the following packages for different implementations based on @co-log-core@:
+    .
+    * [co-log](http://hackage.haskell.org/package/co-log): taggless final implementations.
+    * [co-log-polysemy](http://hackage.haskell.org/package/co-log-polysemy): extensible
+      effects implementation based on @polysemy@.
 
 homepage:            https://github.com/kowainik/co-log
 bug-reports:         https://github.com/kowainik/co-log/issues

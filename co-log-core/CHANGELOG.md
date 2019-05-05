@@ -3,7 +3,7 @@
 `co-log-core` uses [PVP Versioning][1].
 The change log is available [on GitHub][2].
 
-## Unreleased
+## 0.1.2.0 — May 5, 2019
 
 * [#85](https://github.com/kowainik/co-log/issues/85):
   Move `overLogAction` to `HasLog` typeclass
@@ -11,6 +11,8 @@ The change log is available [on GitHub][2].
   Add `logActionL` lens with default implementation to `HasLog` type class.
 * [#99](https://github.com/kowainik/co-log/issues/99):
   Add comonadic combinators: `duplicate` and `multiplicate`.
+* [#78](https://github.com/kowainik/co-log/issues/78):
+  Improve documentation significantly.
 
 ## 0.1.1 — Nov 15, 2018
 

@@ -3,7 +3,7 @@
 `co-log` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
-## Unreleased: 0.3.0.0
+## 0.3.0.0 — May 5, 2019
 
 * [#77](https://github.com/kowainik/co-log/issues/77):
   **Important:** Use `chronos` time formatter. This is a breaking change because
@@ -24,6 +24,7 @@ The changelog is available [on GitHub][2].
 * Export more formatting functions to make implementation of custom formatters easier.
 * [#96](https://github.com/kowainik/co-log/issues/96):
   Add `simpleMessageAction` and `richMessageAction` to work with `Message`s.
+* Use `co-log-core` of version `0.2.0.0`.
 
 ## 0.2.0 — Nov 15, 2018
 
