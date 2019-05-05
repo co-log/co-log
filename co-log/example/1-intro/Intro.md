@@ -6,7 +6,7 @@ using core data types and functions.
 You can run this tutorial by calling the following command:
 
 ```shell
-cabal new-run intro
+cabal new-run tutorial-intro
 ```
 
 ## Preamble: imports and language extensions

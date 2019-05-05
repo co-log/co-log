@@ -14,7 +14,7 @@ homepage:            https://github.com/kowainik/co-log
 bug-reports:         https://github.com/kowainik/co-log/issues
 license:             MPL-2.0
 license-file:        LICENSE
-author:              Kowainik
+author:              Dmitrii Kovanikov, Kowainik
 maintainer:          xrom.xkov@gmail.com
 copyright:           2018-2019 Kowainik
 category:            Logging, Contravariant, Comonad
@@ -109,9 +109,14 @@ executable readme
   main-is:             README.lhs
   build-depends:       text
 
-executable intro
+executable tutorial-intro
   import:              tutorial-options
   main-is:             example/1-intro/Intro.lhs
+
+executable tutorial-custom
+  import:              tutorial-options
+  main-is:             example/2-custom/Custom.lhs
+  build-depends:       mtl
 
 test-suite test-co-log
   import:              common-options
