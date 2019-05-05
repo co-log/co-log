@@ -1,7 +1,7 @@
 # co-log
 
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/master/LICENSE)
-[![Build status](https://secure.travis-ci.org/kowainik/co-log.svg)](https://travis-ci.org/kowainik/co-log)
+[![Build status](https://img.shields.io/travis/kowainik/co-log.svg?logo=travis)](https://travis-ci.org/kowainik/co-log)
 
 |                   |                                    |                                           |                                                       |
 | :------------     | :--------------------------------- | :---------------------------------------: | :---------------------------------------------------- |
@@ -56,9 +56,9 @@ library.
 | `Message{Time,ThreadId} > format > ByteString > stdout` | ` 54.137ms`           |
 
 
-[hk-img]: https://img.shields.io/hackage/v/co-log.svg
-[hk-img-ps]: https://img.shields.io/hackage/v/co-log-polysemy.svg
-[hk-img-core]: https://img.shields.io/hackage/v/co-log-core.svg
+[hk-img]: https://img.shields.io/hackage/v/co-log.svg?logo=haskell
+[hk-img-ps]: https://img.shields.io/hackage/v/co-log-polysemy.svg?logo=haskell
+[hk-img-core]: https://img.shields.io/hackage/v/co-log-core.svg?logo=haskell
 [hk]: https://hackage.haskell.org/package/co-log
 [hk-ps]: https://hackage.haskell.org/package/co-log-polysemy
 [hk-core]: https://hackage.haskell.org/package/co-log-core
