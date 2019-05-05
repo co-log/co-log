@@ -26,6 +26,7 @@ category:            Logging, Contravariant, Comonad
 build-type:          Simple
 stability:           stable
 extra-doc-files:     CHANGELOG.md
+                   , README.md
 tested-with:         GHC == 8.2.2
                    , GHC == 8.4.4
                    , GHC == 8.6.5
