@@ -343,8 +343,8 @@ Combinators that implement interface in the spirit of the following typeclass:
 
 @
 __class__ Contravariant f => Divisible f __where__
-  conquer :: f a
-  divide  :: (a -> (b, c)) -> f b -> f c -> f a
+    conquer :: f a
+    divide  :: (a -> (b, c)) -> f b -> f c -> f a
 @
 -}
 
@@ -417,8 +417,8 @@ Combinators that implement interface in the spirit of the following typeclass:
 
 @
 __class__ Divisible f => Decidable f __where__
-  lose   :: (a -> Void) -> f a
-  choose :: (a -> Either b c) -> f b -> f c -> f a
+    lose   :: (a -> Void) -> f a
+    choose :: (a -> Either b c) -> f b -> f c -> f a
 @
 -}
 
