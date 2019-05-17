@@ -121,7 +121,7 @@ test-suite test-co-log
   import:              common-options
   build-depends:       co-log
                      , co-log-core
-                     , hedgehog ^>= 0.6
+                     , hedgehog >= 0.6 && < 1.1
   hs-source-dirs:      test
   main-is:             Property.hs
   type:                exitcode-stdio-1.0
