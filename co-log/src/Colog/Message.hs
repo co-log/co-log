@@ -271,7 +271,7 @@ defaultFieldMap = fromList
 
 -- | Contains additional data to 'Message' to display more verbose information.
 data RichMsg (m :: Type -> Type) (msg :: Type) = RichMessage
-    { richMsgMsg :: {-# UNPACK #-} !msg
+    { richMsgMsg :: !msg
     , richMsgMap :: {-# UNPACK #-} !(FieldMap m)
     } deriving (Functor)
 
