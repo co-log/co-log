@@ -22,9 +22,9 @@ import Control.Monad.Reader (MonadReader, ReaderT (..))
 import Data.Semigroup ((<>))
 
 import Colog (pattern D, HasLog (..), LogAction, Message, Msg (..), PureLogger, WithLog, cmap,
-              cmapM, defaultFieldMap, fmtMessage, fmtRichMessageDefault, liftLogIO, log,
-              logException, logInfo, logMessagePure, logMsg, logMsgs, logPrint, logStringStdout,
-              logTextStderr, logTextStdout, logWarning, runPureLog, upgradeMessageAction,
+              cmapM, defaultFieldMap, fmtMessage, fmtSimpleRichMessageDefault, fmtRichMessageDefault,
+              liftLogIO, log, logException, logInfo, logMessagePure, logMsg, logMsgs, logPrint,
+              logStringStdout, logTextStderr, logTextStdout, logWarning, runPureLog, upgradeMessageAction,
               usingLoggerT, withLog, withLogTextFile, (*<), (<&), (>$), (>$<), (>*), (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
@@ -168,15 +168,18 @@ main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
 
     let simpleMessageAction = cmap  fmtMessage            textAction
     let richMessageAction   = cmapM fmtRichMessageDefault textAction
+    let simpleRichMessageAction = cmapM fmtSimpleRichMessageDefault textAction
 
     let fullMessageAction = upgradeMessageAction defaultFieldMap richMessageAction
     let semiMessageAction = upgradeMessageAction
                                 (TM.delete @"threadId" defaultFieldMap)
                                 richMessageAction
+    let severityLessMessageAction = upgradeMessageAction defaultFieldMap simpleRichMessageAction
 
     runApp simpleMessageAction
     runApp fullMessageAction
     runApp semiMessageAction
+    runApp severityLessMessageAction
 
     usingLoggerT carL $ logMsg $ Car "Toyota" "Corolla" (Pistons 4)
 
