@@ -294,7 +294,7 @@ __Examples:__
 See 'fmtMessage' if you don't need both time and thread id.
 -}
 fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
-fmtRichMessageDefault msg = fmtRichMessageCustom msg formatRichMessage
+fmtRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
   where
     formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Message -> Text
     formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Msg{..} =
@@ -319,31 +319,31 @@ __Examples:__
 
 Practically, it formats a message as 'fmtRichMessageDefault' without the severity information.
 -}
-fmtSimpleRichMessageDefault :: MonadIO m => RichMessage m -> m Text
-fmtSimpleRichMessageDefault msg = fmtRichMessageCustom msg formatRichMessage
-  where
-    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Message -> Text
-    formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Msg{..} =
+fmtSimpleRichMessageDefault :: MonadIO m => RichMsg m SimpleMsg -> m Text
+fmtSimpleRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
+   where
+    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> SimpleMsg -> Text
+    formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) SimpleMsg{..} =
         time
-     <> showSourceLoc msgStack
+     <> showSourceLoc simpleMsgStack
      <> thread
-     <> msgText
+     <> simpleMsgText
 
-fmtRichMessageCustom :: MonadIO m => RichMessage m -> (Maybe ThreadId -> Maybe C.Time -> Message -> Text) -> m Text
-fmtRichMessageCustom RichMessage{..} formatter = do
+fmtRichMessageCustomDefault :: MonadIO m => RichMsg m msg -> (Maybe ThreadId -> Maybe C.Time -> msg -> Text) -> m Text
+fmtRichMessageCustomDefault RichMessage{..} formatter = do
     maybeThreadId  <- extractField $ TM.lookup @"threadId"  richMsgMap
     maybePosixTime <- extractField $ TM.lookup @"posixTime" richMsgMap
     pure $ formatter maybeThreadId maybePosixTime richMsgMsg
 
 showTime :: C.Time -> Text
 showTime t =
-            square
-          $ toStrict
-          $ TB.toLazyText
-          $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
-        where
-            timePrecision = C.SubsecondPrecisionFixed 3
-            datetimeFormat = C.DatetimeFormat (Just '-') (Just ' ') (Just ':')
+    square
+    $ toStrict
+    $ TB.toLazyText
+    $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
+  where
+    timePrecision = C.SubsecondPrecisionFixed 3
+    datetimeFormat = C.DatetimeFormat (Just '-') (Just ' ') (Just ':')
 
 showThreadId :: ThreadId -> Text
 showThreadId = square . T.pack . show
