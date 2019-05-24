@@ -275,6 +275,7 @@ data RichMsg (m :: Type -> Type) (msg :: Type) = RichMessage
     , richMsgMap :: {-# UNPACK #-} !(FieldMap m)
     } deriving (Functor)
 
+-- | Specialised version of 'RichMsg' that stores severity, callstack and text message.
 type RichMessage m = RichMsg m Message
 
 {- | Formats 'RichMessage' in the following way:
