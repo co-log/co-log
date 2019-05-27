@@ -321,7 +321,7 @@ Practically, it formats a message as 'fmtRichMessageDefault' without the severit
 -}
 fmtSimpleRichMessageDefault :: MonadIO m => RichMessage m -> m Text
 fmtSimpleRichMessageDefault msg = fmtRichMessageCustom msg formatRichMessage
-   where
+  where
     formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Message -> Text
     formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Msg{..} =
         time
