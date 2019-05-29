@@ -20,11 +20,13 @@ import Control.Exception (Exception)
 import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Reader (MonadReader, ReaderT (..))
 import Data.Semigroup ((<>))
+import Data.Text (Text)
+import GHC.Stack (callStack)
 
 import Colog (pattern D, HasLog (..), LogAction, Message, Msg (..), PureLogger, WithLog, cmap,
               cmapM, defaultFieldMap, fmtMessage, fmtSimpleRichMessageDefault, fmtRichMessageDefault,
               liftLogIO, log, logException, logInfo, logMessagePure, logMsg, logMsgs, logPrint,
-              logStringStdout, logTextStderr, logTextStdout, logWarning, runPureLog, upgradeMessageAction,
+              logStringStdout, logTextStderr, logTextStdout, logWarning, RichMsg(..), runPureLog, SimpleMsg (..), upgradeMessageAction,
               usingLoggerT, withLog, withLogTextFile, (*<), (<&), (>$), (>$<), (>*), (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
@@ -33,6 +35,13 @@ example :: WithLog env Message m => m ()
 example = do
     log D "First message..."
     logInfo "Second message..."
+
+simpleExample :: MonadIO m => RichMsg m SimpleMsg
+simpleExample = RichMessagex (SimpleMsg callStack "Simple text message") defaultFieldMap
+
+simpleApp :: (MonadIO m, WithLog env Text m) => m ()
+simpleApp =
+    logMsg =<< fmtSimpleRichMessageDefault simpleExample
 
 app :: (WithLog env Message m, MonadIO m) => m ()
 app = do
@@ -164,22 +173,24 @@ main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
     let runApp :: LogAction IO Message -> IO ()
         runApp action = usingLoggerT action app
 
+    let runSimpleApp :: LogAction IO Text -> IO ()
+        runSimpleApp action = usingLoggerT action simpleApp
+
     let textAction = logTextStdout <> logTextStderr <> logTextFile
 
     let simpleMessageAction = cmap  fmtMessage            textAction
     let richMessageAction   = cmapM fmtRichMessageDefault textAction
-    let simpleRichMessageAction = cmapM fmtSimpleRichMessageDefault textAction
 
     let fullMessageAction = upgradeMessageAction defaultFieldMap richMessageAction
     let semiMessageAction = upgradeMessageAction
                                 (TM.delete @"threadId" defaultFieldMap)
                                 richMessageAction
-    let severityLessMessageAction = upgradeMessageAction defaultFieldMap simpleRichMessageAction
 
     runApp simpleMessageAction
     runApp fullMessageAction
     runApp semiMessageAction
-    runApp severityLessMessageAction
+
+    runSimpleApp textAction
 
     usingLoggerT carL $ logMsg $ Car "Toyota" "Corolla" (Pistons 4)
 

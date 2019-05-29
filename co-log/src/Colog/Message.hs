@@ -43,7 +43,8 @@ module Colog.Message
        , FieldMap
        , defaultFieldMap
 
-       , RichMessage
+       , RichMessage(..)
+       , RichMsg(..)
        , SimpleMsg(..)
        , fmtRichMessageDefault
        , fmtSimpleRichMessageDefault
@@ -270,7 +271,7 @@ defaultFieldMap = fromList
     ]
 
 -- | Contains additional data to 'Message' to display more verbose information.
-data RichMsg (m :: Type -> Type) (msg :: Type) = RichMessage
+data RichMsg (m :: Type -> Type) (msg :: Type) = RichMessagex
     { richMsgMsg :: !msg
     , richMsgMap :: {-# UNPACK #-} !(FieldMap m)
     } deriving (Functor)
@@ -330,7 +331,7 @@ fmtSimpleRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMess
      <> simpleMsgText
 
 fmtRichMessageCustomDefault :: MonadIO m => RichMsg m msg -> (Maybe ThreadId -> Maybe C.Time -> msg -> Text) -> m Text
-fmtRichMessageCustomDefault RichMessage{..} formatter = do
+fmtRichMessageCustomDefault RichMessagex{..} formatter = do
     maybeThreadId  <- extractField $ TM.lookup @"threadId"  richMsgMap
     maybePosixTime <- extractField $ TM.lookup @"posixTime" richMsgMap
     pure $ formatter maybeThreadId maybePosixTime richMsgMsg
@@ -358,4 +359,4 @@ upgradeMessageAction
 upgradeMessageAction fieldMap = cmap addMap
   where
     addMap :: Message -> RichMessage m
-    addMap msg = RichMessage msg fieldMap
+    addMap msg = RichMessagex msg fieldMap
