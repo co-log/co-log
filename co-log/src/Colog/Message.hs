@@ -27,6 +27,7 @@ module Colog.Message
        , logWarning
        , logError
        , logException
+       , logText
 
          -- * Formatting functions
        , fmtMessage
@@ -43,9 +44,9 @@ module Colog.Message
        , FieldMap
        , defaultFieldMap
 
-       , RichMessage(..)
-       , RichMsg(..)
-       , SimpleMsg(..)
+       , RichMessage (..)
+       , RichMsg (..)
+       , SimpleMsg (..)
        , fmtRichMessageDefault
        , fmtSimpleRichMessageDefault
        , upgradeMessageAction
@@ -128,6 +129,9 @@ logError = withFrozenCallStack (log Error)
 -- | Logs 'Exception' message.
 logException :: forall e m env . (WithLog env Message m, Exception e) => e -> m ()
 logException = withFrozenCallStack (logError . T.pack . displayException)
+
+logText :: WithLog env SimpleMsg m => Text -> m ()
+logText msgText = withFrozenCallStack (logMsg SimpleMsg{ simpleMsgStack = callStack, simpleMsgText = msgText })
 
 {- | Formats the 'Message' type in according to the following format:
 
@@ -271,7 +275,7 @@ defaultFieldMap = fromList
     ]
 
 -- | Contains additional data to 'Message' to display more verbose information.
-data RichMsg (m :: Type -> Type) (msg :: Type) = RichMessagex
+data RichMsg (m :: Type -> Type) (msg :: Type) = RichMsg
     { richMsgMsg :: !msg
     , richMsgMap :: {-# UNPACK #-} !(FieldMap m)
     } deriving (Functor)
@@ -331,7 +335,7 @@ fmtSimpleRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMess
      <> simpleMsgText
 
 fmtRichMessageCustomDefault :: MonadIO m => RichMsg m msg -> (Maybe ThreadId -> Maybe C.Time -> msg -> Text) -> m Text
-fmtRichMessageCustomDefault RichMessagex{..} formatter = do
+fmtRichMessageCustomDefault RichMsg{..} formatter = do
     maybeThreadId  <- extractField $ TM.lookup @"threadId"  richMsgMap
     maybePosixTime <- extractField $ TM.lookup @"posixTime" richMsgMap
     pure $ formatter maybeThreadId maybePosixTime richMsgMsg
@@ -352,11 +356,11 @@ showThreadId = square . T.pack . show
 {- | Allows to extend basic 'Message' type with given dependent map of fields.
 -}
 upgradeMessageAction
-    :: forall m .
+    :: forall m msg .
        FieldMap m
-    -> LogAction m (RichMessage m)
-    -> LogAction m Message
+    -> LogAction m (RichMsg m msg)
+    -> LogAction m msg
 upgradeMessageAction fieldMap = cmap addMap
   where
-    addMap :: Message -> RichMessage m
-    addMap msg = RichMessagex msg fieldMap
+    addMap :: msg -> RichMsg m msg
+    addMap msg = RichMsg msg fieldMap
