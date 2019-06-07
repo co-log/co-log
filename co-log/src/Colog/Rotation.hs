@@ -114,7 +114,7 @@ maxFileIndex path = do
   pure $ fromMaybe 0 maxFile
 
 getLogFiles :: FilePath -> [FilePath] -> [FilePath]
-getLogFiles logPath files= filter (\p -> POS.takeFileName logPath `isPrefixOf` POS.takeFileName p) files
+getLogFiles logPath = filter (\p -> POS.takeFileName logPath `isPrefixOf` POS.takeFileName p)
 
 -- given number 4 and path `node.log` renames file `node.log` to `node.log.4`
 renameFileToNumber :: Natural -> FilePath -> IO ()
@@ -130,11 +130,10 @@ getOldFiles limit path = do
     currentMaxN <- maxFileIndex path
     files <- D.listDirectory (POS.takeDirectory path)
     let logFiles = getLogFiles path files
-    let index = map takeFileIndex logFiles
     pure $ mapMaybe (takeFileIndex >=> guardFileIndex currentMaxN) logFiles
   where
     takeFileIndex  :: FilePath -> Maybe (FilePath, Natural)
-    takeFileIndex p = fmap (\v -> (p, v)) (logFileIndex p)
+    takeFileIndex p = fmap (p,) (logFileIndex p)
 
     guardFileIndex :: Natural -> (FilePath, Natural) -> Maybe FilePath
     guardFileIndex maxN (p, n)
