@@ -19,6 +19,7 @@ import Control.Monad (when, (>=>))
 import Control.Monad.IO.Class (MonadIO (..))
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
 import Data.List.NonEmpty (nonEmpty)
+import Data.List (isPrefixOf)
 import Data.Maybe (fromMaybe, mapMaybe)
 import Numeric.Natural (Natural)
 import System.FilePath.Posix ((<.>))
@@ -37,7 +38,7 @@ import qualified System.FilePath.Posix as POS
 1. Limit the number of kept files.
 2. Limit the size of the files.
 -}
-data Limit = LimitTo Natural | Unlimited deriving (Eq, Ord)
+data Limit = LimitTo Natural | Unlimited deriving (Eq, Ord, Show)
 
 {- | Logger rotation action. Takes name of the logging file @file.foo@. Always
 writes new logs to file named @file.foo@ (given file name, also called as /hot log/).
@@ -96,7 +97,7 @@ isLimitedBy :: Integer -> Limit -> Bool
 isLimitedBy _ Unlimited = False
 isLimitedBy size (LimitTo limit)
   | size <= 0 = False
-  | otherwise = toInteger limit > size
+  | otherwise = size > toInteger limit
 
 isFileSizeLimitReached :: forall m . MonadIO m => Limit -> Handle -> m Bool
 isFileSizeLimitReached limit handle = liftIO $ do
@@ -108,9 +109,12 @@ isFileSizeLimitReached limit handle = liftIO $ do
 maxFileIndex :: FilePath -> IO Natural
 maxFileIndex path = do
   files <- D.listDirectory (POS.takeDirectory path)
-  let logFiles = filter (== POS.takeBaseName path) files
+  let logFiles = getLogFiles path files
   let maxFile = maximum <$> nonEmpty (mapMaybe logFileIndex logFiles)
   pure $ fromMaybe 0 maxFile
+
+getLogFiles :: FilePath -> [FilePath] -> [FilePath]
+getLogFiles logPath = filter (\p -> POS.takeFileName logPath `isPrefixOf` POS.takeFileName p)
 
 -- given number 4 and path `node.log` renames file `node.log` to `node.log.4`
 renameFileToNumber :: Natural -> FilePath -> IO ()
@@ -118,25 +122,25 @@ renameFileToNumber n path = D.renameFile path (path <.> show n)
 
 -- if you give it name like `node.log.4` then it returns `Just 4`
 logFileIndex :: FilePath -> Maybe Natural
-logFileIndex path =
-    nonEmpty (POS.takeExtension path) >>= readMaybe . NE.tail
+logFileIndex path = fmap NE.tail (nonEmpty (POS.takeExtension path)) >>= readMaybe
 
 -- creates list of files with indices who are older on given Limit than the latest one
 getOldFiles :: Limit -> FilePath -> IO [FilePath]
 getOldFiles limit path = do
     currentMaxN <- maxFileIndex path
     files <- D.listDirectory (POS.takeDirectory path)
-    pure $ mapMaybe (takeFileIndex >=> guardFileIndex currentMaxN) files
+    let logFiles = getLogFiles path files
+    pure $ mapMaybe (takeFileIndex >=> guardFileIndex currentMaxN) logFiles
   where
     takeFileIndex  :: FilePath -> Maybe (FilePath, Natural)
-    takeFileIndex p = (p,) <$> logFileIndex path
+    takeFileIndex p = fmap (p,) (logFileIndex p)
 
     guardFileIndex :: Natural -> (FilePath, Natural) -> Maybe FilePath
     guardFileIndex maxN (p, n)
-      | isOldFile maxN n = Nothing
-      | otherwise       = Just p
+      | isOldFile maxN n = Just p
+      | otherwise       = Nothing
 
     isOldFile :: Natural -> Natural -> Bool
     isOldFile maxN n = case limit of
                          Unlimited -> False
-                         LimitTo l -> n < maxN - l
+                         LimitTo l -> n + l < maxN
