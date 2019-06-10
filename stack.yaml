@@ -7,5 +7,7 @@ packages:
   - co-log-benchmark
 
 extra-deps:
-  - polysemy-0.2.1.0 
+  - polysemy-0.3.0.0 
   - typerep-map-0.3.2
+  - th-abstraction-0.3.1.0
+  - aeson-1.4.3.0
