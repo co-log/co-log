@@ -1,5 +1,6 @@
 {-# LANGUAGE CPP                   #-}
 {-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE DeriveFunctor         #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
@@ -26,6 +27,7 @@ module Colog.Message
        , logWarning
        , logError
        , logException
+       , logText
 
          -- * Formatting functions
        , fmtMessage
@@ -43,7 +45,10 @@ module Colog.Message
        , defaultFieldMap
 
        , RichMessage (..)
+       , RichMsg (..)
+       , SimpleMsg (..)
        , fmtRichMessageDefault
+       , fmtSimpleRichMessageDefault
        , upgradeMessageAction
        ) where
 
@@ -90,6 +95,11 @@ data Msg sev = Msg
     , msgText     :: !Text
     }
 
+data SimpleMsg = SimpleMsg
+    { simpleMsgStack :: !CallStack
+    , simpleMsgText :: !Text
+    }
+
 {- | 'Msg' parametrized by the 'Severity' type. Most formatting functions in
 this module work with 'Severity' from @co-log-core@.
 -}
@@ -119,6 +129,9 @@ logError = withFrozenCallStack (log Error)
 -- | Logs 'Exception' message.
 logException :: forall e m env . (WithLog env Message m, Exception e) => e -> m ()
 logException = withFrozenCallStack (logError . T.pack . displayException)
+
+logText :: WithLog env SimpleMsg m => Text -> m ()
+logText msgText = withFrozenCallStack (logMsg SimpleMsg{ simpleMsgStack = callStack, simpleMsgText = msgText })
 
 {- | Formats the 'Message' type in according to the following format:
 
@@ -262,10 +275,13 @@ defaultFieldMap = fromList
     ]
 
 -- | Contains additional data to 'Message' to display more verbose information.
-data RichMessage (m :: Type -> Type) = RichMessage
-    { richMessageMsg :: {-# UNPACK #-} !Message
-    , richMessageMap :: {-# UNPACK #-} !(FieldMap m)
-    }
+data RichMsg (m :: Type -> Type) (msg :: Type) = RichMsg
+    { richMsgMsg :: !msg
+    , richMsgMap :: {-# UNPACK #-} !(FieldMap m)
+    } deriving (Functor)
+
+-- | Specialised version of 'RichMsg' that stores severity, callstack and text message.
+type RichMessage m = RichMsg m Message
 
 {- | Formats 'RichMessage' in the following way:
 
@@ -283,10 +299,7 @@ __Examples:__
 See 'fmtMessage' if you don't need both time and thread id.
 -}
 fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
-fmtRichMessageDefault RichMessage{..} = do
-    maybeThreadId  <- extractField $ TM.lookup @"threadId"  richMessageMap
-    maybePosixTime <- extractField $ TM.lookup @"posixTime" richMessageMap
-    pure $ formatRichMessage maybeThreadId maybePosixTime richMessageMsg
+fmtRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
   where
     formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Message -> Text
     formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Msg{..} =
@@ -296,27 +309,58 @@ fmtRichMessageDefault RichMessage{..} = do
      <> thread
      <> msgText
 
-    showTime :: C.Time -> Text
-    showTime t =
-        square
-        $ toStrict
-        $ TB.toLazyText
-        $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
-      where
-        timePrecision = C.SubsecondPrecisionFixed 3
-        datetimeFormat = C.DatetimeFormat (Just '-') (Just ' ') (Just ':')
+{- | Formats 'RichMessage' in the following way:
 
-    showThreadId :: ThreadId -> Text
-    showThreadId = square . T.pack . show
+@
+[Time] [SourceLocation] [ThreadId] \<Text message\>
+@
+
+__Examples:__
+
+@
+[03 05 2019 05:23:19.058] [Main.example#34] [ThreadId 11] app: First message...
+[03 05 2019 05:23:19.059] [Main.example#35] [ThreadId 11] app: Second message...
+@
+
+Practically, it formats a message as 'fmtRichMessageDefault' without the severity information.
+-}
+fmtSimpleRichMessageDefault :: MonadIO m => RichMsg m SimpleMsg -> m Text
+fmtSimpleRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
+  where
+    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> SimpleMsg -> Text
+    formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) SimpleMsg{..} =
+        time
+     <> showSourceLoc simpleMsgStack
+     <> thread
+     <> simpleMsgText
+
+fmtRichMessageCustomDefault :: MonadIO m => RichMsg m msg -> (Maybe ThreadId -> Maybe C.Time -> msg -> Text) -> m Text
+fmtRichMessageCustomDefault RichMsg{..} formatter = do
+    maybeThreadId  <- extractField $ TM.lookup @"threadId"  richMsgMap
+    maybePosixTime <- extractField $ TM.lookup @"posixTime" richMsgMap
+    pure $ formatter maybeThreadId maybePosixTime richMsgMsg
+
+showTime :: C.Time -> Text
+showTime t =
+    square
+    $ toStrict
+    $ TB.toLazyText
+    $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
+  where
+    timePrecision = C.SubsecondPrecisionFixed 3
+    datetimeFormat = C.DatetimeFormat (Just '-') (Just ' ') (Just ':')
+
+showThreadId :: ThreadId -> Text
+showThreadId = square . T.pack . show
 
 {- | Allows to extend basic 'Message' type with given dependent map of fields.
 -}
 upgradeMessageAction
-    :: forall m .
+    :: forall m msg .
        FieldMap m
-    -> LogAction m (RichMessage m)
-    -> LogAction m Message
+    -> LogAction m (RichMsg m msg)
+    -> LogAction m msg
 upgradeMessageAction fieldMap = cmap addMap
   where
-    addMap :: Message -> RichMessage m
-    addMap msg = RichMessage msg fieldMap
+    addMap :: msg -> RichMsg m msg
+    addMap msg = RichMsg msg fieldMap

@@ -22,9 +22,9 @@ import Control.Monad.Reader (MonadReader, ReaderT (..))
 import Data.Semigroup ((<>))
 
 import Colog (pattern D, HasLog (..), LogAction, Message, Msg (..), PureLogger, WithLog, cmap,
-              cmapM, defaultFieldMap, fmtMessage, fmtRichMessageDefault, liftLogIO, log,
-              logException, logInfo, logMessagePure, logMsg, logMsgs, logPrint, logStringStdout,
-              logTextStderr, logTextStdout, logWarning, runPureLog, upgradeMessageAction,
+              cmapM, defaultFieldMap, fmtMessage, fmtSimpleRichMessageDefault, fmtRichMessageDefault,
+              liftLogIO, log, logException, logInfo, logMessagePure, logMsg, logMsgs, logPrint,
+              logStringStdout, logText, logTextStderr, logTextStdout, logWarning, RichMsg(..), runPureLog, SimpleMsg (..), upgradeMessageAction,
               usingLoggerT, withLog, withLogTextFile, (*<), (<&), (>$), (>$<), (>*), (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
@@ -33,6 +33,11 @@ example :: WithLog env Message m => m ()
 example = do
     log D "First message..."
     logInfo "Second message..."
+
+simpleApp :: (MonadIO m, WithLog env SimpleMsg m) => m ()
+simpleApp = do
+    logText "First simple message"
+    logText "Second simple message"
 
 app :: (WithLog env Message m, MonadIO m) => m ()
 app = do
@@ -164,10 +169,19 @@ main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
     let runApp :: LogAction IO Message -> IO ()
         runApp action = usingLoggerT action app
 
+    let runSimpleApp :: LogAction IO SimpleMsg -> IO ()
+        runSimpleApp action = usingLoggerT action simpleApp
+
     let textAction = logTextStdout <> logTextStderr <> logTextFile
 
     let simpleMessageAction = cmap  fmtMessage            textAction
     let richMessageAction   = cmapM fmtRichMessageDefault textAction
+
+    let richSimpleAction :: LogAction IO (RichMsg IO SimpleMsg)
+        richSimpleAction = cmapM fmtSimpleRichMessageDefault textAction
+
+    let simpleAction :: LogAction IO SimpleMsg
+        simpleAction = upgradeMessageAction defaultFieldMap richSimpleAction
 
     let fullMessageAction = upgradeMessageAction defaultFieldMap richMessageAction
     let semiMessageAction = upgradeMessageAction
@@ -177,6 +191,8 @@ main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
     runApp simpleMessageAction
     runApp fullMessageAction
     runApp semiMessageAction
+
+    runSimpleApp simpleAction
 
     usingLoggerT carL $ logMsg $ Car "Toyota" "Corolla" (Pistons 4)
 
