@@ -44,7 +44,7 @@ module Colog.Message
        , FieldMap
        , defaultFieldMap
 
-       , RichMessage (..)
+       , RichMessage
        , RichMsg (..)
        , SimpleMsg (..)
        , fmtRichMessageDefault

@@ -110,7 +110,7 @@ Default logging actions to make the usage with 'Message's easier.
 simpleMessageAction :: MonadIO m => LogAction m Message
 simpleMessageAction = encodeUtf8 . fmtMessage >$< logByteStringStdout
 {-# INLINE simpleMessageAction #-}
-{-# SPECIALIZE simpleMessageAction :: LogAction IO Message#-}
+{-# SPECIALIZE simpleMessageAction :: LogAction IO Message #-}
 
 {- | Action that constructs 'Colog.Message.RichMessage' and prints formatted
 'Message' for it to 'stdout'.
