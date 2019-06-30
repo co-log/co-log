@@ -34,8 +34,6 @@ source-repository head
   location:            https://github.com/kowainik/co-log.git
 
 common common-options
-  if impl(ghc < 8.6)
-      buildable:       False
   build-depends:       base >= 4.10.0.0 && < 4.13
 
   ghc-options:         -Wall
@@ -78,7 +76,7 @@ library
                            Colog.Polysemy.Effect
 
   build-depends:       co-log-core ^>= 0.2.0.0
-                     , polysemy ^>= 0.4.0.0
+                     , polysemy ^>= 0.5.1.0
 
 executable play-colog-poly
   import:              common-options
