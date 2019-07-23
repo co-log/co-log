@@ -27,7 +27,6 @@ build-type:          Simple
 stability:           provisional
 extra-doc-files:     CHANGELOG.md
                    , README.md
-tested-with:         GHC == 8.2.2
                    , GHC == 8.4.4
                    , GHC == 8.6.5
 
@@ -48,6 +47,10 @@ common common-options
                        -freverse-errors
                        -Wpartial-fields
                        -O2
+
+  -- 8.2 lacks <>
+  if impl(ghc < 8.4)
+    buildable: False
 
   -- special options to make @polysemy@ fast
   if impl(ghc >= 8.6)
@@ -79,7 +82,7 @@ library
                            Colog.Polysemy.Effect
 
   build-depends:       co-log-core ^>= 0.2.0.0
-                     , polysemy ^>= 0.5.0.1
+                     , polysemy ^>= 1.0
 
 executable play-colog-poly
   import:              common-options
