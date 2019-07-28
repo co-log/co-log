@@ -30,7 +30,7 @@ import Prelude hiding (log)
 
 import Colog.Core.Action (LogAction (..))
 import Data.Kind (Type)
-import Polysemy (Lift, Member, Sem, interpret, makeSem_, sendM)
+import Polysemy (Embed, Member, Sem, interpret, makeSem_, embed)
 import Polysemy.Output (Output (..), output)
 import Polysemy.Trace (Trace (..), trace)
 
@@ -81,12 +81,12 @@ Several examples:
 -}
 runLogAction
     :: forall m msg r a .
-       Member (Lift m) r
+       Member (Embed m) r
     => LogAction m msg
     -> Sem (Log msg ': r) a
     -> Sem r a
 runLogAction (LogAction action) = interpret $ \case
-    Log msg -> sendM $ action msg
+    Log msg -> embed $ action msg
 {-# INLINE runLogAction #-}
 
 {- | Run 'Log' as the 'Trace' effect. This function can be useful if you have an
