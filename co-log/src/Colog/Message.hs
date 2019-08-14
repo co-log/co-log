@@ -93,7 +93,7 @@ data Msg sev = Msg
     { msgSeverity :: !sev
     , msgStack    :: !CallStack
     , msgText     :: !Text
-    }
+    } deriving Functor
 
 data SimpleMsg = SimpleMsg
     { simpleMsgStack :: !CallStack
