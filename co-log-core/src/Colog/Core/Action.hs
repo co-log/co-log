@@ -20,6 +20,7 @@ module Colog.Core.Action
          -- * Contravariant combinators
          -- $contravariant
        , cfilter
+       , cfilterM
        , cmap
        , (>$<)
        , cmapMaybe
@@ -216,6 +217,11 @@ __class__ Contravariant f __where__
 cfilter :: Applicative m => (msg -> Bool) -> LogAction m msg -> LogAction m msg
 cfilter predicate (LogAction action) = LogAction $ \a -> when (predicate a) (action a)
 {-# INLINE cfilter #-}
+
+cfilterM :: Monad m => (a -> m Bool) -> LogAction m a -> LogAction m a
+cfilterM predicateM (LogAction action) =
+  LogAction $ \a -> predicateM a >>= \b -> when b (action a)
+{-# INLINE cfilterM #-}
 
 {- | This combinator is @contramap@ from contravariant functor. It is useful
 when you have something like
