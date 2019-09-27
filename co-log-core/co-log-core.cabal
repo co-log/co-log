@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                co-log-core
-version:             0.2.0.0
+version:             0.2.0.1
 synopsis:            Composable Contravariant Comonadic Logging Library
 description:
     This package provides core types and functions to work with the @LogAction@ data type which is both simple and powerful.
