@@ -24,12 +24,14 @@ module Colog.Core.Action
        , cmap
        , (>$<)
        , cmapMaybe
+       , cmapMaybeM
        , (Colog.Core.Action.>$)
        , cmapM
 
          -- * Divisible combinators
          -- $divisible
        , divide
+       , divideM
        , conquer
        , (>*<)
        , (>*)
@@ -39,6 +41,7 @@ module Colog.Core.Action
          -- $decidable
        , lose
        , choose
+       , chooseM
        , (>|<)
 
          -- * Comonadic combinators
@@ -51,7 +54,7 @@ module Colog.Core.Action
        , multiplicate
        ) where
 
-import Control.Monad (when, (>=>))
+import Control.Monad (when, (>=>), (<=<))
 import Data.Coerce (coerce)
 import Data.Foldable (fold, for_)
 import Data.List.NonEmpty (NonEmpty (..))
@@ -280,6 +283,10 @@ cmapMaybe :: Applicative m => (a -> Maybe b) -> LogAction m b -> LogAction m a
 cmapMaybe f (LogAction action) = LogAction (maybe (pure ()) action . f)
 {-# INLINE cmapMaybe #-}
 
+cmapMaybeM :: Monad m => (a -> m (Maybe b)) -> LogAction m b -> LogAction m a
+cmapMaybeM f (LogAction action) = LogAction (maybe (pure ()) action <=< f)
+{-# INLINE cmapMaybeM #-}
+
 {- | This combinator is @>$@ from contravariant functor. Replaces all locations
 in the output with the same value. The default definition is
 @contramap . const@, so this is a more efficient version.
@@ -366,6 +373,11 @@ divide f (LogAction actionB) (LogAction actionC) = LogAction $ \(f -> (b, c)) ->
     actionB b *> actionC c
 {-# INLINE divide #-}
 
+divideM :: (Monad m) => (a -> m (b, c)) -> LogAction m b -> LogAction m c -> LogAction m a
+divideM f (LogAction actionB) (LogAction actionC) =
+    LogAction $ \(f -> mbc) -> (\(b, c) -> actionB b *> actionC c) =<< mbc
+{-# INLINE divideM #-}
+
 {- | @conquer@ combinator from @Divisible@ type class.
 
 Concretely, this is a 'LogAction' that does nothing:
@@ -445,6 +457,10 @@ Negative
 choose :: (a -> Either b c) -> LogAction m b -> LogAction m c -> LogAction m a
 choose f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC . f)
 {-# INLINE choose #-}
+
+chooseM :: Monad m => (a -> m (Either b c)) -> LogAction m b -> LogAction m c -> LogAction m a
+chooseM f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC <=< f)
+{-# INLINE chooseM #-}
 
 {- | Operator version of @'choose' 'id'@.
 
