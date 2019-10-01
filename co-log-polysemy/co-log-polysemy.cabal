@@ -29,13 +29,14 @@ extra-doc-files:     CHANGELOG.md
                    , README.md
                    , GHC == 8.4.4
                    , GHC == 8.6.5
+                   , GHC == 8.8.1
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/co-log.git
 
 common common-options
-  build-depends:       base >= 4.10.0.0 && < 4.13
+  build-depends:       base >= 4.10.0.0 && < 4.14
 
   ghc-options:         -Wall
                        -Wincomplete-uni-patterns

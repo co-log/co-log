@@ -4,7 +4,7 @@ language: haskell
 git:
   depth: 5
 
-cabal: "head"
+cabal: "3.0"
 
 cache:
   directories:
@@ -19,6 +19,7 @@ matrix:
   - ghc: 8.2.2
   - ghc: 8.4.4
   - ghc: 8.6.5
+  - ghc: 8.8.1
 
   # stack
   - ghc: 8.6.5
@@ -29,8 +30,8 @@ install:
     if [ -z "$STACK_YAML" ]; then
       ghc --version
       cabal --version
-      cabal new-update
-      cabal new-build all --enable-tests --enable-benchmarks
+      cabal update
+      cabal build all --enable-tests --enable-benchmarks
     else
       # install stack
       curl -sSL https://get.haskellstack.org/ | sh
@@ -45,7 +46,7 @@ script:
   - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint co-log-core/ co-log/src/ co-log-benchmark/
   - |
     if [ -z "$STACK_YAML" ]; then
-       cabal new-test all
+       cabal test all
     else
       stack test  co-log-core      --system-ghc
       stack test  co-log           --system-ghc
