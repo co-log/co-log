@@ -221,7 +221,24 @@ cfilter :: Applicative m => (msg -> Bool) -> LogAction m msg -> LogAction m msg
 cfilter predicate (LogAction action) = LogAction $ \a -> when (predicate a) (action a)
 {-# INLINE cfilter #-}
 
-cfilterM :: Monad m => (a -> m Bool) -> LogAction m a -> LogAction m a
+{- | Performs the given logging action only if satisfies the monadic predicate.
+
+Let's say you want to only to see logs that happened on weekends.
+
+@
+isWeekendM :: MessageWithTimestamp -> IO Bool
+isWeekendM msg = isWeekend '<$>' msg
+@
+
+And use it with 'cfilterM' like this
+
+@
+logTextAction :: 'LogAction' m Text
+logTextAction = 'cfilterM' isWeekendM loggingAction
+@
+
+-}
+cfilterM :: Monad m => (msg -> m Bool) -> LogAction m msg -> LogAction m msg
 cfilterM predicateM (LogAction action) =
   LogAction $ \a -> predicateM a >>= \b -> when b (action a)
 {-# INLINE cfilterM #-}
@@ -283,6 +300,7 @@ cmapMaybe :: Applicative m => (a -> Maybe b) -> LogAction m b -> LogAction m a
 cmapMaybe f (LogAction action) = LogAction (maybe (pure ()) action . f)
 {-# INLINE cmapMaybe #-}
 
+-- | Similar to `cmapMaybe` but for convertions that may fail inside a monadic context.
 cmapMaybeM :: Monad m => (a -> m (Maybe b)) -> LogAction m b -> LogAction m a
 cmapMaybeM f (LogAction action) = LogAction (maybe (pure ()) action <=< f)
 {-# INLINE cmapMaybeM #-}
@@ -342,6 +360,7 @@ logTextAction :: 'LogAction' IO Text
 logTextAction = 'cmapM' withTime myAction
 @
 -}
+
 cmapM :: Monad m => (a -> m b) -> LogAction m b -> LogAction m a
 cmapM f (LogAction action) = LogAction (f >=> action)
 {-# INLINE cmapM #-}
@@ -375,7 +394,7 @@ divide f (LogAction actionB) (LogAction actionC) = LogAction $ \(f -> (b, c)) ->
 
 divideM :: (Monad m) => (a -> m (b, c)) -> LogAction m b -> LogAction m c -> LogAction m a
 divideM f (LogAction actionB) (LogAction actionC) =
-    LogAction $ \(f -> mbc) -> (\(b, c) -> actionB b *> actionC c) =<< mbc
+    LogAction $ \(f -> mbc) -> mbc >>= (\(b, c) -> actionB b *> actionC c)
 {-# INLINE divideM #-}
 
 {- | @conquer@ combinator from @Divisible@ type class.
