@@ -19,7 +19,7 @@ module Colog.Core.Class
        ) where
 
 import Colog.Core.Action (LogAction)
-
+import Data.Functor.Const (Const (..))
 
 -- to inline lens better
 {- HLINT ignore "Redundant lambda" -}
@@ -37,10 +37,12 @@ Every instance of the this typeclass should satisfy the following laws:
 4. __Set-Over:__ @'overLogAction' f env ≡ 'setLogAction' (f $ 'getLogAction' env) env@
 -}
 class HasLog env msg m where
-    {-# MINIMAL getLogAction, (setLogAction | overLogAction) #-}
+    {-# MINIMAL logActionL | (getLogAction , (setLogAction | overLogAction)) #-}
 
     -- | Extracts 'LogAction' from the environment.
     getLogAction :: env -> LogAction m msg
+    getLogAction = getConst . logActionL Const
+    {-# INLINE getLogAction #-}
 
     -- | Sets 'LogAction' to the given one inside the environment.
     setLogAction :: LogAction m msg -> env -> env
