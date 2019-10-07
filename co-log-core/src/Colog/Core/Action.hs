@@ -1,4 +1,5 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP        #-}
+{-# LANGUAGE Rank2Types #-}
 
 {- |
 Copyright:  (c) 2018-2019 Kowainik
@@ -48,6 +49,9 @@ module Colog.Core.Action
        , (<<=)
        , duplicate
        , multiplicate
+
+         -- * Higher-order combinators
+       , hoistLogAction
        ) where
 
 import Control.Monad (when, (>=>))
@@ -575,3 +579,28 @@ multiplicate (LogAction l) = LogAction $ \msgs -> l (fold msgs)
 {-# INLINE multiplicate #-}
 {-# SPECIALIZE multiplicate :: Monoid msg => LogAction m msg -> LogAction m [msg] #-}
 {-# SPECIALIZE multiplicate :: Monoid msg => LogAction m msg -> LogAction m (NonEmpty msg) #-}
+
+{- | Allows changing the internal monadic action.
+
+Let's say we have a pure logger action using 'PureLogger'
+and we want to log all messages into 'IO' instead.
+
+If we provide the following function:
+
+@
+performPureLogsInIO :: PureLogger a -> IO a
+@
+
+then we can convert a logger action that uses a pure monad
+to a one that performs the logging in the 'IO' monad using:
+
+@
+hoistLogAction performPureLogsInIO :: LogAction (PureLogger a) a -> LogAction IO a
+@
+-}
+hoistLogAction
+    :: (forall x. m x -> n x)
+    -> LogAction m a
+    -> LogAction n a
+hoistLogAction f (LogAction l) = LogAction (f . l)
+{-# INLINE hoistLogAction #-}
