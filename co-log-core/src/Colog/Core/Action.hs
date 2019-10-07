@@ -1,4 +1,5 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP        #-}
+{-# LANGUAGE Rank2Types #-}
 
 {- |
 Copyright:  (c) 2018-2019 Kowainik
@@ -48,6 +49,9 @@ module Colog.Core.Action
        , (<<=)
        , duplicate
        , multiplicate
+
+         -- * Higher-order combinators
+       , hoistLogAction
        ) where
 
 import Control.Monad (when, (>=>))
@@ -575,3 +579,10 @@ multiplicate (LogAction l) = LogAction $ \msgs -> l (fold msgs)
 {-# INLINE multiplicate #-}
 {-# SPECIALIZE multiplicate :: Monoid msg => LogAction m msg -> LogAction m [msg] #-}
 {-# SPECIALIZE multiplicate :: Monoid msg => LogAction m msg -> LogAction m (NonEmpty msg) #-}
+
+{- | Allows changing the internal monadic action -}
+hoistLogAction
+    :: (forall x. m x -> n x)
+    -> LogAction m a
+    -> LogAction n a
+hoistLogAction f (LogAction l) = LogAction (f . l)
