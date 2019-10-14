@@ -227,20 +227,18 @@ Let's say you want to only to see logs that happened on weekends.
 
 @
 isWeekendM :: MessageWithTimestamp -> IO Bool
-isWeekendM msg = isWeekend '<$>' msg
 @
 
 And use it with 'cfilterM' like this
 
 @
-logTextAction :: 'LogAction' m Text
-logTextAction = 'cfilterM' isWeekendM loggingAction
+logMessageAction :: 'LogAction' m MessageWithTimestamp
 @
 
 -}
 cfilterM :: Monad m => (msg -> m Bool) -> LogAction m msg -> LogAction m msg
 cfilterM predicateM (LogAction action) =
-  LogAction $ \a -> predicateM a >>= \b -> when b (action a)
+    LogAction $ \a -> predicateM a >>= \b -> when b (action a)
 {-# INLINE cfilterM #-}
 
 {- | This combinator is @contramap@ from contravariant functor. It is useful
