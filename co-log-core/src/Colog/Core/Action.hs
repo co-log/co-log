@@ -21,15 +21,18 @@ module Colog.Core.Action
          -- * Contravariant combinators
          -- $contravariant
        , cfilter
+       , cfilterM
        , cmap
        , (>$<)
        , cmapMaybe
+       , cmapMaybeM
        , (Colog.Core.Action.>$)
        , cmapM
 
          -- * Divisible combinators
          -- $divisible
        , divide
+       , divideM
        , conquer
        , (>*<)
        , (>*)
@@ -39,6 +42,7 @@ module Colog.Core.Action
          -- $decidable
        , lose
        , choose
+       , chooseM
        , (>|<)
 
          -- * Comonadic combinators
@@ -54,7 +58,7 @@ module Colog.Core.Action
        , hoistLogAction
        ) where
 
-import Control.Monad (when, (>=>))
+import Control.Monad (when, (>=>), (<=<))
 import Data.Coerce (coerce)
 import Data.Foldable (fold, for_)
 import Data.List.NonEmpty (NonEmpty (..))
@@ -221,6 +225,26 @@ cfilter :: Applicative m => (msg -> Bool) -> LogAction m msg -> LogAction m msg
 cfilter predicate (LogAction action) = LogAction $ \a -> when (predicate a) (action a)
 {-# INLINE cfilter #-}
 
+{- | Performs the given logging action only if satisfies the monadic predicate.
+
+Let's say you want to only to see logs that happened on weekends.
+
+@
+isWeekendM :: MessageWithTimestamp -> IO Bool
+@
+
+And use it with 'cfilterM' like this
+
+@
+logMessageAction :: 'LogAction' m MessageWithTimestamp
+@
+
+-}
+cfilterM :: Monad m => (msg -> m Bool) -> LogAction m msg -> LogAction m msg
+cfilterM predicateM (LogAction action) =
+    LogAction $ \a -> predicateM a >>= \b -> when b (action a)
+{-# INLINE cfilterM #-}
+
 {- | This combinator is @contramap@ from contravariant functor. It is useful
 when you have something like
 
@@ -278,6 +302,11 @@ cmapMaybe :: Applicative m => (a -> Maybe b) -> LogAction m b -> LogAction m a
 cmapMaybe f (LogAction action) = LogAction (maybe (pure ()) action . f)
 {-# INLINE cmapMaybe #-}
 
+-- | Similar to `cmapMaybe` but for convertions that may fail inside a monadic context.
+cmapMaybeM :: Monad m => (a -> m (Maybe b)) -> LogAction m b -> LogAction m a
+cmapMaybeM f (LogAction action) = LogAction (maybe (pure ()) action <=< f)
+{-# INLINE cmapMaybeM #-}
+
 {- | This combinator is @>$@ from contravariant functor. Replaces all locations
 in the output with the same value. The default definition is
 @contramap . const@, so this is a more efficient version.
@@ -333,6 +362,7 @@ logTextAction :: 'LogAction' IO Text
 logTextAction = 'cmapM' withTime myAction
 @
 -}
+
 cmapM :: Monad m => (a -> m b) -> LogAction m b -> LogAction m a
 cmapM f (LogAction action) = LogAction (f >=> action)
 {-# INLINE cmapM #-}
@@ -363,6 +393,11 @@ divide :: (Applicative m) => (a -> (b, c)) -> LogAction m b -> LogAction m c -> 
 divide f (LogAction actionB) (LogAction actionC) = LogAction $ \(f -> (b, c)) ->
     actionB b *> actionC c
 {-# INLINE divide #-}
+
+divideM :: (Monad m) => (a -> m (b, c)) -> LogAction m b -> LogAction m c -> LogAction m a
+divideM f (LogAction actionB) (LogAction actionC) =
+    LogAction $ \(f -> mbc) -> mbc >>= (\(b, c) -> actionB b *> actionC c)
+{-# INLINE divideM #-}
 
 {- | @conquer@ combinator from @Divisible@ type class.
 
@@ -443,6 +478,10 @@ Negative
 choose :: (a -> Either b c) -> LogAction m b -> LogAction m c -> LogAction m a
 choose f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC . f)
 {-# INLINE choose #-}
+
+chooseM :: Monad m => (a -> m (Either b c)) -> LogAction m b -> LogAction m c -> LogAction m a
+chooseM f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC <=< f)
+{-# INLINE chooseM #-}
 
 {- | Operator version of @'choose' 'id'@.
 
