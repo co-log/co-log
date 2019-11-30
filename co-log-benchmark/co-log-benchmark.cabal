@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                co-log-benchmark
-version:             0.0.0
+version:             0.0.0.0
 synopsis:            Benchmarks of the co-log library.
 description:         Set of benchmarks that can be used to verify
                      that @co-log@ library does not introduce unnesessarily
@@ -15,8 +15,9 @@ category:            Logging, Benchmarks
 build-type:          Simple
 extra-source-files:  CHANGELOG.md
 tested-with:         GHC == 8.2.2
-                   , GHC == 8.4.4
-                   , GHC == 8.6.5
+                     GHC == 8.4.4
+                     GHC == 8.6.5
+                     GHC == 8.8.1
 
 source-repository head
   type:              git
@@ -24,7 +25,7 @@ source-repository head
 
 executable co-log-bench
   main-is:             Main.hs
-  build-depends:       base >= 4.10 && < 4.13
+  build-depends:       base >= 4.10.1.0 && < 4.14
                      , bytestring
                      , co-log
                      , text

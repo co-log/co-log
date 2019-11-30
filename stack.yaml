@@ -1,7 +1,10 @@
-resolver: nightly-2019-08-20
+resolver: nightly-2019-11-29
 
 packages:
   - co-log-core
   - co-log
   - co-log-polysemy
   - co-log-benchmark
+
+extra-deps:
+  - chronos-1.0.9
