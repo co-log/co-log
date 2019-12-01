@@ -20,17 +20,18 @@ category:            Logging, Contravariant, Comonad
 build-type:          Simple
 stability:           provisional
 extra-doc-files:     CHANGELOG.md
-                   , README.md
+                     README.md
 tested-with:         GHC == 8.2.2
-                   , GHC == 8.4.4
-                   , GHC == 8.6.5
+                     GHC == 8.4.4
+                     GHC == 8.6.5
+                     GHC == 8.8.1
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/co-log.git
 
 common common-options
-  build-depends:       base >= 4.10.0.0 && < 4.13
+  build-depends:       base >= 4.10.1.0 && < 4.14
 
   ghc-options:         -Wall
                        -Wincomplete-uni-patterns
@@ -76,7 +77,7 @@ library
                            Colog.Pure
                            Colog.Rotation
 
-  build-depends:       ansi-terminal ^>= 0.9 || ^>= 0.10
+  build-depends:       ansi-terminal ^>= 0.10
                      , bytestring ^>= 0.10.8
                      , co-log-core ^>= 0.2.0.0
                      , containers >= 0.5.7 && < 0.7
@@ -122,7 +123,7 @@ test-suite test-co-log
   import:              common-options
   build-depends:       co-log
                      , co-log-core
-                     , hedgehog >= 0.6 && < 1.1
+                     , hedgehog ^>= 1.0
   hs-source-dirs:      test
   main-is:             Property.hs
   type:                exitcode-stdio-1.0

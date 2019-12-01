@@ -26,16 +26,18 @@ category:            Logging, Contravariant, Comonad, Effects
 build-type:          Simple
 stability:           provisional
 extra-doc-files:     CHANGELOG.md
-                   , README.md
-                   , GHC == 8.4.4
-                   , GHC == 8.6.5
+                     README.md
+                     GHC == 8.2.2
+                     GHC == 8.4.4
+                     GHC == 8.6.5
+                     GHC == 8.8.1
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/co-log.git
 
 common common-options
-  build-depends:       base >= 4.10.0.0 && < 4.13
+  build-depends:       base >= 4.10.1.0 && < 4.14
 
   ghc-options:         -Wall
                        -Wincomplete-uni-patterns
@@ -82,7 +84,7 @@ library
                            Colog.Polysemy.Effect
 
   build-depends:       co-log-core ^>= 0.2.0.0
-                     , polysemy >= 1.0 && < 1.2
+                     , polysemy ^>= 1.2.0.0
 
 executable play-colog-poly
   import:              common-options
