@@ -29,6 +29,12 @@ See the following tutorial series about the library:
 * [Intro: Using `LogAction`](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/1-intro/Intro.md)
 * [Using custom monad that stores `LogAction` inside its environment](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/2-custom/Custom.md)
 
+`co-log` also cares about concurrent logging. For this purposes we have the `concurrent-playground`
+executable where we experiment with different multithreading scenarios to test the library behavior.
+You can find it here:
+
+* [tutorials/Concurrent.hs](co-log/tutorials/Concurrent.hs)
+
 ## Benchmarks
 
 `co-log` is compared with basic functions like `putStrLn`. Since IO overhead is
