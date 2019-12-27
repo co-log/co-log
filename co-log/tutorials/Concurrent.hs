@@ -6,6 +6,7 @@ import Control.Concurrent (forkIO, threadDelay)
 import Control.Monad (forM_, replicateM_, void)
 import Data.ByteString (ByteString)
 import Data.ByteString.Char8 (pack)
+import Data.Semigroup ((<>))
 import Prelude hiding (log)
 
 import Colog (LogAction, logByteStringStderr, logByteStringStdout, (<&))
