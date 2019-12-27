@@ -30,6 +30,5 @@ before_build:
   - cabal %CABOPTS% update
 
 build_script:
-  - cabal %CABOPTS% build co-log-core --enable-tests
-  - cabal %CABOPTS% build co-log --enable-tests
-  - cabal %CABOPTS% build co-log-polysemy --enable-tests
+  - cabal %CABOPTS% build co-log-core co-log co-log-polysemy --enable-tests --disable-benchmarks
+  - cabal %CABOPTS% test  co-log-core co-log co-log-polysemy --enable-tests --disable-benchmarks
