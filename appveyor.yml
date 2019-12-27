@@ -27,8 +27,9 @@ install:
 before_build:
   - cabal --version
   - ghc   --version
-  - cabal %CABOPTS% v2-update
+  - cabal %CABOPTS% update
 
 build_script:
-  - cabal %CABOPTS% build co-log-core co-log co-log-polysemy --enable-tests
-  - cabal %CABOPTS% test  co-log-core co-log co-log-polysemy --enable-tests
+  - cabal %CABOPTS% build co-log-core --enable-tests
+  - cabal %CABOPTS% build co-log --enable-tests
+  - cabal %CABOPTS% build co-log-polysemy --enable-tests
