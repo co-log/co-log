@@ -105,6 +105,16 @@ executable play-colog
                        -rtsopts
                        -with-rtsopts=-N
 
+executable concurrent-playground
+  import:              common-options
+  hs-source-dirs:      tutorials
+  main-is:             Concurrent.hs
+  build-depends:       bytestring
+                     , co-log
+  ghc-options:         -threaded
+                       -rtsopts
+                       -with-rtsopts=-N
+
 executable readme
   import:              tutorial-options
   main-is:             README.lhs
