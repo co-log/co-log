@@ -58,6 +58,8 @@ common common-options
 
 common tutorial-options
   import:              common-options
+  if os(windows)
+    buildable:         False
   build-depends:       co-log
                      , co-log-core
 
