@@ -7,4 +7,4 @@ packages:
   - co-log-benchmark
 
 extra-deps:
-  - chronos-1.0.9
+  - chronos-1.1
