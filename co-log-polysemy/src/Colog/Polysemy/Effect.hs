@@ -1,8 +1,8 @@
 {-# LANGUAGE TemplateHaskell #-}
 
 {- |
-Copyright:  (c) 2019 Kowainik
-License:    MPL-2.0
+Copyright:  (c) 2019-2020 Kowainik
+SPDX-License-Identifier: MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
 This module contains logging effect which can be interpreted in terms of
@@ -30,7 +30,7 @@ import Prelude hiding (log)
 
 import Colog.Core.Action (LogAction (..))
 import Data.Kind (Type)
-import Polysemy (Embed, Member, Sem, interpret, makeSem_, embed)
+import Polysemy (Embed, Member, Sem, embed, interpret, makeSem_)
 import Polysemy.Output (Output (..), output)
 import Polysemy.Trace (Trace (..), trace)
 

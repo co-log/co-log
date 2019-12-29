@@ -1,6 +1,6 @@
 {- |
-Copyright:  (c) 2018-2019 Kowainik
-License:    MPL-2.0
+Copyright:  (c) 2018-2020 Kowainik
+SPDX-License-Identifier: MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 Stability:  experimental
 
@@ -18,8 +18,8 @@ module Colog.Rotation
 import Control.Monad (when, (>=>))
 import Control.Monad.IO.Class (MonadIO (..))
 import Data.IORef (IORef, newIORef, readIORef, writeIORef)
-import Data.List.NonEmpty (nonEmpty)
 import Data.List (isPrefixOf)
+import Data.List.NonEmpty (nonEmpty)
 import Data.Maybe (fromMaybe, mapMaybe)
 import Numeric.Natural (Natural)
 import System.FilePath.Posix ((<.>))

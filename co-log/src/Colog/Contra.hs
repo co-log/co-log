@@ -3,8 +3,8 @@
 {-# LANGUAGE CPP #-}
 
 {- |
-Copyright:  (c) 2018-2019 Kowainik
-License:    MPL-2.0
+Copyright:  (c) 2018-2020 Kowainik
+SPDX-License-Identifier: MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
 This module contains 'LogAction' orphan instances of @contravariant@ classes.

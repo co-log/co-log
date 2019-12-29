@@ -2,8 +2,8 @@
 {-# LANGUAGE Rank2Types #-}
 
 {- |
-Copyright:  (c) 2018-2019 Kowainik
-License:    MPL-2.0
+Copyright:  (c) 2018-2020 Kowainik
+SPDX-License-Identifier: MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
 Implements core data types and combinators for logging actions.
@@ -58,7 +58,7 @@ module Colog.Core.Action
        , hoistLogAction
        ) where
 
-import Control.Monad (when, (>=>), (<=<))
+import Control.Monad (when, (<=<), (>=>))
 import Data.Coerce (coerce)
 import Data.Foldable (fold, for_)
 import Data.List.NonEmpty (NonEmpty (..))

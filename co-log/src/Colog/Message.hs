@@ -9,8 +9,8 @@
 {-# LANGUAGE TypeFamilies          #-}
 
 {- |
-Copyright:  (c) 2018-2019 Kowainik
-License:    MPL-2.0
+Copyright:  (c) 2018-2020 Kowainik
+SPDX-License-Identifier: MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
 This module contains logging messages data types along with the formatting and
@@ -97,7 +97,7 @@ data Msg sev = Msg
 
 data SimpleMsg = SimpleMsg
     { simpleMsgStack :: !CallStack
-    , simpleMsgText :: !Text
+    , simpleMsgText  :: !Text
     }
 
 {- | 'Msg' parametrized by the 'Severity' type. Most formatting functions in
