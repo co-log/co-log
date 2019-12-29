@@ -20,16 +20,19 @@ import Control.Concurrent (ThreadId)
 import Control.Concurrent.STM (STM, TVar)
 import Numeric.Natural (Natural)
 
--- | A wrapper type that carries capacity. The internal
--- type may be differrent for the different GHC versions.
+
+{- | A wrapper type that carries capacity. The internal type may be
+differrent for the different GHC versions.
+-}
 #if MIN_VERSION_stm(2,5,0)
 newtype Capacity = Capacity Natural
 #else
 newtype Capacity = Capacity Int
 #endif
 
--- | Wrapper for the background thread that may
--- receive messages to process.
+{- | Wrapper for the background thread that may receive messages to
+process.
+-}
 data BackgroundWorker msg = BackgroundWorker
     { backgroundWorkerThreadId :: !ThreadId
       -- ^ Background 'ThreadId'.

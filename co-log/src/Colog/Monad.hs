@@ -109,3 +109,4 @@ app:Application finished.
 -}
 usingLoggerT :: Monad m => LogAction m msg -> LoggerT msg m a -> m a
 usingLoggerT action = flip runReaderT (liftLogAction action) . runLoggerT
+{-# INLINE usingLoggerT #-}
