@@ -3,8 +3,8 @@
 {-# LANGUAGE Rank2Types            #-}
 
 {- |
-Copyright:  (c) 2018-2019 Kowainik
-License:    MPL-2.0
+Copyright:  (c) 2018-2020 Kowainik
+SPDX-License-Identifier: MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
 Provides type class for values that has access to 'LogAction'.

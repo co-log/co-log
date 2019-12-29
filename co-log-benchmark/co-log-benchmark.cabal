@@ -10,7 +10,7 @@ license:             MPL-2.0
 license-file:        LICENSE
 author:              Alexander Vershilov, Kowainik
 maintainer:          Kowainik
-copyright:           2018-2019 Kowainik
+copyright:           2018-2020 Kowainik
 category:            Logging, Benchmarks
 build-type:          Simple
 extra-source-files:  CHANGELOG.md

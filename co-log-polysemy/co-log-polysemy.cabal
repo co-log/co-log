@@ -21,7 +21,7 @@ license:             MPL-2.0
 license-file:        LICENSE
 author:              Dmitrii Kovanikov
 maintainer:          Kowainik <xrom.xkov@gmail.com>
-copyright:           2019 Kowainik
+copyright:           2019-2020 Kowainik
 category:            Logging, Contravariant, Comonad, Effects
 build-type:          Simple
 stability:           provisional
