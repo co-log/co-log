@@ -25,6 +25,8 @@ source-repository head
 
 executable co-log-bench
   main-is:             Main.hs
+  if os(windows)
+    buildable: False
   build-depends:       base >= 4.10.1.0 && < 4.14
                      , bytestring
                      , co-log
