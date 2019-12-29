@@ -16,6 +16,10 @@ module Colog.Polysemy.Effect
          -- * Actions
        , log
 
+         -- * Direct usages
+       , LogActionSem
+       , runLogActionSem
+
          -- * Interpretations
        , runLogAction
        , runLogAsTrace
@@ -24,15 +28,18 @@ module Colog.Polysemy.Effect
          -- * Interpretations for Other Effects
        , runTraceAsLog
        , runOutputAsLog
+
        ) where
 
 import Prelude hiding (log)
 
-import Colog.Core.Action (LogAction (..))
 import Data.Kind (Type)
 import Polysemy (Embed, Member, Sem, embed, interpret, makeSem_)
 import Polysemy.Output (Output (..), output)
 import Polysemy.Trace (Trace (..), trace)
+
+import Colog.Core.Action (LogAction (..))
+
 
 {- | Effect responsible for logging messages of type @msg@. Has similar
 structure to 'LogAction'.
@@ -62,6 +69,22 @@ log :: forall msg r .
        Member (Log msg) r
     => msg       -- ^ Message to log
     -> Sem r ()  -- ^ Effectful computation with no result
+
+{- | 'LogAction' that works directly with the 'Sem' monad.
+
+@since 0.0.1.0
+-}
+type LogActionSem r msg = LogAction (Sem r) msg
+
+{- | Run 'Sem' action with the corresponding 'LogActionSem'. If you
+have plain 'LogAction' that works with some monad @m@, use
+'runLogAction' instead.
+
+@since 0.0.1.0
+-}
+runLogActionSem :: forall msg r a . LogActionSem r msg -> Sem (Log msg ': r) a -> Sem r a
+runLogActionSem (LogAction action) = interpret $ \case
+    Log msg -> action msg
 
 {- | Run a 'Log' effect in terms of the given 'LogAction'. The idea behind this
 function is the following: if you have @'LogAction' m msg@ then you can use this
