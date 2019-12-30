@@ -353,7 +353,7 @@ showTime t =
     square
     $ toStrict
     $ TB.toLazyText
-    $ builder_DmyHMSz (C.timeToDatetime t)
+    $ builderDmyHMSz (C.timeToDatetime t)
 
 ----------------------------------------------------------------------------
 -- Chronos extra
@@ -364,9 +364,9 @@ Day\/Month\/Year,Hour\/Minute\/Second\/Offset encoding of the given 'Datetime'.
 
 Example: @29 Dec 2019 22:00:00.000 +00:00@
 -}
-builder_DmyHMSz :: C.Datetime -> TB.Builder
-builder_DmyHMSz (C.Datetime date time) =
-       builder_Dmy date
+builderDmyHMSz :: C.Datetime -> TB.Builder
+builderDmyHMSz (C.Datetime date time) =
+       builderDmy date
     <> spaceSep
     <> C.builder_HMS (C.SubsecondPrecisionFixed 3) (Just ':') time
     <> spaceSep
@@ -380,8 +380,8 @@ builder_DmyHMSz (C.Datetime date time) =
 
     Example: @01 Jan 2020@
     -}
-    builder_Dmy :: C.Date -> TB.Builder
-    builder_Dmy (C.Date (C.Year y) m d) =
+    builderDmy :: C.Date -> TB.Builder
+    builderDmy (C.Date (C.Year y) m d) =
            zeroPadDayOfMonth d
         <> spaceSep
         <> TB.fromText (C.caseMonth C.abbreviated m)
