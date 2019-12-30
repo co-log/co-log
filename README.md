@@ -11,13 +11,17 @@
 | `co-log-polysemy` | [![Hackage][hk-img-ps]][hk-ps]     | [![Stackage LTS][lts-img-ps]][lts-ps]     | [![Stackage Nightly][nightly-img-ps]][nightly-ps]     |
 
 `co-log` is a composable and configurable logging framework. It
-combines all the benefits of the Haskell ecosystem to provide a reasonable
-and beginner-friendly interface. It's straightforward in its core and
-doesn't contain any magic. This simplicity allows us to create highly
-composable and configurable logging capabilities.
+combines all the benefits of Haskell idioms to provide a reasonable
+and convenient interface. Though it uses some advanced concepts in its
+core, we are striving to provide beginner-friendly API. The library
+also contains complete documentation with a lot of beginner-friendly
+examples, explanations and tutorials to guide users. The combination
+of pragmatic approach to logging and fundamental Haskell abstractions
+allows us to create highly composable and configurable logging
+framework.
 
-If you're interested in how common Haskel typeclasses are used to
-implement core functional of `co-log`, you can read the following blog
+If you're interested in how different Haskel typeclasses are used to
+implement core functions of `co-log`, you can read the following blog
 post which goes in detail about internal implementation specifics:
 
 * [co-log: Composable Contravariant Combinatorial Comonadic Configurable Convenient Logging](https://kowainik.github.io/posts/2018-09-25-co-log)
