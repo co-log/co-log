@@ -21,10 +21,11 @@ import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Reader (MonadReader, ReaderT (..))
 import Data.Semigroup ((<>))
 
-import Colog (pattern D, HasLog (..), LogAction, Message, Msg (..), PureLogger, WithLog, cmap,
-              cmapM, defaultFieldMap, fmtMessage, fmtSimpleRichMessageDefault, fmtRichMessageDefault,
-              liftLogIO, log, logException, logInfo, logMessagePure, logMsg, logMsgs, logPrint,
-              logStringStdout, logText, logTextStderr, logTextStdout, logWarning, RichMsg(..), runPureLog, SimpleMsg (..), upgradeMessageAction,
+import Colog (pattern D, HasLog (..), LogAction, Message, Msg (..), PureLogger, RichMsg (..),
+              SimpleMsg (..), WithLog, cmap, cmapM, defaultFieldMap, fmtMessage,
+              fmtRichMessageDefault, fmtSimpleRichMessageDefault, liftLogIO, log, logException,
+              logInfo, logMessagePure, logMsg, logMsgs, logPrint, logStringStdout, logText,
+              logTextStderr, logTextStdout, logWarning, runPureLog, upgradeMessageAction,
               usingLoggerT, withLog, withLogTextFile, (*<), (<&), (>$), (>$<), (>*), (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
@@ -165,7 +166,7 @@ logFoo = usingFooM env foo
 ----------------------------------------------------------------------------
 
 main :: IO ()
-main = withLogTextFile "co-log/example/example.log" $ \logTextFile -> do
+main = withLogTextFile "co-log/tutorials/example.log" $ \logTextFile -> do
     let runApp :: LogAction IO Message -> IO ()
         runApp action = usingLoggerT action app
 
