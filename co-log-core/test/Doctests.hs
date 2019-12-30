@@ -7,7 +7,7 @@ import Test.DocTest (doctest)
 
 main :: IO ()
 main = do
-    sourceFiles <- glob "co-log-core/src/**/*.hs"
+    sourceFiles <- glob "src/**/*.hs"
     doctest
         $ "-XInstanceSigs"
         : "-XScopedTypeVariables"

@@ -53,6 +53,7 @@ module Colog.Core.Action
        , (<<=)
        , duplicate
        , multiplicate
+       , separate
 
          -- * Higher-order combinators
        , hoistLogAction
@@ -60,7 +61,7 @@ module Colog.Core.Action
 
 import Control.Monad (when, (<=<), (>=>))
 import Data.Coerce (coerce)
-import Data.Foldable (fold, for_)
+import Data.Foldable (fold, for_, traverse_)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.Monoid (Monoid (..))
 import Data.Semigroup (Semigroup (..), stimesMonoid)
@@ -618,6 +619,34 @@ multiplicate (LogAction l) = LogAction $ \msgs -> l (fold msgs)
 {-# INLINE multiplicate #-}
 {-# SPECIALIZE multiplicate :: Monoid msg => LogAction m msg -> LogAction m [msg] #-}
 {-# SPECIALIZE multiplicate :: Monoid msg => LogAction m msg -> LogAction m (NonEmpty msg) #-}
+
+{- | Like 'multiplicate' but instead of logging a batch of messages it logs each
+of them separately.
+
+>>> :{
+let logger :: LogAction IO Int
+    logger = logPrint
+in separate logger <& [1..5]
+:}
+1
+2
+3
+4
+5
+
+@since 0.2.1.0
+-}
+separate
+    :: forall f msg m .
+       (Traversable f, Applicative m)
+    => LogAction m msg
+    -> LogAction m (f msg)
+separate (LogAction action) = LogAction (traverse_ action)
+{-# INLINE separate #-}
+{-# SPECIALIZE separate :: Applicative m => LogAction m msg -> LogAction m [msg] #-}
+{-# SPECIALIZE separate :: Applicative m => LogAction m msg -> LogAction m (NonEmpty msg) #-}
+{-# SPECIALIZE separate :: LogAction IO msg -> LogAction IO [msg] #-}
+{-# SPECIALIZE separate :: LogAction IO msg -> LogAction IO (NonEmpty msg) #-}
 
 {- | Allows changing the internal monadic action.
 
