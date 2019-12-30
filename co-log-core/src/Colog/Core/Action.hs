@@ -624,15 +624,15 @@ multiplicate (LogAction l) = LogAction $ \msgs -> l (fold msgs)
 of them separately.
 
 >>> :{
-let logger :: LogAction IO [Int]
+let logger :: LogAction IO Int
     logger = logPrint
-in separate logger <& replicate 5 [1..3]
+in separate logger <& [1..5]
 :}
-[1,2,3]
-[1,2,3]
-[1,2,3]
-[1,2,3]
-[1,2,3]
+1
+2
+3
+4
+5
 
 @since 0.2.1.0
 -}

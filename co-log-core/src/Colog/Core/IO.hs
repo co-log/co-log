@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 {- |
 Copyright:  (c) 2018-2020 Kowainik
 SPDX-License-Identifier: MPL-2.0
@@ -76,9 +78,13 @@ opening file each time we need to write to it.
 
 Opens file in 'AppendMode'.
 
+#ifndef mingw32_HOST_OS
+
 >>> logger action = action <& "foo"
 >>> withLogStringFile "/dev/stdout" logger
 foo
+
+#endif
 -}
 withLogStringFile :: MonadIO m => FilePath -> (LogAction m String -> IO r) -> IO r
 withLogStringFile path action = withFile path AppendMode $ action . logStringHandle
