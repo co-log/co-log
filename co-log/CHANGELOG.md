@@ -7,6 +7,8 @@ The changelog is available [on GitHub][2].
 
 * [#144](https://github.com/kowainik/co-log/issues/144):
   Add Windows CI check.
+* [#156](https://github.com/kowainik/co-log/issues/156):
+  Improve documentation for the `Colog.Concurrent` module.
 * Use `chronos-1.1` as `1.0.9` is not Windows-competitive.
 
 ## 0.3.0.0 — May 5, 2019
