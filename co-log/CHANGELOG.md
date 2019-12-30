@@ -5,6 +5,9 @@ The changelog is available [on GitHub][2].
 
 ## Unreleased
 
+* [#120](https://github.com/kowainik/co-log/issues/120):
+  Improve time formatting. Instead of `29-12-2019 22:00:00.000`
+  it looks like `29 Dec 2019 22:00:00.000 +00:00` now.
 * [#144](https://github.com/kowainik/co-log/issues/144):
   Add Windows CI check.
 * Use `chronos-1.1` as `1.0.9` is not Windows-competitive.

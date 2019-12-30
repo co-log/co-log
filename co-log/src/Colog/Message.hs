@@ -73,9 +73,12 @@ import Colog.Core (LogAction, Severity (..), cmap)
 import Colog.Monad (WithLog, logMsg)
 
 import qualified Chronos as C
+import qualified Chronos.Locale.English as C
 import qualified Data.Text as T
 import qualified Data.Text.Lazy.Builder as TB
+import qualified Data.Text.Lazy.Builder.Int as TB
 import qualified Data.TypeRepMap as TM
+import qualified Data.Vector as Vector
 
 ----------------------------------------------------------------------------
 -- Plain message
@@ -292,8 +295,8 @@ type RichMessage m = RichMsg m Message
 __Examples:__
 
 @
-[Debug]   [03 05 2019 05:23:19.058] [Main.example#34] [ThreadId 11] app: First message...
-[Info]    [03 05 2019 05:23:19.059] [Main.example#35] [ThreadId 11] app: Second message...
+[Debug]   [03 May 2019 05:23:19.058] [Main.example#34] [ThreadId 11] app: First message...
+[Info]    [03 May 2019 05:23:19.059] [Main.example#35] [ThreadId 11] app: Second message...
 @
 
 See 'fmtMessage' if you don't need both time and thread id.
@@ -318,8 +321,8 @@ fmtRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
 __Examples:__
 
 @
-[03 05 2019 05:23:19.058] [Main.example#34] [ThreadId 11] app: First message...
-[03 05 2019 05:23:19.059] [Main.example#35] [ThreadId 11] app: Second message...
+[03 May 2019 05:23:19.058] [Main.example#34] [ThreadId 11] app: First message...
+[03 May 2019 05:23:19.059] [Main.example#35] [ThreadId 11] app: Second message...
 @
 
 Practically, it formats a message as 'fmtRichMessageDefault' without the severity information.
@@ -340,15 +343,80 @@ fmtRichMessageCustomDefault RichMsg{..} formatter = do
     maybePosixTime <- extractField $ TM.lookup @"posixTime" richMsgMap
     pure $ formatter maybeThreadId maybePosixTime richMsgMsg
 
+{- | Shows time in the following format:
+
+>>> showTime $ C.Time 1577656800
+[29 Dec 2019 22:00:00.000 +00:00]
+-}
 showTime :: C.Time -> Text
 showTime t =
     square
     $ toStrict
     $ TB.toLazyText
-    $ C.builder_DmyHMS timePrecision datetimeFormat (C.timeToDatetime t)
+    $ builder_DmyHMSz (C.timeToDatetime t)
+
+----------------------------------------------------------------------------
+-- Chronos extra
+----------------------------------------------------------------------------
+
+{- | Given a 'Datetime', construct a 'Text' 'TB.Builder' corresponding to a
+Day\/Month\/Year,Hour\/Minute\/Second\/Offset encoding of the given 'Datetime'.
+
+Example: @29 Dec 2019 22:00:00.000 +00:00@
+-}
+builder_DmyHMSz :: C.Datetime -> TB.Builder
+builder_DmyHMSz (C.Datetime date time) =
+       builder_Dmy date
+    <> spaceSep
+    <> C.builder_HMS (C.SubsecondPrecisionFixed 3) (Just ':') time
+    <> spaceSep
+    <> C.builderOffset C.OffsetFormatColonOn (C.Offset 0)
   where
-    timePrecision = C.SubsecondPrecisionFixed 3
-    datetimeFormat = C.DatetimeFormat (Just '-') (Just ' ') (Just ':')
+    spaceSep :: TB.Builder
+    spaceSep = TB.singleton ' '
+
+    {- | Given a 'Date' construct a 'Text' 'TB.Builder'
+    corresponding to a Day\/Month\/Year encoding.
+
+    Example: @01 Jan 2020@
+    -}
+    builder_Dmy :: C.Date -> TB.Builder
+    builder_Dmy (C.Date (C.Year y) m d) =
+           zeroPadDayOfMonth d
+        <> spaceSep
+        <> TB.fromText (C.caseMonth C.abbreviated m)
+        <> spaceSep
+        <> TB.decimal y
+
+
+    zeroPadDayOfMonth :: C.DayOfMonth -> TB.Builder
+    zeroPadDayOfMonth (C.DayOfMonth d) =
+        if d < 100
+        then Vector.unsafeIndex twoDigitTextBuilder d
+        else TB.decimal d
+
+    twoDigitTextBuilder :: Vector.Vector TB.Builder
+    twoDigitTextBuilder = Vector.fromList $
+        map (TB.fromText . T.pack) twoDigitStrings
+    {-# NOINLINE twoDigitTextBuilder #-}
+
+    twoDigitStrings :: [String]
+    twoDigitStrings =
+        [ "00","01","02","03","04","05","06","07","08","09"
+        , "10","11","12","13","14","15","16","17","18","19"
+        , "20","21","22","23","24","25","26","27","28","29"
+        , "30","31","32","33","34","35","36","37","38","39"
+        , "40","41","42","43","44","45","46","47","48","49"
+        , "50","51","52","53","54","55","56","57","58","59"
+        , "60","61","62","63","64","65","66","67","68","69"
+        , "70","71","72","73","74","75","76","77","78","79"
+        , "80","81","82","83","84","85","86","87","88","89"
+        , "90","91","92","93","94","95","96","97","98","99"
+        ]
+
+----------------------------------------------------------------------------
+--
+----------------------------------------------------------------------------
 
 showThreadId :: ThreadId -> Text
 showThreadId = square . T.pack . show

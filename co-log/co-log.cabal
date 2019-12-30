@@ -92,6 +92,7 @@ library
                      , chronos ^>= 1.1
                      , transformers ^>= 0.5
                      , typerep-map ^>= 0.3.2
+                     , vector ^>= 0.12.0.3
 
 executable play-colog
   import:              common-options
