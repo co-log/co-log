@@ -40,7 +40,7 @@ the following packages:
 * [`co-log-benchmark`](co-log-benchmark): Benchmarks of the `co-log` library.
 
 To provide more user-friendly introduction to the library, we've
-created tutorial series which introduces main concepts behind `co-log`
+created the tutorial series which introduces the main concepts behind `co-log`
 smoothly:
 
 * [Intro: Using `LogAction`](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/1-intro/Intro.md)
