@@ -28,7 +28,7 @@ post which goes in detail about internal implementation specifics:
 
 `co-log` is also modular on the level of packages. We care a lot about
 low dependency footprint so you can build your logging only on top of
-minimal required interface for your use-case. This repository contains
+the minimal required interface for your use-case. This repository contains
 the following packages:
 
 * [`co-log-core`](co-log-core): lightweight package with basic data types and
