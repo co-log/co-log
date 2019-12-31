@@ -1,8 +1,8 @@
 # co-log
 
-[![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/master/LICENSE)
 [![Build status](https://img.shields.io/travis/kowainik/co-log.svg?logo=travis)](https://travis-ci.org/kowainik/co-log)
 [![Windows build](https://ci.appveyor.com/api/projects/status/github/kowainik/co-log?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/co-log)
+[![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/master/LICENSE)
 
 |                   |                                    |                                           |                                                       |
 | :------------     | :--------------------------------- | :---------------------------------------- | :---------------------------------------------------- |
@@ -10,22 +10,38 @@
 | `co-log`          | [![Hackage][hk-img]][hk]           | [![Stackage LTS][lts-img]][lts]           | [![Stackage Nightly][nightly-img]][nightly]           |
 | `co-log-polysemy` | [![Hackage][hk-img-ps]][hk-ps]     | [![Stackage LTS][lts-img-ps]][lts-ps]     | [![Stackage Nightly][nightly-img-ps]][nightly-ps]     |
 
-`co-log` is a composable and configurable logging framework. The idea of the approach is
-described in the following blog post:
+`co-log` is a composable and configurable logging framework. It
+combines all the benefits of Haskell idioms to provide a reasonable
+and convenient interface. Though it uses some advanced concepts in its
+core, we are striving to provide beginner-friendly API. The library
+also contains complete documentation with a lot of beginner-friendly
+examples, explanations and tutorials to guide users. The combination
+of pragmatic approach to logging and fundamental Haskell abstractions
+allows us to create highly composable and configurable logging
+framework.
+
+If you're interested in how different Haskel typeclasses are used to
+implement core functions of `co-log`, you can read the following blog
+post which goes in detail about internal implementation specifics:
 
 * [co-log: Composable Contravariant Combinatorial Comonadic Configurable Convenient Logging](https://kowainik.github.io/posts/2018-09-25-co-log)
 
-The repository contains the following packages:
+`co-log` is also modular on the level of packages. We care a lot about a
+low dependency footprint so you can build your logging only on top of
+the minimal required interface for your use-case. This repository contains
+the following packages:
 
 * [`co-log-core`](co-log-core): lightweight package with basic data types and
-  general idea.
+  general idea which depends only on `base`.
 * [`co-log`](co-log): taggless final implementation of logging library based on
   `co-log-core`.
 * [`co-log-polysemy`](co-log-polysemy): implementation of logging library based
   on `co-log-core` and the [`polysemy`](http://hackage.haskell.org/package/polysemy) extensible effects library.
 * [`co-log-benchmark`](co-log-benchmark): Benchmarks of the `co-log` library.
 
-See the following tutorial series about the library:
+To provide more user-friendly introduction to the library, we've
+created the tutorial series which introduces the main concepts behind `co-log`
+smoothly:
 
 * [Intro: Using `LogAction`](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/1-intro/Intro.md)
 * [Using custom monad that stores `LogAction` inside its environment](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/2-custom/Custom.md)
@@ -43,6 +59,12 @@ big enough, every benchmark dumps 10K messages to output. If benchmark name
 doesn't contain `Message` then this benchmark simply dumps string `"message"`
 to output, otherwise it works with `Message` data type from the `co-log`
 library.
+
+To run benchmarks, use the following command:
+
+```
+cabal v2-run co-log-bench
+```
 
 | Benchmarks                                              | Time for 10K messages |
 | :------------------------------------------------------ | :-------------------- |
