@@ -26,7 +26,7 @@ post which goes in detail about internal implementation specifics:
 
 * [co-log: Composable Contravariant Combinatorial Comonadic Configurable Convenient Logging](https://kowainik.github.io/posts/2018-09-25-co-log)
 
-`co-log` is also modular on the level of packages. We care a lot about
+`co-log` is also modular on the level of packages. We care a lot about a
 low dependency footprint so you can build your logging only on top of
 the minimal required interface for your use-case. This repository contains
 the following packages:
