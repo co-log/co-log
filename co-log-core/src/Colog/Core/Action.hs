@@ -184,7 +184,7 @@ In case it is used by mistake, the user  will see the following:
 >>> fmap show logStringStdout
 ...
 ... 'LogAction' cannot have a 'Functor' instance by design.
-      However, the instance is used in here.
+      However, you've attempted to use this instance.
 ...
       Probably you meant 'Contravariant' class instance with the following methods:
         * contramap :: (a -> b) -> LogAction m b -> LogAction m a
@@ -197,7 +197,7 @@ In case it is used by mistake, the user  will see the following:
 >>> fmap show logStringStdout
 ...
 ... 'LogAction' cannot have a 'Functor' instance by design.
-      However, the instance is used in here.
+      However, you've attempted to use this instance.
 ...
 
 #endif
