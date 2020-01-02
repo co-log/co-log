@@ -164,7 +164,7 @@ type family UnrepresentableClass :: Constraint
   where
     UnrepresentableClass = TypeError
         ( 'Text "'LogAction' cannot have a 'Functor' instance by design."
-        ':$$: 'Text "However, the instance is used in here."
+        ':$$: 'Text "However, you've attempted to use this instance."
 #if MIN_VERSION_base(4,12,0)
         ':$$: 'Text ""
         ':$$: 'Text "Probably you meant 'Contravariant' class instance with the following methods:"
