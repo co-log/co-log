@@ -1,5 +1,9 @@
-{-# LANGUAGE CPP        #-}
-{-# LANGUAGE Rank2Types #-}
+{-# LANGUAGE CPP                  #-}
+{-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE Rank2Types           #-}
+{-# LANGUAGE TypeFamilies         #-}
+{-# LANGUAGE TypeOperators        #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 {- |
 Copyright:  (c) 2018-2020 Kowainik
@@ -62,10 +66,12 @@ module Colog.Core.Action
 import Control.Monad (when, (<=<), (>=>))
 import Data.Coerce (coerce)
 import Data.Foldable (fold, for_, traverse_)
+import Data.Kind (Constraint)
 import Data.List.NonEmpty (NonEmpty (..))
 import Data.Monoid (Monoid (..))
 import Data.Semigroup (Semigroup (..), stimesMonoid)
 import Data.Void (Void, absurd)
+import GHC.TypeLits (ErrorMessage (..), TypeError)
 
 #if MIN_VERSION_base(4,12,0)
 import qualified Data.Functor.Contravariant as Contravariant
@@ -144,12 +150,67 @@ instance Applicative m => Monoid (LogAction m a) where
 
 #if MIN_VERSION_base(4,12,0)
 instance Contravariant.Contravariant (LogAction m) where
+    contramap :: (a -> b) -> LogAction m b -> LogAction m a
     contramap = cmap
     {-# INLINE contramap #-}
 
+    (>$) :: b -> LogAction m b -> LogAction m a
     (>$) = (Colog.Core.Action.>$)
     {-# INLINE (>$) #-}
 #endif
+
+-- | For tracking usage of unrepresentable class instances of 'LogAction'.
+type family UnrepresentableClass :: Constraint
+  where
+    UnrepresentableClass = TypeError
+        ( 'Text "'LogAction' cannot have a 'Functor' instance by design."
+        ':$$: 'Text "However, you've attempted to use this instance."
+#if MIN_VERSION_base(4,12,0)
+        ':$$: 'Text ""
+        ':$$: 'Text "Probably you meant 'Contravariant' class instance with the following methods:"
+        ':$$: 'Text "  * contramap :: (a -> b) -> LogAction m b -> LogAction m a"
+        ':$$: 'Text "  * (>$) :: b -> LogAction m b -> LogAction m a"
+#endif
+        )
+
+{- | ⚠️__CAUTION__⚠️ This instance is for custom error display only.
+
+'LogAction' is not supposed to have 'Functor' instance by design.
+
+In case it is used by mistake, the user  will see the following:
+
+#if MIN_VERSION_base(4,12,0)
+
+>>> fmap show logStringStdout
+...
+... 'LogAction' cannot have a 'Functor' instance by design.
+      However, you've attempted to use this instance.
+...
+      Probably you meant 'Contravariant' class instance with the following methods:
+        * contramap :: (a -> b) -> LogAction m b -> LogAction m a
+        * (>$) :: b -> LogAction m b -> LogAction m a
+...
+
+
+#else
+
+>>> fmap show logStringStdout
+...
+... 'LogAction' cannot have a 'Functor' instance by design.
+      However, you've attempted to use this instance.
+...
+
+#endif
+
+@since 0.2.1.0
+-}
+instance UnrepresentableClass => Functor (LogAction m) where
+    fmap :: (a -> b) -> LogAction m a -> LogAction m b
+    fmap _ _ = error "Unreachable Functor instance of LogAction"
+
+    (<$) :: a -> LogAction m b -> LogAction m a
+    _ <$  _ = error "Unreachable Functor instance of LogAction"
+
 
 {- | Operator version of 'unLogAction'. Note that because of the types, something like:
 

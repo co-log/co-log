@@ -7,6 +7,8 @@ The change log is available [on GitHub][2].
 
 * [#122](https://github.com/kowainik/co-log/issues/122):
   Add the `separate` combinator.
+* [#139](https://github.com/kowainik/co-log/issues/139):
+  Add (unrepresentable) `Functor` instance for `LogAction` with the custom type-error.
 
 ## 0.2.0.0 — May 5, 2019
 
