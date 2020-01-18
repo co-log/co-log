@@ -38,7 +38,10 @@ import qualified System.FilePath.Posix as POS
 1. Limit the number of kept files.
 2. Limit the size of the files.
 -}
-data Limit = LimitTo Natural | Unlimited deriving (Eq, Ord, Show)
+data Limit
+    = LimitTo Natural
+    | Unlimited
+    deriving stock (Eq, Ord, Show)
 
 {- | Logger rotation action. Takes name of the logging file @file.foo@. Always
 writes new logs to file named @file.foo@ (given file name, also called as /hot log/).

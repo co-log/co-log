@@ -33,6 +33,7 @@ import Colog.Core.Action (LogAction (..))
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.IO (Handle, IOMode (AppendMode), hPrint, hPutStrLn, stderr, withFile)
 
+
 {- $setup
 >>> import Colog.Core.Action
 -}

@@ -26,19 +26,31 @@ import Control.Monad.Trans.Class (MonadTrans (..))
 import Data.Foldable (traverse_)
 import GHC.Stack (HasCallStack)
 
-import Colog.Core (HasLog (..), LogAction (..), overLogAction)
+import Colog.Core (HasLog (..), LogAction (..), overLogAction, hoistLogAction)
+
 
 {- | @newtype@ wrapper 'ReaderT' that keeps 'LogAction' in its context.
 -}
 newtype LoggerT msg m a = LoggerT
     { runLoggerT :: ReaderT (LogAction (LoggerT msg m) msg) m a
-    } deriving (Functor, Applicative, Monad, MonadIO, MonadReader (LogAction (LoggerT msg m) msg))
+    } deriving newtype ( Functor, Applicative, Monad, MonadIO
+                       , MonadReader (LogAction (LoggerT msg m) msg)
+                       )
 
 instance MonadTrans (LoggerT msg) where
     lift :: Monad m => m a -> LoggerT msg m a
     lift = LoggerT . lift
     {-# INLINE lift #-}
 
+{- | Type alias for constraint for:
+
+1. Monad @m@ have access to environment @env@.
+2. Environment @env@ contains 'LogAction' that can log messages of type @msg@.
+3. Function call stack.
+
+If you use this constraint, function call stack will be propagated and
+you will have access to code lines that log messages.
+-}
 type WithLog env msg m = (MonadReader env m, HasLog env msg m, HasCallStack)
 
 {- | Perform logging action with given message @msg@. This function works for
@@ -77,8 +89,10 @@ withLog :: WithLog env msg m => (LogAction m msg -> LogAction m msg) -> m a -> m
 withLog = local . overLogAction
 {-# INLINE withLog #-}
 
+{- | Lifts 'LogAction' by allowing to log in a transformed monad.
+-}
 liftLogAction :: (Monad m, MonadTrans t) => LogAction m msg -> LogAction (t m) msg
-liftLogAction (LogAction action) = LogAction (lift . action)
+liftLogAction = hoistLogAction lift
 {-# INLINE liftLogAction #-}
 
 {- | Runner for 'LoggerT' monad. Let's consider one simple example of monadic

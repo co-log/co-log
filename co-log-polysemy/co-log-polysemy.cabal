@@ -30,7 +30,7 @@ extra-doc-files:     CHANGELOG.md
                      GHC == 8.2.2
                      GHC == 8.4.4
                      GHC == 8.6.5
-                     GHC == 8.8.1
+                     GHC == 8.8.2
 
 source-repository head
   type:                git
@@ -49,6 +49,9 @@ common common-options
                        -freverse-errors
                        -Wpartial-fields
                        -O2
+  if impl(ghc >= 8.8.1)
+    ghc-options:       -Wmissing-deriving-strategies
+                       -Werror=missing-deriving-strategies
 
   -- 8.2 lacks <>
   if impl(ghc < 8.4)

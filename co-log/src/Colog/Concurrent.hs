@@ -83,7 +83,7 @@ Concurrent logger consists of the basic parts (see schema below).
   the channel we have a converter that puts the user message to the
   communication channel. This converter works in the user thread.
   Such a logger usually works in 'IO' but it's possible to make it
-  work in 'STM' as well. At this point library provides only 'IO'
+  work in 'Control.Concurrent.STM.STM' as well. At this point library provides only 'IO'
   version, but it can be lifted to any 'MonadIO' by the user.
 
   3. Logger thread. This is the thread that performs actual write to
@@ -153,8 +153,6 @@ application state or thread info, so you should only pass methods that serialize
 and dump data there.
 
 @
-__import__ __qualified__ Data.Aeson __as__ Aeson
-
 main :: IO ()
 main =
   'withBackgroundLogger'
@@ -327,7 +325,7 @@ notificationLogger logger = 'LogAction' $ \(M lock msg) ->
    (unLogger logger msg) `finally` (putMVar lock ())
 
 example = __do__
-   worker <- 'mkBackgroundWorker' 'defCapacity'
+   worker <- 'mkBackgroundThread' 'defCapacity'
    lock <- newEmptyMVar
    -- Log message with default logger.
    'unLogger'

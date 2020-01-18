@@ -3,12 +3,27 @@
 `co-log-core` uses [PVP Versioning][1].
 The change log is available [on GitHub][2].
 
-## Unreleased
+## 0.2.1.0 — Jan 19, 2020
 
+* [#139](https://github.com/kowainik/co-log/issues/139):
+  Add (unrepresentable) `Functor` instance for `LogAction` with the
+  custom type-error.
+  (by [@vrom911](https://github.com/vrom911))
+* [#148](https://github.com/kowainik/co-log/issues/148):
+  Support GHC-8.8.2.
+  (by [@chshersh](https://github.com/chshersh))
 * [#122](https://github.com/kowainik/co-log/issues/122):
   Add the `separate` combinator.
-* [#139](https://github.com/kowainik/co-log/issues/139):
-  Add (unrepresentable) `Functor` instance for `LogAction` with the custom type-error.
+  (by [@vrom911](https://github.com/vrom911))
+* [#125](https://github.com/kowainik/co-log/issues/125):
+  Add monadic versions of contravariant functions.
+  (by [@piq9117](https://github.com/piq9117))
+* [#138](https://github.com/kowainik/co-log/issues/138):
+  Add `hoistLogAction` — higher-order transformation function.
+  (by [@jiribenes](https://github.com/jiribenes))
+* [#123](https://github.com/kowainik/co-log/issues/123):
+  Write default implementation to `getLogAction` via `logActionL`.
+  (by [@SanchayanMaity](https://github.com/SanchayanMaity))
 
 ## 0.2.0.0 — May 5, 2019
 
