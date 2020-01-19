@@ -34,7 +34,9 @@ language_extensions:
   - DeriveAnyClass
   - DeriveDataTypeable
   - DeriveGeneric
-  - DerivingStrategies	
+  - DerivingStrategies
+  - DerivingVia
+  - ExplicitNamespaces
   - FlexibleContexts
   - FlexibleInstances
   - FunctionalDependencies

@@ -287,9 +287,9 @@ cfilter :: Applicative m => (msg -> Bool) -> LogAction m msg -> LogAction m msg
 cfilter predicate (LogAction action) = LogAction $ \a -> when (predicate a) (action a)
 {-# INLINE cfilter #-}
 
-{- | Performs the given logging action only if satisfies the monadic predicate.
-
-Let's say you want to only to see logs that happened on weekends.
+{- | Performs the given logging action only if satisfies the monadic
+predicate. Let's say you want to only to see logs that happened on
+weekends.
 
 @
 isWeekendM :: MessageWithTimestamp -> IO Bool
@@ -299,8 +299,12 @@ And use it with 'cfilterM' like this
 
 @
 logMessageAction :: 'LogAction' m MessageWithTimestamp
+
+logWeekendAction :: 'LogAction' m MessageWithTimestamp
+logWeekendAction = cfilterM isWeekendM logMessageAction
 @
 
+@since 0.2.1.0
 -}
 cfilterM :: Monad m => (msg -> m Bool) -> LogAction m msg -> LogAction m msg
 cfilterM predicateM (LogAction action) =
@@ -364,7 +368,11 @@ cmapMaybe :: Applicative m => (a -> Maybe b) -> LogAction m b -> LogAction m a
 cmapMaybe f (LogAction action) = LogAction (maybe (pure ()) action . f)
 {-# INLINE cmapMaybe #-}
 
--- | Similar to `cmapMaybe` but for convertions that may fail inside a monadic context.
+{- | Similar to `cmapMaybe` but for convertions that may fail inside a
+monadic context.
+
+@since 0.2.1.0
+-}
 cmapMaybeM :: Monad m => (a -> m (Maybe b)) -> LogAction m b -> LogAction m a
 cmapMaybeM f (LogAction action) = LogAction (maybe (pure ()) action <=< f)
 {-# INLINE cmapMaybeM #-}
@@ -424,7 +432,6 @@ logTextAction :: 'LogAction' IO Text
 logTextAction = 'cmapM' withTime myAction
 @
 -}
-
 cmapM :: Monad m => (a -> m b) -> LogAction m b -> LogAction m a
 cmapM f (LogAction action) = LogAction (f >=> action)
 {-# INLINE cmapM #-}
@@ -456,6 +463,10 @@ divide f (LogAction actionB) (LogAction actionC) = LogAction $ \(f -> (b, c)) ->
     actionB b *> actionC c
 {-# INLINE divide #-}
 
+{- | Monadic version of 'divide'.
+
+@since 0.2.1.0
+-}
 divideM :: (Monad m) => (a -> m (b, c)) -> LogAction m b -> LogAction m c -> LogAction m a
 divideM f (LogAction actionB) (LogAction actionC) =
     LogAction $ \(f -> mbc) -> mbc >>= (\(b, c) -> actionB b *> actionC c)
@@ -541,6 +552,10 @@ choose :: (a -> Either b c) -> LogAction m b -> LogAction m c -> LogAction m a
 choose f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC . f)
 {-# INLINE choose #-}
 
+{- | Monadic version of 'choose'.
+
+@since 0.2.1.0
+-}
 chooseM :: Monad m => (a -> m (Either b c)) -> LogAction m b -> LogAction m c -> LogAction m a
 chooseM f (LogAction actionB) (LogAction actionC) = LogAction (either actionB actionC <=< f)
 {-# INLINE chooseM #-}
@@ -726,6 +741,8 @@ to a one that performs the logging in the 'IO' monad using:
 @
 hoistLogAction performPureLogsInIO :: LogAction (PureLogger a) a -> LogAction IO a
 @
+
+@since 0.2.1.0
 -}
 hoistLogAction
     :: (forall x. m x -> n x)

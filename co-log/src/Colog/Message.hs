@@ -18,18 +18,26 @@ logging actions for them.
 -}
 
 module Colog.Message
-       ( -- * Basic message type
-         Msg (..)
+       ( -- * Simple message type
+         -- ** Type
+         SimpleMsg (..)
+         -- ** Logging
+       , logText
+         -- ** Formatting
+       , fmtSimpleMessage
+
+         -- * Core messaging
+         -- ** Types
+       , Msg (..)
        , Message
+         -- ** Logging
        , log
        , logDebug
        , logInfo
        , logWarning
        , logError
        , logException
-       , logText
-
-         -- * Formatting functions
+         -- ** Formatting
        , fmtMessage
        , showSeverity
        , showSourceLoc
@@ -44,11 +52,12 @@ module Colog.Message
        , FieldMap
        , defaultFieldMap
 
+         -- ** Extensible message
        , RichMessage
        , RichMsg (..)
-       , SimpleMsg (..)
        , fmtRichMessageDefault
        , fmtSimpleRichMessageDefault
+       , fmtRichMessageCustomDefault
        , upgradeMessageAction
        ) where
 
@@ -98,6 +107,11 @@ data Msg sev = Msg
     , msgText     :: !Text
     }
 
+{- | Message data type without 'Severity'. Use 'logText' to log
+messages of this type.
+
+@since 0.4.0.0
+-}
 data SimpleMsg = SimpleMsg
     { simpleMsgStack :: !CallStack
     , simpleMsgText  :: !Text
@@ -129,10 +143,15 @@ logWarning = withFrozenCallStack (log Warning)
 logError :: WithLog env Message m => Text -> m ()
 logError = withFrozenCallStack (log Error)
 
--- | Logs 'Exception' message.
+-- | Logs 'Exception' message with the 'Error' severity.
 logException :: forall e m env . (WithLog env Message m, Exception e) => e -> m ()
 logException = withFrozenCallStack (logError . T.pack . displayException)
 
+{- | Log 'SimpleMsg' without severity, only 'CallStack' and 'Text'
+body message.
+
+@since 0.4.0.0
+-}
 logText :: WithLog env SimpleMsg m => Text -> m ()
 logText msgText = withFrozenCallStack (logMsg SimpleMsg{ simpleMsgStack = callStack, simpleMsgText = msgText })
 
@@ -156,6 +175,26 @@ fmtMessage Msg{..} =
     showSeverity msgSeverity
     <> showSourceLoc msgStack
     <> msgText
+
+{- | Formats the 'SimpleMsg' type in according to the following format:
+
+@
+[SourceLocation] \<Text message\>
+@
+
+__Examples:__
+
+@
+[Main.app#39] Starting application...
+[Main.example#34] app: First message...
+@
+
+See 'fmtSimpleRichMessageDefault' for richer format.
+
+@since 0.4.0.0
+-}
+fmtSimpleMessage :: SimpleMsg -> Text
+fmtSimpleMessage SimpleMsg{..} = showSourceLoc simpleMsgStack <> simpleMsgText
 
 {- | Formats severity in different colours with alignment.
 -}
@@ -202,8 +241,8 @@ showSourceLoc cs = square showCallStack
 types. The type family is open so you can add new instances.
 -}
 type family FieldType (fieldName :: Symbol) :: Type
-type instance FieldType "threadId" = ThreadId
-type instance FieldType "posixTime"  = C.Time
+type instance FieldType "threadId"  = ThreadId
+type instance FieldType "posixTime" = C.Time
 
 {- | @newtype@ wrapper. Stores monadic ability to extract value of 'FieldType'.
 
@@ -277,11 +316,14 @@ defaultFieldMap = fromList
     , #posixTime (liftIO C.now)
     ]
 
--- | Contains additional data to 'Message' to display more verbose information.
+{- | Contains additional data to 'Message' to display more verbose information.
+
+@since 0.4.0.0
+-}
 data RichMsg (m :: Type -> Type) (msg :: Type) = RichMsg
     { richMsgMsg :: !msg
     , richMsgMap :: {-# UNPACK #-} !(FieldMap m)
-    } deriving (Functor)
+    } deriving stock (Functor)
 
 -- | Specialised version of 'RichMsg' that stores severity, callstack and text message.
 type RichMessage m = RichMsg m Message
@@ -326,6 +368,8 @@ __Examples:__
 @
 
 Practically, it formats a message as 'fmtRichMessageDefault' without the severity information.
+
+@since 0.4.0.0
 -}
 fmtSimpleRichMessageDefault :: MonadIO m => RichMsg m SimpleMsg -> m Text
 fmtSimpleRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
@@ -336,8 +380,16 @@ fmtSimpleRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMess
      <> showSourceLoc simpleMsgStack
      <> thread
      <> simpleMsgText
+{- | Custom formatting function for 'RichMsg'. It extracts 'ThreadId'
+and 'C.Time' from fields and allows you to specify how to format them.
 
-fmtRichMessageCustomDefault :: MonadIO m => RichMsg m msg -> (Maybe ThreadId -> Maybe C.Time -> msg -> Text) -> m Text
+@since 0.4.0.0
+-}
+fmtRichMessageCustomDefault
+    :: MonadIO m
+    => RichMsg m msg
+    -> (Maybe ThreadId -> Maybe C.Time -> msg -> Text)
+    -> m Text
 fmtRichMessageCustomDefault RichMsg{..} formatter = do
     maybeThreadId  <- extractField $ TM.lookup @"threadId"  richMsgMap
     maybePosixTime <- extractField $ TM.lookup @"posixTime" richMsgMap
@@ -415,7 +467,7 @@ builderDmyHMSz (C.Datetime date time) =
         ]
 
 ----------------------------------------------------------------------------
---
+-- Utility functions
 ----------------------------------------------------------------------------
 
 showThreadId :: ThreadId -> Text

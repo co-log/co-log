@@ -19,7 +19,7 @@ import qualified Hedgehog.Range as Range
 data LogAST
     = LogMsg
     | AND LogAST LogAST
-    deriving Show
+    deriving stock (Show)
 
 listLogMessages :: LogAST -> String -> [String]
 listLogMessages LogMsg msg    = [msg]

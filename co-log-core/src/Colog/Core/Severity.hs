@@ -37,6 +37,7 @@ import Data.Ix (Ix)
 
 import Colog.Core.Action (LogAction (..), cfilter)
 
+
 -- | Severity for the log messages.
 data Severity
     {- | Information useful for debug purposes.
@@ -60,7 +61,7 @@ data Severity
     E.g. exceptional situations: couldn't syncronize accounts.
     -}
     | Error
-    deriving (Show, Read, Eq, Ord, Enum, Bounded, Ix)
+    deriving stock (Show, Read, Eq, Ord, Enum, Bounded, Ix)
 
 {- $pattern
 Instead of using full names of the constructors you can instead use one-letter

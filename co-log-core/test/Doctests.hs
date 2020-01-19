@@ -9,7 +9,8 @@ main :: IO ()
 main = do
     sourceFiles <- glob "src/**/*.hs"
     doctest
-        $ "-XInstanceSigs"
+        $ "-XDerivingStrategies"
+        : "-XInstanceSigs"
         : "-XScopedTypeVariables"
         : "-XViewPatterns"
         : sourceFiles

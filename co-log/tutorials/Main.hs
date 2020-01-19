@@ -30,6 +30,7 @@ import Colog (pattern D, HasLog (..), LogAction, Message, Msg (..), PureLogger, 
 
 import qualified Data.TypeRepMap as TM
 
+
 example :: WithLog env Message m => m ()
 example = do
     log D "First message..."
@@ -55,7 +56,8 @@ app = do
 
 
 data ExampleException = ExampleException
-    deriving (Show, Exception)
+    deriving stock (Show)
+    deriving anyclass (Exception)
 
 exceptionL :: (WithLog env Message m) => m ()
 exceptionL = logException ExampleException

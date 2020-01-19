@@ -15,6 +15,7 @@ Since this is a literate haskell file, we need to specify all our language
 extensions and imports up front.
 
 ```haskell
+{-# LANGUAGE DerivingStrategies    #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE InstanceSigs          #-}
@@ -78,7 +79,7 @@ Now let's define our application monad.
 ```haskell
 newtype App a = App
     { unApp :: ReaderT (Env App) IO a
-    } deriving (Functor, Applicative, Monad, MonadIO, MonadReader (Env App))
+    } deriving newtype (Functor, Applicative, Monad, MonadIO, MonadReader (Env App))
 ```
 
 This monad stores `Env` parameterized by the monad itself in it's context.

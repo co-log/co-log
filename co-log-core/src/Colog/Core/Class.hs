@@ -21,6 +21,7 @@ module Colog.Core.Class
 import Colog.Core.Action (LogAction)
 import Data.Functor.Const (Const (..))
 
+
 -- to inline lens better
 {- HLINT ignore "Redundant lambda" -}
 

@@ -31,7 +31,7 @@ log messages by storing them in the internal state.
 -}
 newtype PureLoggerT msg m a = PureLoggerT
     { runPureLoggerT :: StateT (Seq msg) m a
-    } deriving (Functor, Applicative, Monad, MonadTrans, MonadState (Seq msg))
+    } deriving newtype (Functor, Applicative, Monad, MonadTrans, MonadState (Seq msg))
 
 -- | Returns result value of 'PureLoggerT' and list of logged messages.
 runPureLogT :: Functor m => PureLoggerT msg m a -> m (a, [msg])
