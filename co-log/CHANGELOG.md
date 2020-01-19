@@ -23,6 +23,9 @@ The changelog is available [on GitHub][2].
   Add new message type that allows printing messages without
   `Severity`.
   (by [@sphaso](https://github.com/sphaso))
+* [#150](https://github.com/kowainik/co-log/issues/150):
+  Introduce `formatWith` — beginner-friendly alias for formatting combinator.
+  (by [@chshersh](https://github.com/chshersh))
 * Use `chronos-1.1` as `1.0.9` is not Windows-compatible.
   (by [@vrom911](https://github.com/vrom911))
 * [#156](https://github.com/kowainik/co-log/issues/156):
