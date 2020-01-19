@@ -37,7 +37,7 @@ example0 = do
     putStrLn "Example 0: Second message"
 ```
 
-Using `putStrLn` for logging is a very simple and basic approach for logging.  When your application grows bigger and more complex, you might want to introduce some logging library to it. For example, you might want to do something from the following list:
+Using `putStrLn` for logging is a very simple and basic approach for logging. When your application grows bigger and more complex, you might want to introduce some logging library to it. For example, you might want to do something from the following list:
 
 1. Specify messages with a given `Severity` so you can control the verbosity of the output.
 2. Automatically print timestamps, thread IDs, and source code lines of the log messages.
