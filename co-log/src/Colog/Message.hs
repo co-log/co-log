@@ -25,6 +25,7 @@ module Colog.Message
        , logText
          -- ** Formatting
        , fmtSimpleMessage
+       , formatWith
 
          -- * Core messaging
          -- ** Types
@@ -195,6 +196,25 @@ See 'fmtSimpleRichMessageDefault' for richer format.
 -}
 fmtSimpleMessage :: SimpleMsg -> Text
 fmtSimpleMessage SimpleMsg{..} = showSourceLoc simpleMsgStack <> simpleMsgText
+
+{- | Alias for 'cmap' specialized for formatting purposes. If you have
+an action that can output 'Text' (for example
+'Colog.Actions.logTextStdout'), you can convert it to the action that
+can print 'SimpleMsg' or 'Message':
+
+@
+logSimpleMsgStdout :: 'LogAction' 'IO' 'SimpleMsg'
+logSimpleMsgStdout = 'formatWith' 'fmtSimpleMessage' 'Colog.Actions.logTextStdout'
+
+logMessageStdout :: 'LogAction' 'IO' 'Message'
+logMessageStdout = 'formatWith' 'fmtMessage' 'Colog.Actions.logTextStdout'
+@
+
+@since 0.4.0.0
+-}
+formatWith :: (msg -> Text) -> LogAction m Text -> LogAction m msg
+formatWith = cmap
+{-# INLINE formatWith #-}
 
 {- | Formats severity in different colours with alignment.
 -}
