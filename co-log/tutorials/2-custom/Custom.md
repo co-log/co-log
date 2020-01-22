@@ -50,8 +50,8 @@ data Env m = Env
 Several notes about this data type:
 
 1. It stores different parameters, like the server port.
-2. It stores a `LogAction` that can log `Message`s from `co-log` in the `m`
-monad.
+2. It stores a `LogAction` that can log values of the `Message` type
+from `co-log` in the `m` monad.
 3. `Env` is parameterized by type variable `m` which is going to be the
 application monad.
 
