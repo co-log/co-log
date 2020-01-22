@@ -100,7 +100,7 @@ example = do
 
 The `WithLog` constraint has three type parameters: the application environment,
 the type of the message and the monad. Function `log` takes two parameters:
-logger severity and the log message's text.
+the logger severity and the log message's text.
 
 ## Running example
 
