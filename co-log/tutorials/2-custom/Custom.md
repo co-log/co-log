@@ -1,9 +1,9 @@
-# Using custom monad that stores `LogAction` inside its environment
+# Using a custom monad that stores `LogAction` inside its environment
 
-This tutorial covers more advanced topic of using `co-log` library with custom
-application monad.
+This tutorial covers the more advanced topic of using the `co-log` library with
+a custom application monad.
 
-You can run this tutorial by calling the following command:
+You can run this tutorial by executing the following command:
 
 ```shell
 cabal new-run tutorial-custom
@@ -11,7 +11,7 @@ cabal new-run tutorial-custom
 
 ## Preamble: imports and language extensions
 
-Since this is a literate haskell file, we need to specify all our language
+Since this is a literate Haskell file, we need to specify all our language
 extensions and imports up front.
 
 ```haskell
@@ -32,13 +32,13 @@ import Control.Monad.Reader (MonadReader, ReaderT (..))
 
 ## Application environment
 
-If you have complex Haskell application, then most likely you also have
+If you have a complex Haskell application, then you are likely to also have
 non-trivial settings that configure your application environment. The
-environment may store various parameters important for the work of your application.
-Interestingly, we can store `LogAction` inside the same environment to use it
-automatically for our logging functions.
+environment may store various parameters relevant to your application's
+behavior. Interestingly, we can store a `LogAction` inside the same
+environment to use it for our logging functions.
 
-The environment for your application can look like this:
+The environment for your application may look like this:
 
 ```haskell
 data Env m = Env
@@ -49,15 +49,15 @@ data Env m = Env
 
 Several notes about this data type:
 
-1. It stores different parameters, like server port.
-2. It stores `LogAction` that can log `Message` data type from `co-log` in the
-   `m` monad.
-3. `Env` is parameterized by type variable `m` which is going to be application
-   monad.
+1. It stores different parameters, like the server port.
+2. It stores a `LogAction` that can log values of the `Message` type
+from `co-log` in the `m` monad.
+3. `Env` is parameterized by type variable `m` which is going to be the
+application monad.
 
-Next step is to define an instance of the `HasLog` typeclass for the `Env` data
-type. This instance will tell how to get and update `LogAction` stored inside
-the environment.
+The next step is to define an instance of the `HasLog` typeclass for the `Env`
+data type. This instance will specify how to get and update the `LogAction`
+stored inside the environment.
 
 ```haskell
 instance HasLog (Env m) Message m where
@@ -74,7 +74,7 @@ That's it! `co-log` requires very little boilerplate.
 
 ## Application monad
 
-Now let's define our application monad.
+Now let's define our application monad:
 
 ```haskell
 newtype App a = App
@@ -82,14 +82,14 @@ newtype App a = App
     } deriving newtype (Functor, Applicative, Monad, MonadIO, MonadReader (Env App))
 ```
 
-This monad stores `Env` parameterized by the monad itself in it's context.
-Nothing special required here to tell the monad how to use logger.
+This monad stores `Env` parameterized by the monad itself in its context.
+Nothing special is required here to tell the monad how to use the logger.
 
 ## Example
 
-`co-log` relies on tagless final technique for writing function. So you define
-your monadic actions with the `WithLog` constraint that allows you to perform
-logging:
+`co-log` relies on the tagless final technique for writing functions. So you
+define your monadic actions with the `WithLog` constraint that allows you to
+perform logging:
 
 ```haskell
 example :: WithLog env Message m => m ()
@@ -98,15 +98,15 @@ example = do
     log I "Second message..."
 ```
 
-Constraint `WithLog` has three type parameters: application environment, type of
-the message and monad. Function `log` takes two parameters: logger severity and
-message text.
+The `WithLog` constraint has three type parameters: the application environment,
+the type of the message and the monad. Function `log` takes two parameters:
+the logger severity and the log message's text.
 
 ## Running example
 
 Now we are ready to execute this action.
 
-First, let's create example environment:
+First, let's create an example environment:
 
 ```haskell
 simpleEnv :: Env App
@@ -123,8 +123,8 @@ runApp :: Env App -> App a -> IO a
 runApp env app = runReaderT (unApp app) env
 ```
 
-Putting all together, we can specialize `WithLog` constraint to our `App` monad
-and run our example.
+Putting it all together, we can specialize the `WithLog` constraint to our
+`App` monad and run our example.
 
 ```haskell
 main :: IO ()
