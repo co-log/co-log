@@ -14,7 +14,7 @@ cabal new-run tutorial-intro
 Since this is a literate Haskell file, we need to specify all our imports up
 front:
 
-```idris
+```haskell
 import Colog.Core (LogAction (..), (<&), logStringStdout)
 ```
 
@@ -22,7 +22,7 @@ import Colog.Core (LogAction (..), (<&), logStringStdout)
 
 `co-log` is based on the following data type:
 
-```haskell
+```idris
 newtype LogAction m msg = LogAction
     { unLogAction :: msg -> m ()
     }
