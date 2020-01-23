@@ -49,10 +49,10 @@ following list:
 
 1. Specify messages with a given `Severity` so you can control the verbosity of
 the output.
-2. Automatically print timestamps, thread IDs, and source code lines of the log
-messages.
-3. Submit some statistics to a web server along each log message so later you
-can have analytics provided by external parties.
+2. Automatically print timestamps, thread IDs, and source code lines next to the
+log messages.
+3. Submit some statistics to a web server along with each log message so later
+you can have analytics provided by external parties.
 
 Now, let's look at how you can use `LogAction` instead of `putStrLn` to achieve
 the same goal. With `co-log`, you need to have a value of type `LogAction` that
@@ -72,7 +72,7 @@ example1 logger = do
 > can configure later in one place and automatically get the proper behavior for
 > your whole application instead of changing the code of every function.
 
-If you want do logging with `co-log`, then one of the options (and the simplest
+If you want to do logging with `co-log`, then one of the options (and the simplest
 one) is to pass `LogAction` explicitly as an argument to your function. In the
 example above, we are using `LogAction` that takes `String`s as messages and
 performs logging inside the `IO` monad.
