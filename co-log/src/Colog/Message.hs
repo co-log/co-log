@@ -96,7 +96,7 @@ import qualified Data.Vector as Vector
 
 {- | General logging message data type. Contains the following fields:
 
-1. Polymorhic severity. This can be anything you want if you need more
+1. Polymorphic severity. This can be anything you want if you need more
 flexibility.
 2. Function 'CallStack'. It provides useful information about source code
 locations where each particular function was called.
@@ -148,7 +148,7 @@ logError = withFrozenCallStack (log Error)
 logException :: forall e m env . (WithLog env Message m, Exception e) => e -> m ()
 logException = withFrozenCallStack (logError . T.pack . displayException)
 
-{- | Log 'SimpleMsg' without severity, only 'CallStack' and 'Text'
+{- | Logs 'SimpleMsg' without severity, only 'CallStack' and 'Text'
 body message.
 
 @since 0.4.0.0
@@ -156,7 +156,7 @@ body message.
 logText :: WithLog env SimpleMsg m => Text -> m ()
 logText msgText = withFrozenCallStack (logMsg SimpleMsg{ simpleMsgStack = callStack, simpleMsgText = msgText })
 
-{- | Formats the 'Message' type in according to the following format:
+{- | Formats the 'Message' type according to the following format:
 
 @
 [Severity] [SourceLocation] \<Text message\>
@@ -169,7 +169,7 @@ __Examples:__
 [Debug]   [Main.example#34] app: First message...
 @
 
-See 'fmtRichMessageDefault' for richer format.
+See 'fmtRichMessageDefault' for a richer format.
 -}
 fmtMessage :: Message -> Text
 fmtMessage Msg{..} =
@@ -234,7 +234,7 @@ showSeverity = \case
 square :: Text -> Text
 square t = "[" <> t <> "] "
 
-{- | Show source code locations in the following format:
+{- | Shows source code locations in the following format:
 
 @
 [Main.example#35]
@@ -361,7 +361,7 @@ __Examples:__
 [Info]    [03 May 2019 05:23:19.059 +00:00] [Main.example#35] [ThreadId 11] app: Second message...
 @
 
-See 'fmtMessage' if you don't need both time and thread id.
+See 'fmtMessage' if you don't need both time and thread ID.
 -}
 fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
 fmtRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
@@ -431,7 +431,7 @@ showTime t =
 -- Chronos extra
 ----------------------------------------------------------------------------
 
-{- | Given a 'Datetime', construct a 'Text' 'TB.Builder' corresponding to a
+{- | Given a 'Datetime', constructs a 'Text' 'TB.Builder' corresponding to a
 Day\/Month\/Year,Hour\/Minute\/Second\/Offset encoding of the given 'Datetime'.
 
 Example: @29 Dec 2019 22:00:00.000 +00:00@
