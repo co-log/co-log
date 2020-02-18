@@ -3,6 +3,12 @@
 `co-log-polysemy` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 0.0.1.1 — Feb 17, 2020
+
+* [#181](https://github.com/kowainik/co-log/issues/181):
+  Bump up `polysemy` to `1.3.0.0`.
+  (by [@chshersh](https://github.com/chshersh))
+
 ## 0.0.1.0 — Jan 19, 2020
 
 * [#121](https://github.com/kowainik/co-log/issues/121):
