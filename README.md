@@ -16,13 +16,13 @@ and convenient interface. Though it uses some advanced concepts in its
 core, we are striving to provide beginner-friendly API. The library
 also contains complete documentation with a lot of beginner-friendly
 examples, explanations and tutorials to guide users. The combination
-of pragmatic approach to logging and fundamental Haskell abstractions
-allows us to create highly composable and configurable logging
+of a pragmatic approach to logging and fundamental Haskell abstractions
+allows us to create a highly composable and configurable logging
 framework.
 
-If you're interested in how different Haskel typeclasses are used to
+If you're interested in how different Haskell typeclasses are used to
 implement core functions of `co-log`, you can read the following blog
-post which goes in detail about internal implementation specifics:
+post which goes into detail about internal implementation specifics:
 
 * [co-log: Composable Contravariant Combinatorial Comonadic Configurable Convenient Logging](https://kowainik.github.io/posts/2018-09-25-co-log)
 
@@ -37,17 +37,17 @@ the following packages:
   `co-log-core`.
 * [`co-log-polysemy`](co-log-polysemy): implementation of logging library based
   on `co-log-core` and the [`polysemy`](http://hackage.haskell.org/package/polysemy) extensible effects library.
-* [`co-log-benchmark`](co-log-benchmark): Benchmarks of the `co-log` library.
+* [`co-log-benchmark`](co-log-benchmark): benchmarks of the `co-log` library.
 
-To provide more user-friendly introduction to the library, we've
+To provide a more user-friendly introduction to the library, we've
 created the tutorial series which introduces the main concepts behind `co-log`
 smoothly:
 
 * [Intro: Using `LogAction`](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/1-intro/Intro.md)
 * [Using custom monad that stores `LogAction` inside its environment](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/2-custom/Custom.md)
 
-`co-log` also cares about concurrent logging. For this purposes we have the `concurrent-playground`
-executable where we experiment with different multithreading scenarios to test the library behavior.
+`co-log` also cares about concurrent logging. For this purpose we have the `concurrent-playground`
+executable where we experiment with different multithreading scenarios to test the library's behavior.
 You can find it here:
 
 * [tutorials/Concurrent.hs](co-log/tutorials/Concurrent.hs)
@@ -55,9 +55,9 @@ You can find it here:
 ## Benchmarks
 
 `co-log` is compared with basic functions like `putStrLn`. Since IO overhead is
-big enough, every benchmark dumps 10K messages to output. If benchmark name
-doesn't contain `Message` then this benchmark simply dumps string `"message"`
-to output, otherwise it works with `Message` data type from the `co-log`
+big enough, every benchmark dumps 10K messages to output. If a benchmark's name
+doesn't contain `Message` then this benchmark simply dumps the string `"message"`
+to output, otherwise it works with the `Message` data type from the `co-log`
 library.
 
 To run benchmarks, use the following command:
