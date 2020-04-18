@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
+
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveAnyClass             #-}
 {-# LANGUAGE DerivingStrategies         #-}
@@ -11,7 +13,7 @@
 {-# LANGUAGE TypeApplications           #-}
 {-# LANGUAGE TypeSynonymInstances       #-}
 
-module Main where
+module Main (main) where
 
 import Prelude hiding (log)
 

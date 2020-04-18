@@ -1,8 +1,10 @@
 # co-log
 
+[![GitHub CI](https://github.com/kowainik/co-log/workflows/CI/badge.svg)](https://github.com/kowainik/co-log/actions)
 [![Build status](https://img.shields.io/travis/kowainik/co-log.svg?logo=travis)](https://travis-ci.org/kowainik/co-log)
 [![Windows build](https://ci.appveyor.com/api/projects/status/github/kowainik/co-log?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/co-log)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/master/LICENSE)
+
 
 |                   |                                    |                                           |                                                       |
 | :------------     | :--------------------------------- | :---------------------------------------- | :---------------------------------------------------- |

@@ -1,55 +1,35 @@
 sudo: true
-language: haskell
+language: generic
 
 git:
   depth: 5
 
-cabal: "3.0"
-
 cache:
   directories:
-  - "$HOME/.cabal/store"
   - "$HOME/.stack"
-  - "$TRAVIS_BUILD_DIR/.stack-work"
 
 matrix:
   include:
+  - env: GHC='8.8.3'
+    os: linux
+  - env: GHC='8.8.3'
+    os: osx
 
-  # Cabal
-  - ghc: 8.2.2
-  - ghc: 8.4.4
-  - ghc: 8.6.5
-  - ghc: 8.8.2
-
-  # stack
-  - ghc: 8.8.1
-    env: STACK_YAML="$TRAVIS_BUILD_DIR/stack.yaml"
-
-install:
-  - |
-    if [ -z "$STACK_YAML" ]; then
-      cabal build all --enable-tests --enable-benchmarks
-    else
-      # install stack
-      curl -sSL https://get.haskellstack.org/ | sh
-
-      # build project with stack
-      stack --version
-      stack build --system-ghc --test --no-run-tests
-    fi
-
-script:
+before_install:
   # HLint check
   - curl -sSL https://raw.github.com/ndmitchell/neil/master/misc/travis.sh | sh -s -- hlint co-log-core/ co-log/src/ co-log-benchmark/
-  - |
-    if [ -z "$STACK_YAML" ]; then
-       cabal test all
-    else
-      stack test  co-log-core      --system-ghc
-      stack test  co-log           --system-ghc
-      stack test  co-log-polysemy  --system-ghc
-      stack build co-log-benchmark --system-ghc
-    fi
+
+install:
+  # install stack and build project
+  - curl -sSL https://get.haskellstack.org/ | sh
+  - stack --version
+  - stack build --test --no-run-tests --bench --no-run-benchmarks
+
+script:
+  - stack test  co-log-core
+  - stack test  co-log
+  - stack test  co-log-polysemy
+  - stack build co-log-benchmark
 
 notifications:
   email: false
