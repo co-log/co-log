@@ -26,10 +26,10 @@ install:
   - stack build --test --no-run-tests --bench --no-run-benchmarks
 
 script:
-  - stack test  co-log-core      --no-terminal
-  - stack test  co-log           --no-terminal
-  - stack test  co-log-polysemy  --no-terminal
-  - stack build co-log-benchmark --no-terminal
+  - stack test  co-log-core
+  - stack test  co-log
+  - stack test  co-log-polysemy
+  - stack build co-log-benchmark
 
 notifications:
   email: false
