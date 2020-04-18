@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                co-log-core
-version:             0.2.1.0
+version:             0.2.1.1
 synopsis:            Composable Contravariant Comonadic Logging Library
 description:
     This package provides core types and functions to work with the @LogAction@ data type which is both simple and powerful.
@@ -36,26 +36,31 @@ extra-doc-files:     CHANGELOG.md
 tested-with:         GHC == 8.2.2
                      GHC == 8.4.4
                      GHC == 8.6.5
-                     GHC == 8.8.2
+                     GHC == 8.8.3
+                     GHC == 8.10.1
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/co-log.git
 
 common common-options
-  build-depends:       base >= 4.10.1.0 && < 4.14
+  build-depends:       base >= 4.10.1.0 && < 4.15
 
   ghc-options:         -Wall
-                       -Wincomplete-uni-patterns
-                       -Wincomplete-record-updates
                        -Wcompat
                        -Widentities
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
                        -Wredundant-constraints
-                       -fhide-source-paths
-                       -freverse-errors
-  if impl(ghc >= 8.8.1)
+  if impl(ghc >= 8.2)
+    ghc-options:       -fhide-source-paths
+  if impl(ghc >= 8.4)
+    ghc-options:       -Wmissing-export-lists
+                       -Wpartial-fields
+  if impl(ghc >= 8.8)
     ghc-options:       -Wmissing-deriving-strategies
-                       -Werror=missing-deriving-strategies
+  if impl(ghc >= 8.10)
+    ghc-options:       -Wunused-packages
 
   default-language:    Haskell2010
   default-extensions:  ConstraintKinds

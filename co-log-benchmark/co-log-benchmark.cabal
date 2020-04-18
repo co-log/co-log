@@ -17,7 +17,8 @@ extra-source-files:  CHANGELOG.md
 tested-with:         GHC == 8.2.2
                      GHC == 8.4.4
                      GHC == 8.6.5
-                     GHC == 8.8.1
+                     GHC == 8.8.3
+                     GHC == 8.10.1
 
 source-repository head
   type:              git
@@ -27,7 +28,7 @@ executable co-log-bench
   main-is:             Main.hs
   if os(windows)
     buildable: False
-  build-depends:       base >= 4.10.1.0 && < 4.14
+  build-depends:       base >= 4.10.1.0 && < 4.15
                      , bytestring
                      , co-log
                      , text

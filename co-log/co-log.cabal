@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                co-log
-version:             0.4.0.0
+version:             0.4.0.1
 synopsis:            Composable Contravariant Comonadic Logging Library
 description:
     The default implementation of logging based on [co-log-core](http://hackage.haskell.org/package/co-log-core).
@@ -24,27 +24,31 @@ extra-doc-files:     CHANGELOG.md
 tested-with:         GHC == 8.2.2
                      GHC == 8.4.4
                      GHC == 8.6.5
-                     GHC == 8.8.1
+                     GHC == 8.8.3
+                     GHC == 8.10.1
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/co-log.git
 
 common common-options
-  build-depends:       base >= 4.10.1.0 && < 4.14
+  build-depends:       base >= 4.10.1.0 && < 4.15
 
   ghc-options:         -Wall
-                       -Wincomplete-uni-patterns
-                       -Wincomplete-record-updates
                        -Wcompat
                        -Widentities
+                       -Wincomplete-uni-patterns
+                       -Wincomplete-record-updates
                        -Wredundant-constraints
-                       -fhide-source-paths
-                       -freverse-errors
+  if impl(ghc >= 8.2)
+    ghc-options:       -fhide-source-paths
+  if impl(ghc >= 8.4)
+    ghc-options:       -Wmissing-export-lists
                        -Wpartial-fields
-  if impl(ghc >= 8.8.1)
+  if impl(ghc >= 8.8)
     ghc-options:       -Wmissing-deriving-strategies
-                       -Werror=missing-deriving-strategies
+  if impl(ghc >= 8.10)
+    ghc-options:       -Wunused-packages
 
   default-language:    Haskell2010
   default-extensions:  ConstraintKinds
@@ -64,8 +68,7 @@ common tutorial-options
   import:              common-options
   if os(windows)
     buildable:         False
-  build-depends:       co-log
-                     , co-log-core
+  build-depends:       co-log-core
 
   build-tool-depends:  markdown-unlit:markdown-unlit
   ghc-options:         -pgmL markdown-unlit
@@ -106,7 +109,6 @@ executable play-colog
   build-depends:       co-log
                      , mtl
                      , typerep-map
-                     , text
 
   ghc-options:         -threaded
                        -rtsopts
@@ -125,7 +127,8 @@ executable concurrent-playground
 executable readme
   import:              tutorial-options
   main-is:             README.lhs
-  build-depends:       text
+  build-depends:       co-log
+                     , text
 
 executable tutorial-intro
   import:              tutorial-options
@@ -134,7 +137,8 @@ executable tutorial-intro
 executable tutorial-custom
   import:              tutorial-options
   main-is:             tutorials/2-custom/Custom.lhs
-  build-depends:       mtl
+  build-depends:       co-log
+                     , mtl
 
 test-suite test-co-log
   import:              common-options

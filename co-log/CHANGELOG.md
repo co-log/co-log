@@ -3,6 +3,11 @@
 `co-log` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 0.4.0.1 — Apr 18, 2020
+
+* [#186](https://github.com/kowainik/co-log/issues/186):
+  Support GHC-8.10.1.
+
 ## 0.4.0.0 — Jan 19, 2020
 
 * [#120](https://github.com/kowainik/co-log/issues/120):
