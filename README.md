@@ -1,5 +1,7 @@
 # co-log
 
+![Co-logo](https://user-images.githubusercontent.com/8126674/80955687-92f21a80-8df7-11ea-90d3-422dafdc8391.png)
+
 [![GitHub CI](https://github.com/kowainik/co-log/workflows/CI/badge.svg)](https://github.com/kowainik/co-log/actions)
 [![Build status](https://img.shields.io/travis/kowainik/co-log.svg?logo=travis)](https://travis-ci.org/kowainik/co-log)
 [![Windows build](https://ci.appveyor.com/api/projects/status/github/kowainik/co-log?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/co-log)
