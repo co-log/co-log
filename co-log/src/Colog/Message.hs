@@ -42,6 +42,7 @@ module Colog.Message
        , fmtMessage
        , showSeverity
        , showSourceLoc
+       , showTime
 
          -- * Externally extensible message type
          -- ** Field of the dependent map
