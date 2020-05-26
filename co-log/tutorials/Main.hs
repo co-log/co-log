@@ -11,7 +11,6 @@
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE PatternSynonyms            #-}
 {-# LANGUAGE TypeApplications           #-}
-{-# LANGUAGE TypeSynonymInstances       #-}
 
 module Main (main) where
 

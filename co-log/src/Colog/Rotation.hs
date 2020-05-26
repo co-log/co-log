@@ -125,7 +125,7 @@ renameFileToNumber n path = D.renameFile path (path <.> show n)
 
 -- if you give it name like `node.log.4` then it returns `Just 4`
 logFileIndex :: FilePath -> Maybe Natural
-logFileIndex path = fmap NE.tail (nonEmpty (POS.takeExtension path)) >>= readMaybe
+logFileIndex path = nonEmpty (POS.takeExtension path) >>= readMaybe . NE.tail
 
 -- creates list of files with indices who are older on given Limit than the latest one
 getOldFiles :: Limit -> FilePath -> IO [FilePath]
