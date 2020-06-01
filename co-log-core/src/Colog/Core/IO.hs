@@ -27,11 +27,12 @@ module Colog.Core.IO
 
          -- * Various combinators
        , liftLogIO
+       , logFlush
        ) where
 
 import Colog.Core.Action (LogAction (..))
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import System.IO (Handle, IOMode (AppendMode), hPrint, hPutStrLn, stderr, withFile)
+import System.IO (Handle, IOMode (AppendMode), hFlush, hPrint, hPutStrLn, stderr, withFile)
 
 
 {- $setup
@@ -150,3 +151,11 @@ foo
 liftLogIO :: MonadIO m => LogAction IO msg -> LogAction m msg
 liftLogIO (LogAction action) = LogAction (liftIO . action)
 {-# INLINE liftLogIO #-}
+
+{- | This action can be used in combination with other actions to flush
+   a handle every time you log anything.
+-}
+logFlush :: MonadIO m => Handle -> LogAction m a
+logFlush handle = LogAction $ const $ liftIO $ hFlush handle
+{-# INLINE logFlush #-}
+{-# SPECIALIZE logFlush :: Handle -> LogAction IO () #-}
