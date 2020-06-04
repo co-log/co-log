@@ -44,6 +44,8 @@ import System.IO (Handle, IOMode (AppendMode), hFlush, hPrint, hPutStrLn, stderr
 ----------------------------------------------------------------------------
 
 {- | Action that prints 'String' to stdout.
+This action does not flush the output buffer.
+If buffering mode is block buffering, the effect of this action can be delayed.
 
 >>> logStringStdout <& "foo"
 foo
@@ -54,6 +56,8 @@ logStringStdout = LogAction (liftIO . putStrLn)
 {-# SPECIALIZE logStringStdout :: LogAction IO String #-}
 
 {- | Action that prints 'String' to stderr.
+This action does not flush the output buffer.
+If buffering mode is block buffering, the effect of this action can be delayed.
 
 >>> logStringStderr <& "foo"
 foo
@@ -64,6 +68,8 @@ logStringStderr = logStringHandle stderr
 {-# SPECIALIZE logStringStderr :: LogAction IO String #-}
 
 {- | Action that prints 'String' to 'Handle'.
+This action does not flush the output buffer.
+If buffering mode is block buffering, the effect of this action can be delayed.
 
 >>> logStringHandle stderr <& "foo"
 foo
@@ -99,6 +105,8 @@ withLogStringFile path action = withFile path AppendMode $ \handle ->
 ----------------------------------------------------------------------------
 
 {- | Action that prints to stdout using 'Show'.
+This action does not flush the output buffer.
+If buffering mode is block buffering, the effect of this action can be delayed.
 
 >>> logPrint <& 5
 5
@@ -109,6 +117,8 @@ logPrint = LogAction $ liftIO . print
 {-# SPECIALIZE logPrint :: Show a => LogAction IO a #-}
 
 {- | Action that prints to stderr using 'Show'.
+This action does not flush the output buffer.
+If buffering mode is block buffering, the effect of this action can be delayed.
 
 >>> logPrintStderr <& 5
 5
@@ -119,6 +129,8 @@ logPrintStderr = logPrintHandle stderr
 {-# SPECIALIZE logPrintStderr :: Show a => LogAction IO a #-}
 
 {- | Action that prints to a 'Handle' using 'Show'.
+This action does not flush the output buffer.
+If buffering mode is block buffering, the effect of this action can be delayed.
 
 >>> logPrintHandle stderr <& 5
 5
