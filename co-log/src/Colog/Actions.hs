@@ -30,6 +30,7 @@ import Data.Text.Encoding (encodeUtf8)
 import System.IO (Handle, IOMode (AppendMode), stderr, withFile)
 
 import Colog.Core.Action (LogAction (..), cmapM, (>$<))
+import Colog.Core.IO (logFlush)
 import Colog.Message (Message, defaultFieldMap, fmtMessage, fmtRichMessageDefault,
                       upgradeMessageAction)
 
@@ -64,7 +65,8 @@ logByteStringHandle handle = LogAction $ liftIO . BS8.hPutStrLn handle
 'Colog.Core.Action.withLogStringFile' for details.
 -}
 withLogByteStringFile :: MonadIO m => FilePath -> (LogAction m BS.ByteString -> IO r) -> IO r
-withLogByteStringFile path action = withFile path AppendMode $ action . logByteStringHandle
+withLogByteStringFile path action = withFile path AppendMode $ \handle ->
+  action (logByteStringHandle handle <> logFlush handle)
 {-# INLINE withLogByteStringFile #-}
 {-# SPECIALIZE withLogByteStringFile :: FilePath -> (LogAction IO BS.ByteString -> IO r) -> IO r #-}
 
@@ -94,7 +96,8 @@ logTextHandle handle = LogAction $ liftIO . TIO.hPutStrLn handle
 'Colog.Core.Action.withLogStringFile' for details.
 -}
 withLogTextFile :: MonadIO m => FilePath -> (LogAction m T.Text -> IO r) -> IO r
-withLogTextFile path action = withFile path AppendMode $ action . logTextHandle
+withLogTextFile path action = withFile path AppendMode $ \handle ->
+  action (logTextHandle handle <> logFlush handle)
 {-# INLINE withLogTextFile #-}
 {-# SPECIALIZE withLogTextFile :: FilePath -> (LogAction IO T.Text -> IO r) -> IO r #-}
 

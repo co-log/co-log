@@ -78,7 +78,7 @@ implemented in continuation-passing style because it's more efficient to open
 file only once at the start of the application and write to 'Handle' instead of
 opening file each time we need to write to it.
 
-Opens file in 'AppendMode'.
+Opens file in 'AppendMode'. Automatically flushes the output buffer.
 
 #ifndef mingw32_HOST_OS
 
@@ -89,7 +89,8 @@ foo
 #endif
 -}
 withLogStringFile :: MonadIO m => FilePath -> (LogAction m String -> IO r) -> IO r
-withLogStringFile path action = withFile path AppendMode $ action . logStringHandle
+withLogStringFile path action = withFile path AppendMode $ \handle ->
+  action (logStringHandle handle <> logFlush handle)
 {-# INLINE withLogStringFile #-}
 {-# SPECIALIZE withLogStringFile :: FilePath -> (LogAction IO String -> IO r) -> IO r #-}
 
@@ -134,7 +135,8 @@ withLogPrintFile
     => FilePath
     -> (LogAction m a -> IO r)
     -> IO r
-withLogPrintFile path action = withFile path AppendMode $ action . logPrintHandle
+withLogPrintFile path action = withFile path AppendMode $ \handle ->
+  action (logPrintHandle handle <> logFlush handle)
 {-# INLINE withLogPrintFile #-}
 {-# SPECIALIZE withLogPrintFile :: Show a => FilePath -> (LogAction IO a -> IO r) -> IO r #-}
 
