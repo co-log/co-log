@@ -26,6 +26,7 @@ module Colog.Actions
        ) where
 
 import Control.Monad.IO.Class (MonadIO (..))
+import Data.Semigroup ((<>))
 import Data.Text.Encoding (encodeUtf8)
 import System.IO (Handle, IOMode (AppendMode), stderr, withFile)
 
