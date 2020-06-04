@@ -153,9 +153,11 @@ liftLogIO (LogAction action) = LogAction (liftIO . action)
 {-# INLINE liftLogIO #-}
 
 {- | This action can be used in combination with other actions to flush
-   a handle every time you log anything.
+a handle every time you log anything.
+
+@since x.x.x.x
 -}
 logFlush :: MonadIO m => Handle -> LogAction m a
 logFlush handle = LogAction $ const $ liftIO $ hFlush handle
 {-# INLINE logFlush #-}
-{-# SPECIALIZE logFlush :: Handle -> LogAction IO () #-}
+{-# SPECIALIZE logFlush :: Handle -> LogAction IO a #-}
