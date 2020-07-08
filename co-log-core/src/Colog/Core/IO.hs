@@ -27,11 +27,13 @@ module Colog.Core.IO
 
          -- * Various combinators
        , liftLogIO
+       , logFlush
        ) where
 
 import Colog.Core.Action (LogAction (..))
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import System.IO (Handle, IOMode (AppendMode), hPrint, hPutStrLn, stderr, withFile)
+import Data.Semigroup ((<>))
+import System.IO (Handle, IOMode (AppendMode), hFlush, hPrint, hPutStrLn, stderr, withFile)
 
 
 {- $setup
@@ -43,6 +45,8 @@ import System.IO (Handle, IOMode (AppendMode), hPrint, hPutStrLn, stderr, withFi
 ----------------------------------------------------------------------------
 
 {- | Action that prints 'String' to stdout.
+This action does not flush the output buffer.
+If buffering mode is block buffering, the effect of this action can be delayed.
 
 >>> logStringStdout <& "foo"
 foo
@@ -53,6 +57,8 @@ logStringStdout = LogAction (liftIO . putStrLn)
 {-# SPECIALIZE logStringStdout :: LogAction IO String #-}
 
 {- | Action that prints 'String' to stderr.
+This action does not flush the output buffer.
+If buffering mode is block buffering, the effect of this action can be delayed.
 
 >>> logStringStderr <& "foo"
 foo
@@ -63,6 +69,8 @@ logStringStderr = logStringHandle stderr
 {-# SPECIALIZE logStringStderr :: LogAction IO String #-}
 
 {- | Action that prints 'String' to 'Handle'.
+This action does not flush the output buffer.
+If buffering mode is block buffering, the effect of this action can be delayed.
 
 >>> logStringHandle stderr <& "foo"
 foo
@@ -77,7 +85,7 @@ implemented in continuation-passing style because it's more efficient to open
 file only once at the start of the application and write to 'Handle' instead of
 opening file each time we need to write to it.
 
-Opens file in 'AppendMode'.
+Opens file in 'AppendMode'. Automatically flushes the output buffer.
 
 #ifndef mingw32_HOST_OS
 
@@ -88,7 +96,8 @@ foo
 #endif
 -}
 withLogStringFile :: MonadIO m => FilePath -> (LogAction m String -> IO r) -> IO r
-withLogStringFile path action = withFile path AppendMode $ action . logStringHandle
+withLogStringFile path action = withFile path AppendMode $ \handle ->
+  action (logStringHandle handle <> logFlush handle)
 {-# INLINE withLogStringFile #-}
 {-# SPECIALIZE withLogStringFile :: FilePath -> (LogAction IO String -> IO r) -> IO r #-}
 
@@ -97,6 +106,8 @@ withLogStringFile path action = withFile path AppendMode $ action . logStringHan
 ----------------------------------------------------------------------------
 
 {- | Action that prints to stdout using 'Show'.
+This action does not flush the output buffer.
+If buffering mode is block buffering, the effect of this action can be delayed.
 
 >>> logPrint <& 5
 5
@@ -107,6 +118,8 @@ logPrint = LogAction $ liftIO . print
 {-# SPECIALIZE logPrint :: Show a => LogAction IO a #-}
 
 {- | Action that prints to stderr using 'Show'.
+This action does not flush the output buffer.
+If buffering mode is block buffering, the effect of this action can be delayed.
 
 >>> logPrintStderr <& 5
 5
@@ -117,6 +130,8 @@ logPrintStderr = logPrintHandle stderr
 {-# SPECIALIZE logPrintStderr :: Show a => LogAction IO a #-}
 
 {- | Action that prints to a 'Handle' using 'Show'.
+This action does not flush the output buffer.
+If buffering mode is block buffering, the effect of this action can be delayed.
 
 >>> logPrintHandle stderr <& 5
 5
@@ -133,7 +148,8 @@ withLogPrintFile
     => FilePath
     -> (LogAction m a -> IO r)
     -> IO r
-withLogPrintFile path action = withFile path AppendMode $ action . logPrintHandle
+withLogPrintFile path action = withFile path AppendMode $ \handle ->
+  action (logPrintHandle handle <> logFlush handle)
 {-# INLINE withLogPrintFile #-}
 {-# SPECIALIZE withLogPrintFile :: Show a => FilePath -> (LogAction IO a -> IO r) -> IO r #-}
 
@@ -150,3 +166,13 @@ foo
 liftLogIO :: MonadIO m => LogAction IO msg -> LogAction m msg
 liftLogIO (LogAction action) = LogAction (liftIO . action)
 {-# INLINE liftLogIO #-}
+
+{- | This action can be used in combination with other actions to flush
+a handle every time you log anything.
+
+@since x.x.x.x
+-}
+logFlush :: MonadIO m => Handle -> LogAction m a
+logFlush handle = LogAction $ const $ liftIO $ hFlush handle
+{-# INLINE logFlush #-}
+{-# SPECIALIZE logFlush :: Handle -> LogAction IO a #-}
