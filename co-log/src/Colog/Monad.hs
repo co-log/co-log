@@ -10,6 +10,7 @@ Core of the @mtl@ implementation.
 
 module Colog.Monad
        ( LoggerT (..)
+       , HasLog (..)
        , WithLog
        , logMsg
        , logMsgs
