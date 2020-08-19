@@ -16,6 +16,9 @@ module Colog.Pure
        , logMessagePure
        ) where
 
+import Control.Monad.Catch (MonadThrow)
+import Control.Monad.Fail (MonadFail)
+import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.State (MonadState, StateT (..), modify')
 import Control.Monad.Trans.Class (MonadTrans)
 import Data.Bifunctor (second)
@@ -31,7 +34,9 @@ log messages by storing them in the internal state.
 -}
 newtype PureLoggerT msg m a = PureLoggerT
     { runPureLoggerT :: StateT (Seq msg) m a
-    } deriving newtype (Functor, Applicative, Monad, MonadTrans, MonadState (Seq msg))
+    } deriving newtype ( Functor, Applicative, Monad, MonadTrans
+                       , MonadState (Seq msg), MonadFail, MonadIO, MonadThrow
+                       )
 
 -- | Returns result value of 'PureLoggerT' and list of logged messages.
 runPureLogT :: Functor m => PureLoggerT msg m a -> m (a, [msg])
