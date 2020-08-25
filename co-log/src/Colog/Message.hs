@@ -106,7 +106,7 @@ locations where each particular function was called.
 data Msg sev = Msg
     { msgSeverity :: !sev
     , msgStack    :: !CallStack
-    , msgText     :: !Text
+    , msgText     ::  Text
     }
 
 {- | Message data type without 'Severity'. Use 'logText' to log
