@@ -4,8 +4,8 @@
 
 [![GitHub CI](https://github.com/kowainik/co-log/workflows/CI/badge.svg)](https://github.com/kowainik/co-log/actions)
 [![Build status](https://img.shields.io/travis/kowainik/co-log.svg?logo=travis)](https://travis-ci.org/kowainik/co-log)
-[![Windows build](https://ci.appveyor.com/api/projects/status/github/kowainik/co-log?branch=master&svg=true)](https://ci.appveyor.com/project/kowainik/co-log)
-[![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/master/LICENSE)
+[![Windows build](https://ci.appveyor.com/api/projects/status/github/kowainik/co-log?branch=main&svg=true)](https://ci.appveyor.com/project/kowainik/co-log)
+[![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/main/LICENSE)
 
 
 |                   |                                    |                                           |                                                       |
@@ -47,8 +47,8 @@ To provide a more user-friendly introduction to the library, we've
 created the tutorial series which introduces the main concepts behind `co-log`
 smoothly:
 
-* [Intro: Using `LogAction`](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/1-intro/Intro.md)
-* [Using custom monad that stores `LogAction` inside its environment](https://github.com/kowainik/co-log/blob/master/co-log/tutorials/2-custom/Custom.md)
+* [Intro: Using `LogAction`](https://github.com/kowainik/co-log/blob/main/co-log/tutorials/1-intro/Intro.md)
+* [Using custom monad that stores `LogAction` inside its environment](https://github.com/kowainik/co-log/blob/main/co-log/tutorials/2-custom/Custom.md)
 
 `co-log` also cares about concurrent logging. For this purpose we have the `concurrent-playground`
 executable where we experiment with different multithreading scenarios to test the library's behavior.
