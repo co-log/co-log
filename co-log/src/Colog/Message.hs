@@ -72,6 +72,7 @@ import Data.Kind (Type)
 import Data.Semigroup ((<>))
 import Data.Text (Text)
 import Data.Text.Lazy (toStrict)
+import Data.Time.LocalTime (TimeZone (timeZoneMinutes), getCurrentTimeZone)
 import Data.TypeRepMap (TypeRepMap)
 import GHC.Exts (IsList (..))
 import GHC.OverloadedLabels (IsLabel (..))
@@ -264,6 +265,7 @@ types. The type family is open so you can add new instances.
 type family FieldType (fieldName :: Symbol) :: Type
 type instance FieldType "threadId"  = ThreadId
 type instance FieldType "posixTime" = C.Time
+type instance FieldType "localTz"   = TimeZone
 
 {- | @newtype@ wrapper. Stores monadic ability to extract value of 'FieldType'.
 
@@ -335,6 +337,7 @@ defaultFieldMap :: MonadIO m => FieldMap m
 defaultFieldMap = fromList
     [ #threadId  (liftIO myThreadId)
     , #posixTime (liftIO C.now)
+    , #localTz   (liftIO getCurrentTimeZone)
     ]
 
 {- | Contains additional data to 'Message' to display more verbose information.
@@ -367,13 +370,15 @@ See 'fmtMessage' if you don't need both time and thread ID.
 fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
 fmtRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
   where
-    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Message -> Text
-    formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Msg{..} =
+    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Maybe TimeZone -> Message -> Text
+    formatRichMessage (maybe "" showThreadId -> thread) maybeTime maybeTz Msg{..} =
         showSeverity msgSeverity
      <> time
      <> showSourceLoc msgStack
      <> thread
      <> msgText
+     where time = maybe "" (showTime . C.timeToOffsetDatetime offset) maybeTime
+           offset = C.Offset $ maybe 0 timeZoneMinutes maybeTz
 
 {- | Formats 'RichMessage' in the following way:
 
@@ -395,12 +400,14 @@ Practically, it formats a message as 'fmtRichMessageDefault' without the severit
 fmtSimpleRichMessageDefault :: MonadIO m => RichMsg m SimpleMsg -> m Text
 fmtSimpleRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
   where
-    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> SimpleMsg -> Text
-    formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) SimpleMsg{..} =
+    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Maybe TimeZone -> SimpleMsg -> Text
+    formatRichMessage (maybe "" showThreadId -> thread) maybeTime maybeTz SimpleMsg{..} =
         time
      <> showSourceLoc simpleMsgStack
      <> thread
      <> simpleMsgText
+     where time = maybe "" (showTime . C.timeToOffsetDatetime offset) maybeTime
+           offset = C.Offset $ maybe 0 timeZoneMinutes maybeTz
 {- | Custom formatting function for 'RichMsg'. It extracts 'ThreadId'
 and 'C.Time' from fields and allows you to specify how to format them.
 
@@ -409,24 +416,25 @@ and 'C.Time' from fields and allows you to specify how to format them.
 fmtRichMessageCustomDefault
     :: MonadIO m
     => RichMsg m msg
-    -> (Maybe ThreadId -> Maybe C.Time -> msg -> Text)
+    -> (Maybe ThreadId -> Maybe C.Time -> Maybe TimeZone -> msg -> Text)
     -> m Text
 fmtRichMessageCustomDefault RichMsg{..} formatter = do
     maybeThreadId  <- extractField $ TM.lookup @"threadId"  richMsgMap
     maybePosixTime <- extractField $ TM.lookup @"posixTime" richMsgMap
-    pure $ formatter maybeThreadId maybePosixTime richMsgMsg
+    maybeLocalTz   <- extractField $ TM.lookup @"localTz"   richMsgMap
+    pure $ formatter maybeThreadId maybePosixTime maybeLocalTz richMsgMsg
 
 {- | Shows time in the following format:
 
 >>> showTime $ C.Time 1577656800
 [29 Dec 2019 22:00:00.000 +00:00]
 -}
-showTime :: C.Time -> Text
+showTime :: C.OffsetDatetime -> Text
 showTime t =
     square
     $ toStrict
     $ TB.toLazyText
-    $ builderDmyHMSz (C.timeToDatetime t)
+    $ builderDmyHMSz t
 
 ----------------------------------------------------------------------------
 -- Chronos extra
@@ -437,13 +445,13 @@ Day\/Month\/Year,Hour\/Minute\/Second\/Offset encoding of the given 'Datetime'.
 
 Example: @29 Dec 2019 22:00:00.000 +00:00@
 -}
-builderDmyHMSz :: C.Datetime -> TB.Builder
-builderDmyHMSz (C.Datetime date time) =
+builderDmyHMSz :: C.OffsetDatetime -> TB.Builder
+builderDmyHMSz (C.OffsetDatetime (C.Datetime date time) offset) =
        builderDmy date
     <> spaceSep
     <> C.builder_HMS (C.SubsecondPrecisionFixed 3) (Just ':') time
     <> spaceSep
-    <> C.builderOffset C.OffsetFormatColonOn (C.Offset 0)
+    <> C.builderOffset C.OffsetFormatColonOn offset
   where
     spaceSep :: TB.Builder
     spaceSep = TB.singleton ' '
