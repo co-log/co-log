@@ -90,7 +90,7 @@ library
                            Colog.Polysemy.Effect
 
   build-depends:       co-log-core ^>= 0.2.0.0
-                     , polysemy >= 1.2.0.0 && < 1.5
+                     , polysemy >= 1.2.0.0 && < 1.6
 
 executable play-colog-poly
   import:              common-options
