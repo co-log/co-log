@@ -26,13 +26,14 @@ tested-with:         GHC == 8.2.2
                      GHC == 8.6.5
                      GHC == 8.8.3
                      GHC == 8.10.1
+                     GHC == 9.0.1
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/co-log.git
 
 common common-options
-  build-depends:       base >= 4.10.1.0 && < 4.15
+  build-depends:       base >= 4.10.1.0 && < 4.16
 
   ghc-options:         -Wall
                        -Wcompat
