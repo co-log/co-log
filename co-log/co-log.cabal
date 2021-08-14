@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                co-log
-version:             0.4.0.1
+version:             0.4.0.2
 synopsis:            Composable Contravariant Comonadic Logging Library
 description:
     The default implementation of logging based on [co-log-core](http://hackage.haskell.org/package/co-log-core).
