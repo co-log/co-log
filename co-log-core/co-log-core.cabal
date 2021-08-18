@@ -92,5 +92,5 @@ test-suite doctest
   type:                 exitcode-stdio-1.0
   hs-source-dirs:       test
   main-is:              Doctests.hs
-  build-depends:        doctest >= 0.16.0 && < 0.18
+  build-depends:        doctest >= 0.16.0 && < 0.19
                       , Glob ^>= 0.10.0
