@@ -3,6 +3,11 @@
 `co-log-core` uses [PVP Versioning][1].
 The change log is available [on GitHub][2].
 
+## 0.2.1.2 — <M> <d>, 2021
+
+* [#223](https://github.com/kowainik/co-log/pulls/223):
+  Support GHC-9.0.1.
+
 ## 0.2.1.1 — Apr 18, 2020
 
 * [#186](https://github.com/kowainik/co-log/issues/186):

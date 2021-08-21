@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                co-log-core
-version:             0.2.1.1
+version:             0.2.1.2
 synopsis:            Composable Contravariant Comonadic Logging Library
 description:
     This package provides core types and functions to work with the @LogAction@ data type which is both simple and powerful.
@@ -38,13 +38,14 @@ tested-with:         GHC == 8.2.2
                      GHC == 8.6.5
                      GHC == 8.8.3
                      GHC == 8.10.1
+                     GHC == 9.0.1
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/co-log.git
 
 common common-options
-  build-depends:       base >= 4.10.1.0 && < 4.15
+  build-depends:       base >= 4.10.1.0 && < 4.16
 
   ghc-options:         -Wall
                        -Wcompat
@@ -91,5 +92,5 @@ test-suite doctest
   type:                 exitcode-stdio-1.0
   hs-source-dirs:       test
   main-is:              Doctests.hs
-  build-depends:        doctest >= 0.16.0 && < 0.18
+  build-depends:        doctest >= 0.16.0 && < 0.19
                       , Glob ^>= 0.10.0

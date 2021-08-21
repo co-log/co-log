@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                co-log-polysemy
-version:             0.0.1.2
+version:             0.0.1.3
 synopsis:            Composable Contravariant Comonadic Logging Library
 description:
     Implementation of the [co-log](http://hackage.haskell.org/package/co-log-core)
@@ -31,13 +31,14 @@ tested-with:         GHC == 8.4.4
                      GHC == 8.6.5
                      GHC == 8.8.3
                      GHC == 8.10.1
+                     GHC == 9.0.1
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/co-log.git
 
 common common-options
-  build-depends:       base >= 4.10.1.0 && < 4.15
+  build-depends:       base >= 4.10.1.0 && < 4.16
 
   -- 8.2 lacks <>
   if impl(ghc < 8.4)
@@ -90,7 +91,7 @@ library
                            Colog.Polysemy.Effect
 
   build-depends:       co-log-core ^>= 0.2.0.0
-                     , polysemy >= 1.2.0.0 && < 1.6
+                     , polysemy >= 1.2.0.0 && < 1.7
 
 executable play-colog-poly
   import:              common-options
