@@ -43,6 +43,8 @@ module Colog.Message
        , showSeverity
        , showSourceLoc
        , showTime
+       , showTimeOffset
+       , showThreadId
 
          -- * Externally extensible message type
          -- ** Field of the dependent map
@@ -418,32 +420,40 @@ fmtRichMessageCustomDefault RichMsg{..} formatter = do
 
 {- | Shows time in the following format:
 
->>> showTime $ C.Time 1577656800
-[29 Dec 2019 22:00:00.000 +00:00]
+>>> showTime $ C.Time 1577656800000000000
+"[29 Dec 2019 22:00:00.000 +00:00] "
 -}
 showTime :: C.Time -> Text
 showTime t =
     square
     $ toStrict
     $ TB.toLazyText
-    $ builderDmyHMSz (C.timeToDatetime t)
+    $ builderDmyHMSz (C.timeToOffsetDatetime (C.Offset 0) t)
+
+{- | Shows time in the following format:
+
+>>> showTimeOffset $ C.timeToOffsetDatetime (C.Offset $ -120) $ C.Time 1577656800000000000
+"[29 Dec 2019 20:00:00.000 -02:00] "
+-}
+showTimeOffset :: C.OffsetDatetime -> Text
+showTimeOffset = square . toStrict . TB.toLazyText . builderDmyHMSz
 
 ----------------------------------------------------------------------------
 -- Chronos extra
 ----------------------------------------------------------------------------
 
-{- | Given a 'Datetime', constructs a 'Text' 'TB.Builder' corresponding to a
-Day\/Month\/Year,Hour\/Minute\/Second\/Offset encoding of the given 'Datetime'.
+{- | Given a 'OffsetDatetime', constructs a 'Text' 'TB.Builder' corresponding to a
+Day\/Month\/Year,Hour\/Minute\/Second\/Offset encoding of the given 'OffsetDatetime'.
 
 Example: @29 Dec 2019 22:00:00.000 +00:00@
 -}
-builderDmyHMSz :: C.Datetime -> TB.Builder
-builderDmyHMSz (C.Datetime date time) =
+builderDmyHMSz :: C.OffsetDatetime -> TB.Builder
+builderDmyHMSz (C.OffsetDatetime (C.Datetime date time) offset) =
        builderDmy date
     <> spaceSep
     <> C.builder_HMS (C.SubsecondPrecisionFixed 3) (Just ':') time
     <> spaceSep
-    <> C.builderOffset C.OffsetFormatColonOn (C.Offset 0)
+    <> C.builderOffset C.OffsetFormatColonOn offset
   where
     spaceSep :: TB.Builder
     spaceSep = TB.singleton ' '
@@ -491,6 +501,11 @@ builderDmyHMSz (C.Datetime date time) =
 -- Utility functions
 ----------------------------------------------------------------------------
 
+{- | Shows a thread id in the following format:
+
+>>> showThreadId <$> Control.Concurrent.myThreadId
+"[ThreadId 4898] "
+-}
 showThreadId :: ThreadId -> Text
 showThreadId = square . T.pack . show
 
