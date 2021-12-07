@@ -9,10 +9,10 @@ on:
 jobs:
   build:
     name: ghc ${{ matrix.ghc }}
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        cabal: ["3.4"]
+        cabal: ["3.6.2.0"]
         ghc:
           - "8.2.2"
           - "8.4.4"
