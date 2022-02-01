@@ -503,7 +503,6 @@ builderDmyHMSz (C.OffsetDatetime (C.Datetime date time) offset) =
 
 {- | Shows a thread id in the following format:
 
->>> showThreadId <$> Control.Concurrent.myThreadId
 "[ThreadId 4898] "
 -}
 showThreadId :: ThreadId -> Text

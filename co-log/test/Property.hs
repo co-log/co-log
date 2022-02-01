@@ -1,12 +1,9 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TemplateHaskell  #-}
 
-module Main where
+module Property(tests) where
 
-import Data.Semigroup ((<>))
 import Hedgehog (MonadGen, Property, checkSequential, discover, forAll, property, (===))
-import System.Exit (exitFailure, exitSuccess)
-import System.IO (BufferMode (..), hSetBuffering, stderr, stdout)
 
 import Colog.Core (LogAction)
 import Colog.Monad (logMsg, usingLoggerT)
@@ -57,9 +54,3 @@ prop_test_assoc = property $ do
 
 tests :: IO Bool
 tests = checkSequential $$(discover)
-
-main :: IO ()
-main = do
-    hSetBuffering stdout LineBuffering
-    hSetBuffering stderr LineBuffering
-    tests >>= \p -> if p then exitSuccess else exitFailure

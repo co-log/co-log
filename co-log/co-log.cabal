@@ -146,7 +146,11 @@ test-suite test-co-log
   import:              common-options
   build-depends:       co-log
                      , co-log-core
+                     , doctest >= 0.16.0 && < 0.19
+                     , Glob ^>= 0.10.0
                      , hedgehog ^>= 1.0
   hs-source-dirs:      test
-  main-is:             Property.hs
+  main-is:             Main.hs
+  other-modules:       Doctests
+                     , Property
   type:                exitcode-stdio-1.0
