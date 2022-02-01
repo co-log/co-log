@@ -3,6 +3,7 @@
 
 module Property(tests) where
 
+import Data.Semigroup ((<>))
 import Hedgehog (MonadGen, Property, checkSequential, discover, forAll, property, (===))
 
 import Colog.Core (LogAction)
