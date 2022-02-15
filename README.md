@@ -3,93 +3,151 @@
 ![Co-logo](https://user-images.githubusercontent.com/8126674/80955687-92f21a80-8df7-11ea-90d3-422dafdc8391.png)
 
 [![GitHub CI](https://github.com/kowainik/co-log/workflows/CI/badge.svg)](https://github.com/kowainik/co-log/actions)
-[![Build status](https://img.shields.io/travis/kowainik/co-log.svg?logo=travis)](https://travis-ci.org/kowainik/co-log)
-[![Windows build](https://ci.appveyor.com/api/projects/status/github/kowainik/co-log?branch=main&svg=true)](https://ci.appveyor.com/project/kowainik/co-log)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/main/LICENSE)
-
-
-|                   |                                    |                                           |                                                       |
-| :------------     | :--------------------------------- | :---------------------------------------- | :---------------------------------------------------- |
-| `co-log-core`     | [![Hackage][hk-img-core]][hk-core] | [![Stackage LTS][lts-img-core]][lts-core] | [![Stackage Nightly][nightly-img-core]][nightly-core] |
-| `co-log`          | [![Hackage][hk-img]][hk]           | [![Stackage LTS][lts-img]][lts]           | [![Stackage Nightly][nightly-img]][nightly]           |
-| `co-log-polysemy` | [![Hackage][hk-img-ps]][hk-ps]     | [![Stackage LTS][lts-img-ps]][lts-ps]     | [![Stackage Nightly][nightly-img-ps]][nightly-ps]     |
 
 `co-log` is a composable and configurable logging framework. It
 combines all the benefits of Haskell idioms to provide a reasonable
-and convenient interface. Though it uses some advanced concepts in its
-core, we are striving to provide beginner-friendly API. The library
-also contains complete documentation with a lot of beginner-friendly
-examples, explanations and tutorials to guide users. The combination
-of a pragmatic approach to logging and fundamental Haskell abstractions
-allows us to create a highly composable and configurable logging
-framework.
+and convenient interface. Although the library design uses some advanced
+concepts in its core, we are striving to provide beginner-friendly API. The
+library also provides the complete documentation with a lot of beginner-friendly
+examples, explanations and tutorials to guide users. The combination of a
+pragmatic approach to logging and fundamental Haskell abstractions allows us to
+create a highly composable and configurable logging framework.
 
 If you're interested in how different Haskell typeclasses are used to
 implement core functions of `co-log`, you can read the following blog
-post which goes into detail about internal implementation specifics:
+post which goes into detail about the internal implementation specifics:
 
 * [co-log: Composable Contravariant Combinatorial Comonadic Configurable Convenient Logging](https://kowainik.github.io/posts/2018-09-25-co-log)
 
-`co-log` is also modular on the level of packages. We care a lot about a
-low dependency footprint so you can build your logging only on top of
-the minimal required interface for your use-case. This repository contains
-the following packages:
+## Co-Log Family
 
-* [`co-log-core`](co-log-core): lightweight package with basic data types and
-  general idea which depends only on `base`.
-* [`co-log`](co-log): taggless final implementation of logging library based on
-  `co-log-core`.
-* [`co-log-polysemy`](co-log-polysemy): implementation of logging library based
-  on `co-log-core` and the [`polysemy`](http://hackage.haskell.org/package/polysemy) extensible effects library.
-* [`co-log-benchmark`](co-log-benchmark): benchmarks of the `co-log` library.
+Co-Log is a family of repositories for a composable and configurable logging
+framework `co-log`.
+
+Here is the list of currently available repositories and libraries that you can
+check out:
+
+|                                                                   |                                                                                                                                                        |                                    |
+| :---------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------- |
+| [`co-log-core`](https://github.com/co-log/co-log-core)            | lightweight package with basic data types and general idea which depends only on `base`                                                                | [![Hackage][hk-img-core]][hk-core] |
+| [`co-log`](https://github.com/co-log/co-log)                      | taggless final implementation of logging library based on `co-log-core`                                                                                | [![Hackage][hk-img]][hk]           |
+| [`co-log-polysemy`](https://github.com/co-log/co-log-polysemy)    | implementation of logging library based on `co-log-core` and the [`polysemy`](http://hackage.haskell.org/package/polysemy) extensible effects library. | [![Hackage][hk-img-ps]][hk-ps]     |
+| [`co-log-benchmarks`](https://github.com/co-log/co-log-benchmarks) | benchmarks of the `co-log` library                                                                                                                     | -                                  
+
+## `co-log` library
+
+Logging library based on [`co-log-core`](https://github.com/co-log/co-log-core)
+package. Provides ready-to-go implementation of logging. This README contains
+_How to_ tutorial on using this library. This tutorial explains step by step how
+to integrate `co-log` into small basic project, specifically how to replace
+`putStrLn` used for logging with library provided logging.
+
+All code below can be compiled and run with the following commands:
+
+```shell
+$ cabal build
+$ cabal exec readme
+```
+
+## Preamble: imports and language extensions
+
+Since this is a literate haskell file, we need to specify all our language
+extensions and imports up front.
+
+```haskell
+{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE OverloadedStrings #-}
+
+import Control.Monad.IO.Class (MonadIO, liftIO)
+import Data.Semigroup ((<>))
+
+import Colog (Message, WithLog, cmap, fmtMessage, logDebug, logInfo, logTextStdout, logWarning,
+              usingLoggerT)
+
+import qualified Data.Text as Text
+import qualified Data.Text.IO as TextIO
+```
+
+## Simple IO function example
+
+Consider the following function that reads lines from `stdin` and outputs
+different feedback depending on the line size.
+
+```haskell
+processLinesBasic :: IO ()
+processLinesBasic = do
+    line <- TextIO.getLine
+    case Text.length line of
+        0 -> do
+            -- here goes logging
+            TextIO.putStrLn ">>>> Empty input"
+            processLinesBasic
+        n -> do
+            TextIO.putStrLn ">>>> Correct input"
+            TextIO.putStrLn $ "Line length: " <> Text.pack (show n)
+```
+
+This code mixes application logic with logging of the steps. It's convenient to
+have logging to observe behavior of the application. But `putStrLn` is very
+simple and primitive way to log things.
+
+## Using `co-log` library
+
+In order to use `co-log` library, we need to refactor `processLinesBasic`
+function in the following way:
+
+```haskell
+processLinesLog :: (WithLog env Message m, MonadIO m) => m ()
+processLinesLog = do
+    line <- liftIO TextIO.getLine
+    case Text.length line of
+        0 -> do
+            -- here goes logging
+            logWarning "Empty input"
+            processLinesLog
+        n -> do
+            logDebug "Correct line"
+            logInfo $ "Line length: " <> Text.pack (show n)
+```
+
+Let's summarize required changes:
+
+1. Make type more polymorphic: `(WithLog env Message m, MonadIO m) => m ()`
+2. Add `liftIO` to all `IO` functions.
+3. Replace `putStrLn` with proper `log*` function.
+
+## Running actions
+
+Let's run both functions:
+
+```haskell
+main :: IO ()
+main = do
+    processLinesBasic
+
+    let action = cmap fmtMessage logTextStdout
+    usingLoggerT action processLinesLog
+```
+
+And here is how output looks like:
+
+![screenshot from 2018-09-17 20-52-01](https://user-images.githubusercontent.com/4276606/45623973-8bafb900-babb-11e8-9e20-4369a5a8e5ff.png)
+
+## More Tutorials
 
 To provide a more user-friendly introduction to the library, we've
 created the tutorial series which introduces the main concepts behind `co-log`
 smoothly:
 
-* [Intro: Using `LogAction`](https://github.com/kowainik/co-log/blob/main/co-log/tutorials/1-intro/Intro.md)
-* [Using custom monad that stores `LogAction` inside its environment](https://github.com/kowainik/co-log/blob/main/co-log/tutorials/2-custom/Custom.md)
+* [Intro: Using `LogAction`](https://github.com/co-log/co-log/blob/main/tutorials/1-intro/Intro.md)
+* [Using custom monad that stores `LogAction` inside its environment](https://github.com/co-log/co-log/blob/main/tutorials/2-custom/Custom.md)
 
 `co-log` also cares about concurrent logging. For this purpose we have the `concurrent-playground`
 executable where we experiment with different multithreading scenarios to test the library's behavior.
 You can find it here:
 
-* [tutorials/Concurrent.hs](co-log/tutorials/Concurrent.hs)
-
-## Benchmarks
-
-`co-log` is compared with basic functions like `putStrLn`. Since IO overhead is
-big enough, every benchmark dumps 10K messages to output. If a benchmark's name
-doesn't contain `Message` then this benchmark simply dumps the string `"message"`
-to output, otherwise it works with the `Message` data type from the `co-log`
-library.
-
-To run benchmarks, use the following command:
-
-```
-cabal v2-run co-log-bench
-```
-
-| Benchmarks                                              | Time for 10K messages |
-| :------------------------------------------------------ | :-------------------- |
-| `Prelude.putStrLn`                                      | `  5.117ms`           |
-| `Text.putStrLn`                                         | `  9.220ms`           |
-| `ByteString.putStrLn`                                   | `  2.971ms`           |
-| `mempty`                                                | `  1.181ms`           |
-| `logStringStdout`                                       | `  5.107ms`           |
-| `logPrint`                                              | `  5.248ms`           |
-| `logTextStdout`                                         | `  5.351ms`           |
-| `logByteStringStdout`                                   | `  2.933ms`           |
-| `logByteStringStderr`                                   | ` 17.482ms`           |
-| `ByteString > (stdout <> stderr)`                       | ` 17.715ms`           |
-| `Message > format > stdout`                             | `  9.188ms`           |
-| `Message > format > ByteString > stdout`                | `  3.524ms`           |
-| `Message{callstack} > format > stdout`                  | `  9.139ms`           |
-| `Message{callstack:5} > format > stdout`                | `  9.464ms`           |
-| `Message{callstack:50} > format > stdout`               | `  9.439ms`           |
-| `Message{Time,ThreadId} > format > stdout`              | ` 54.160ms`           |
-| `Message{Time,ThreadId} > format > ByteString > stdout` | ` 54.137ms`           |
-
+* [tutorials/Concurrent.hs](tutorials/Concurrent.hs)
 
 [hk-img]: https://img.shields.io/hackage/v/co-log.svg?logo=haskell
 [hk-img-ps]: https://img.shields.io/hackage/v/co-log-polysemy.svg?logo=haskell
@@ -97,15 +155,3 @@ cabal v2-run co-log-bench
 [hk]: https://hackage.haskell.org/package/co-log
 [hk-ps]: https://hackage.haskell.org/package/co-log-polysemy
 [hk-core]: https://hackage.haskell.org/package/co-log-core
-[lts-img]: http://stackage.org/package/co-log/badge/lts
-[lts-img-ps]: http://stackage.org/package/co-log-polysemy/badge/lts
-[lts-img-core]: http://stackage.org/package/co-log-core/badge/lts
-[lts]: http://stackage.org/lts/package/co-log
-[lts-ps]: http://stackage.org/lts/package/co-log-polysemy
-[lts-core]: http://stackage.org/lts/package/co-log-core
-[nightly-img]: http://stackage.org/package/co-log/badge/nightly
-[nightly-img-ps]: http://stackage.org/package/co-log-polysemy/badge/nightly
-[nightly-img-core]: http://stackage.org/package/co-log-core/badge/nightly
-[nightly]: http://stackage.org/nightly/package/co-log
-[nightly-ps]: http://stackage.org/nightly/package/co-log-polysemy
-[nightly-core]: http://stackage.org/nightly/package/co-log-core
