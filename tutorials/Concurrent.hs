@@ -1,4 +1,4 @@
-{- | The purpose of this module is to check concurrent abilities of @colog@.
+{- | The purpose of this module is to check concurrent abilities of @co-log@.
 -}
 module Main (main) where
 
