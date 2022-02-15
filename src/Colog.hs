@@ -9,7 +9,6 @@ comonadic logging based on @co-log-core@.
 
 module Colog
        ( module Colog.Actions
-       , module Colog.Concurrent
        , module Colog.Core
        , module Colog.Message
        , module Colog.Monad
@@ -18,7 +17,6 @@ module Colog
        ) where
 
 import Colog.Actions
-import Colog.Concurrent
 import Colog.Contra ()
 import Colog.Core
 import Colog.Message

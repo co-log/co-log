@@ -79,8 +79,6 @@ library
   hs-source-dirs:      src
   exposed-modules:     Colog
                            Colog.Actions
-                           Colog.Concurrent
-                               Colog.Concurrent.Internal
                            Colog.Contra
                            Colog.Message
                            Colog.Monad

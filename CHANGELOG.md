@@ -3,6 +3,11 @@
 `co-log` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## Unreleased
+
+* [#187](https://github.com/kowainik/co-log/issues/187):
+  Remove `CoLog.Concurrent` module and executable.
+
 ## 0.4.0.2 — <M> <d>, 2021
 
 * [#223](https://github.com/kowainik/co-log/pulls/223):
