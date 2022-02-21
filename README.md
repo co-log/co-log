@@ -33,7 +33,7 @@ check out:
 | [`co-log-core`](https://github.com/co-log/co-log-core)            | lightweight package with basic data types and general idea which depends only on `base`                                                                | [![Hackage][hk-img-core]][hk-core] |
 | [`co-log`](https://github.com/co-log/co-log)                      | taggless final implementation of logging library based on `co-log-core`                                                                                | [![Hackage][hk-img]][hk]           |
 | [`co-log-polysemy`](https://github.com/co-log/co-log-polysemy)    | implementation of logging library based on `co-log-core` and the [`polysemy`](http://hackage.haskell.org/package/polysemy) extensible effects library. | [![Hackage][hk-img-ps]][hk-ps]     |
-| [`co-log-benchmarks`](https://github.com/co-log/co-log-benchmarks) | benchmarks of the `co-log` library                                                                                                                     | -                                  
+| [`co-log-benchmarks`](https://github.com/co-log/co-log-benchmarks) | benchmarks of the `co-log` library                                                                                                                     | -
 
 ## `co-log` library
 
@@ -60,7 +60,6 @@ extensions and imports up front.
 {-# LANGUAGE OverloadedStrings #-}
 
 import Control.Monad.IO.Class (MonadIO, liftIO)
-import Data.Semigroup ((<>))
 
 import Colog (Message, WithLog, cmap, fmtMessage, logDebug, logInfo, logTextStdout, logWarning,
               usingLoggerT)

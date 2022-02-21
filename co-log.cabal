@@ -21,9 +21,7 @@ build-type:          Simple
 stability:           provisional
 extra-doc-files:     CHANGELOG.md
                      README.md
-tested-with:         GHC == 8.2.2
-                     GHC == 8.4.4
-                     GHC == 8.6.5
+tested-with:         GHC == 8.6.5
                      GHC == 8.8.4
                      GHC == 8.10.7
                      GHC == 9.0.2
@@ -33,7 +31,7 @@ source-repository head
   location:            https://github.com/kowainik/co-log.git
 
 common common-options
-  build-depends:       base >= 4.10.1.0 && < 4.16
+  build-depends:       base >= 4.12 && < 4.16
 
   ghc-options:         -Wall
                        -Wcompat
@@ -99,7 +97,6 @@ library
                      , exceptions >= 0.8.3
                      , filepath ^>= 1.4.1
                      , mtl ^>= 2.2.2
-                     , stm >= 2.4 && < 2.6
                      , text >= 1.2.3 && < 2.1
                      , chronos ^>= 1.1 && < 1.2
                      , transformers >= 0.5 && < 0.7
