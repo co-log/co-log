@@ -20,14 +20,13 @@ import Control.Concurrent (threadDelay)
 import Control.Exception (Exception)
 import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Reader (MonadReader, ReaderT (..))
-import Data.Semigroup ((<>))
 
-import Colog (pattern D, HasLog (..), LogAction, Message, Msg (..), PureLogger, RichMsg (..),
-              SimpleMsg (..), WithLog, cmap, cmapM, defaultFieldMap, fmtMessage,
-              fmtRichMessageDefault, fmtSimpleRichMessageDefault, liftLogIO, log, logException,
-              logInfo, logMessagePure, logMsg, logMsgs, logPrint, logStringStdout, logText,
-              logTextStderr, logTextStdout, logWarning, runPureLog, upgradeMessageAction,
-              usingLoggerT, withLog, withLogTextFile, (*<), (<&), (>$), (>$<), (>*), (>*<), (>|<))
+import Colog (HasLog (..), LogAction, Message, Msg (..), PureLogger, RichMsg (..), SimpleMsg (..),
+              WithLog, cmap, cmapM, defaultFieldMap, fmtMessage, fmtRichMessageDefault,
+              fmtSimpleRichMessageDefault, liftLogIO, log, logException, logInfo, logMessagePure,
+              logMsg, logMsgs, logPrint, logStringStdout, logText, logTextStderr, logTextStdout,
+              logWarning, pattern D, runPureLog, upgradeMessageAction, usingLoggerT, withLog,
+              withLogTextFile, (*<), (<&), (>$), (>$<), (>*), (>*<), (>|<))
 
 import qualified Data.TypeRepMap as TM
 

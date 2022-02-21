@@ -17,7 +17,6 @@ module Colog.Pure
        ) where
 
 import Control.Monad.Catch (MonadThrow)
-import Control.Monad.Fail (MonadFail)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.State (MonadState, StateT (..), modify')
 import Control.Monad.Trans.Class (MonadTrans)
