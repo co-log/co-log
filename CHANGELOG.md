@@ -7,7 +7,7 @@ The changelog is available [on GitHub][2].
 
 * [#187](https://github.com/kowainik/co-log/issues/187):
   Remove `CoLog.Concurrent` module and executable.
-* Drop support for GHC-8.2 and GHC-8.4.
+* Drop support for GHC-8.2, GHC-8.4, GHC-8.6, GHC-8.8
 
 ## 0.4.0.2 — <M> <d>, 2021
 
