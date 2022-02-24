@@ -168,7 +168,7 @@ logFoo = usingFooM env foo
 ----------------------------------------------------------------------------
 
 main :: IO ()
-main = withLogTextFile "co-log/tutorials/example.log" $ \logTextFile -> do
+main = withLogTextFile "tutorials/example.log" $ \logTextFile -> do
     let runApp :: LogAction IO Message -> IO ()
         runApp action = usingLoggerT action app
 
