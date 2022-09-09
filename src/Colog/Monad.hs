@@ -34,7 +34,7 @@ import Colog.Core (HasLog (..), LogAction (..), overLogAction, hoistLogAction)
 -}
 newtype LoggerT msg m a = LoggerT
     { runLoggerT :: ReaderT (LogAction (LoggerT msg m) msg) m a
-    } deriving newtype ( Functor, Applicative, Monad, MonadIO
+    } deriving newtype ( Functor, Applicative, Monad, MonadIO, MonadFail
                        , MonadReader (LogAction (LoggerT msg m) msg)
                        )
 
