@@ -27,7 +27,7 @@ module Colog.Actions
 
 import Control.Monad.IO.Class (MonadIO (..))
 import Data.Text.Encoding (encodeUtf8)
-import System.IO (Handle, IOMode (AppendMode), stderr, withFile)
+import System.IO (Handle, IOMode (AppendMode), stderr, stdout, withFile)
 
 import Colog.Core.Action (LogAction (..), cmapM, (>$<))
 import Colog.Core.IO (logFlush)
@@ -88,7 +88,7 @@ This action does not flush the output buffer.
 If buffering mode is block buffering, the effect of this action can be delayed.
 -}
 logTextStdout :: MonadIO m => LogAction m T.Text
-logTextStdout = LogAction $ liftIO . TIO.putStrLn
+logTextStdout = logTextHandle stdout
 {-# INLINE logTextStdout #-}
 {-# SPECIALIZE logTextStdout :: LogAction IO T.Text #-}
 
@@ -106,7 +106,7 @@ This action does not flush the output buffer.
 If buffering mode is block buffering, the effect of this action can be delayed.
 -}
 logTextHandle :: MonadIO m => Handle -> LogAction m T.Text
-logTextHandle handle = LogAction $ liftIO . TIO.hPutStrLn handle
+logTextHandle handle = LogAction $ \m -> liftIO . TIO.hPutStr handle $ m <> "\n"
 {-# INLINE logTextHandle #-}
 {-# SPECIALIZE logTextHandle :: Handle -> LogAction IO T.Text #-}
 
