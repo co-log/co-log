@@ -1,6 +1,0 @@
-packages: .
-
-source-repository-package
-    type: git
-    location: https://github.com/chshersh/chronos
-    tag: d16494c1df61023dab63d41d276c55f233ef887e
