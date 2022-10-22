@@ -44,7 +44,7 @@ simpleApp = do
 app :: (WithLog env Message m, MonadIO m) => m ()
 app = do
     logWarning "Starting application..."
-    liftIO $ threadDelay $ 10^(6 :: Int)
+    liftIO $ threadDelay $ 10 ^ (6 :: Int)
     withLog (cmap addApp) $ do
         example
         exceptionL

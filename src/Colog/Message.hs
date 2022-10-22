@@ -457,7 +457,7 @@ builderDmyHMSz (C.OffsetDatetime (C.Datetime date time) offset) =
     spaceSep :: TB.Builder
     spaceSep = TB.singleton ' '
 
-    {- | Given a 'Date' construct a 'Text' 'TB.Builder'
+    {- Given a 'Date' construct a 'Text' 'TB.Builder'
     corresponding to a Day\/Month\/Year encoding.
 
     Example: @01 Jan 2020@
