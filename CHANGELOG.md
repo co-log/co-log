@@ -3,10 +3,17 @@
 `co-log` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
-## Unreleased
+## 0.5.0.0 - Nov 2, 2022
 
+* [#230](https://github.com/kowainik/co-log/issues/230):
+  Support GHC-9.2.
+* Allow `mtl-2.3`.
+* Allow `vector-0.13`.
+* Allow `hedgehog-1.2`.
 * [#187](https://github.com/kowainik/co-log/issues/187):
   Remove `CoLog.Concurrent` module and executable.
+* [#243](https://github.com/kowainik/co-log/pull/243):
+  Improve printing in multiple threads.
 * Drop support for GHC-8.2, GHC-8.4, GHC-8.6, GHC-8.8
 
 ## 0.4.0.2 — <M> <d>, 2021
