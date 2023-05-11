@@ -139,8 +139,8 @@ To provide a more user-friendly introduction to the library, we've
 created the tutorial series which introduces the main concepts behind `co-log`
 smoothly:
 
-* [Intro: Using `LogAction`](https://github.com/co-log/co-log/blob/main/tutorials/1-intro/Intro.md)
-* [Using custom monad that stores `LogAction` inside its environment](https://github.com/co-log/co-log/blob/main/tutorials/2-custom/Custom.md)
+* [Intro: Using `LogAction`](./tutorials/1-intro/Intro.md)
+* [Using custom monad that stores `LogAction` inside its environment](./tutorials/2-custom/Custom.md)
 
 `co-log` also cares about concurrent logging. For this purpose we have the `concurrent-playground`
 executable where we experiment with different multithreading scenarios to test the library's behavior.
