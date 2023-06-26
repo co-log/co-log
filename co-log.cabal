@@ -73,6 +73,7 @@ common tutorial-options
   if os(windows)
     buildable:         False
   build-depends:       co-log-core
+                       , text
 
   build-tool-depends:  markdown-unlit:markdown-unlit
   ghc-options:         -pgmL markdown-unlit
@@ -132,16 +133,6 @@ executable readme
   build-depends:       co-log
                      , text
 
-executable tutorial-intro
-  import:              tutorial-options
-  main-is:             tutorials/1-intro/Intro.lhs
-
-executable tutorial-custom
-  import:              tutorial-options
-  main-is:             tutorials/2-custom/Custom.lhs
-  build-depends:       co-log
-                     , mtl
-
 test-suite test-co-log
   import:              common-options
   build-depends:       co-log
@@ -160,3 +151,20 @@ test-suite co-log-doctest
   build-depends:       doctest >= 0.16.0 && < 0.21
                      , Glob ^>= 0.10.0
   ghc-options:         -threaded
+
+
+executable tutorial-intro
+  import:              tutorial-options
+  main-is:             tutorials/1-intro/Intro.lhs
+
+executable tutorial-loggert-simple
+  import:              tutorial-options
+  main-is:             tutorials/2-loggert/loggert.lhs
+  build-depends:       co-log
+                     , mtl
+
+executable tutorial-custom
+  import:              tutorial-options
+  main-is:             tutorials/3-custom/Custom.lhs
+  build-depends:       co-log
+                     , mtl
