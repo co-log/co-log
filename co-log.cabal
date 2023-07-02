@@ -155,6 +155,8 @@ test-suite test-co-log
 
 test-suite co-log-doctest
   import:              common-options
+  if os(windows)
+    buildable:         False
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Doctest.hs
