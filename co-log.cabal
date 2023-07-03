@@ -155,6 +155,7 @@ test-suite test-co-log
 
 test-suite co-log-doctest
   import:              common-options
+  -- Disable `doctest` on windows since it couldn't handle qualified imports reliable (which leads to errors like "Not in scope: `C.timeToOffsetDatetime'").
   if os(windows)
     buildable:         False
   type:                exitcode-stdio-1.0
