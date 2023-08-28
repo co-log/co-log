@@ -15,23 +15,33 @@ jobs:
     name: ${{ matrix.os }} / ghc ${{ matrix.ghc }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macOS-latest, windows-latest]
-        cabal: ["3.6.2.0"]
+        cabal: ["3.10"]
         ghc:
-          - "8.10.7"
-          - "9.0.2"
+          - 8.10.7
+          - 9.0.2
+          - 9.2.8
+          - 9.4.7
         exclude:
           - os: macOS-latest
             ghc: 8.10.7
-
+          - os: macOS-latest
+            ghc: 9.0.2
+          - os: macOS-latest
+            ghc: 9.2.8
           - os: windows-latest
             ghc: 8.10.7
+          - os: windows-latest
+            ghc: 9.0.2
+          - os: windows-latest
+            ghc: 9.2.8
 
     steps:
     - uses: actions/checkout@v3
 
-    - uses: haskell/actions/setup@v2.0
+    - uses: haskell/actions/setup@v2
       id: setup-haskell-cabal
       name: Setup Haskell
       with:
@@ -46,7 +56,7 @@ jobs:
       run: |
         cabal freeze
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       name: Cache ~/.cabal/store
       with:
         path: ${{ steps.setup-haskell-cabal.outputs.cabal-store }}

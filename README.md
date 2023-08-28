@@ -1,6 +1,6 @@
 # co-log
 
-![Co-logo](https://user-images.githubusercontent.com/8126674/80955687-92f21a80-8df7-11ea-90d3-422dafdc8391.png)
+<img align="left" width="180" height="180" src="https://user-images.githubusercontent.com/8126674/80955687-92f21a80-8df7-11ea-90d3-422dafdc8391.png">
 
 [![GitHub CI](https://github.com/kowainik/co-log/workflows/CI/badge.svg)](https://github.com/kowainik/co-log/actions)
 [![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/main/LICENSE)
@@ -14,11 +14,13 @@ examples, explanations and tutorials to guide users. The combination of a
 pragmatic approach to logging and fundamental Haskell abstractions allows us to
 create a highly composable and configurable logging framework.
 
+---
+
 If you're interested in how different Haskell typeclasses are used to
 implement core functions of `co-log`, you can read the following blog
 post which goes into detail about the internal implementation specifics:
 
-* [co-log: Composable Contravariant Combinatorial Comonadic Configurable Convenient Logging](https://kowainik.github.io/posts/2018-09-25-co-log)
+- [co-log: Composable Contravariant Combinatorial Comonadic Configurable Convenient Logging](https://kowainik.github.io/posts/2018-09-25-co-log)
 
 ## Co-Log Family
 
@@ -28,12 +30,12 @@ framework `co-log`.
 Here is the list of currently available repositories and libraries that you can
 check out:
 
-|                                                                   |                                                                                                                                                        |                                    |
-| :---------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------- |
-| [`co-log-core`](https://github.com/co-log/co-log-core)            | lightweight package with basic data types and general idea which depends only on `base`                                                                | [![Hackage][hk-img-core]][hk-core] |
-| [`co-log`](https://github.com/co-log/co-log)                      | taggless final implementation of logging library based on `co-log-core`                                                                                | [![Hackage][hk-img]][hk]           |
-| [`co-log-polysemy`](https://github.com/co-log/co-log-polysemy)    | implementation of logging library based on `co-log-core` and the [`polysemy`](http://hackage.haskell.org/package/polysemy) extensible effects library. | [![Hackage][hk-img-ps]][hk-ps]     |
-| [`co-log-benchmarks`](https://github.com/co-log/co-log-benchmarks) | benchmarks of the `co-log` library                                                                                                                     | -
+|                                                                    |                                                                                                                                                        |                                    |
+| :----------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------- | :--------------------------------- |
+| [`co-log-core`](https://github.com/co-log/co-log-core)             | lightweight package with basic data types and general idea which depends only on `base`                                                                | [![Hackage][hk-img-core]][hk-core] |
+| [`co-log`](https://github.com/co-log/co-log)                       | taggless final implementation of logging library based on `co-log-core`                                                                                | [![Hackage][hk-img]][hk]           |
+| [`co-log-polysemy`](https://github.com/co-log/co-log-polysemy)     | implementation of logging library based on `co-log-core` and the [`polysemy`](http://hackage.haskell.org/package/polysemy) extensible effects library. | [![Hackage][hk-img-ps]][hk-ps]     |
+| [`co-log-benchmarks`](https://github.com/co-log/co-log-benchmarks) | benchmarks of the `co-log` library                                                                                                                     | -                                  |
 
 ## `co-log` library
 
@@ -137,16 +139,7 @@ And here is how output looks like:
 
 To provide a more user-friendly introduction to the library, we've
 created the tutorial series which introduces the main concepts behind `co-log`
-smoothly:
-
-* [Intro: Using `LogAction`](https://github.com/co-log/co-log/blob/main/tutorials/1-intro/Intro.md)
-* [Using custom monad that stores `LogAction` inside its environment](https://github.com/co-log/co-log/blob/main/tutorials/2-custom/Custom.md)
-
-`co-log` also cares about concurrent logging. For this purpose we have the `concurrent-playground`
-executable where we experiment with different multithreading scenarios to test the library's behavior.
-You can find it here:
-
-* [tutorials/Concurrent.hs](tutorials/Concurrent.hs)
+smoothly, please [check more details here](./tutorials/README.md).
 
 [hk-img]: https://img.shields.io/hackage/v/co-log.svg?logo=haskell
 [hk-img-ps]: https://img.shields.io/hackage/v/co-log-polysemy.svg?logo=haskell
