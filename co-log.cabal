@@ -23,8 +23,8 @@ extra-doc-files:     CHANGELOG.md
                      README.md
 tested-with:         GHC == 8.10.7
                      GHC == 9.0.2
-                     GHC == 9.2.5
-                     GHC == 9.4.4
+                     GHC == 9.2.8
+                     GHC == 9.4.7
 
 source-repository head
   type:                git
@@ -103,6 +103,8 @@ library
                      , transformers >= 0.5 && < 0.7
                      , typerep-map >= 0.5 && < 0.7
                      , vector >= 0.12.0.3 && < 0.14
+  if impl(ghc < 9.4.5)
+    build-depends:     run-st <= 0.1.3.0
 
 executable play-colog
   import:              common-options
@@ -144,6 +146,9 @@ test-suite test-co-log
 
 test-suite co-log-doctest
   import:              common-options
+  -- Disable `doctest` on windows since it couldn't handle qualified imports reliable (which leads to errors like "Not in scope: `C.timeToOffsetDatetime'").
+  if os(windows)
+    buildable:         False
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Doctest.hs
