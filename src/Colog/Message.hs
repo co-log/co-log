@@ -5,7 +5,6 @@
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedLabels      #-}
 {-# LANGUAGE TypeFamilies          #-}
 
 {- |
@@ -65,21 +64,21 @@ module Colog.Message
        , upgradeMessageAction
        ) where
 
-import Prelude hiding (log)
+import Prelude hiding (lookup, log)
 
 import Control.Concurrent (ThreadId, myThreadId)
 import Control.Exception (Exception, displayException)
 import Control.Monad.IO.Class (MonadIO (..))
+import Data.Dependent.Map (DMap, fromList, lookup)
+import Data.Dependent.Sum (DSum ((:=>)))
 import Data.Kind (Type)
 import Data.Text (Text)
 import Data.Text.Lazy (toStrict)
-import Data.TypeRepMap (TypeRepMap)
-import GHC.Exts (IsList (..))
-import GHC.OverloadedLabels (IsLabel (..))
 import GHC.Stack (CallStack, SrcLoc (..), callStack, getCallStack, withFrozenCallStack)
-import GHC.TypeLits (KnownSymbol, Symbol)
+import GHC.TypeLits (Symbol)
 import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..),
                             setSGRCode)
+import Type.Reflection (TypeRep, typeRep)
 
 import Colog.Core (LogAction, Severity (..), cmap)
 import Colog.Monad (WithLog, logMsg)
@@ -89,7 +88,6 @@ import qualified Chronos.Locale.English as C
 import qualified Data.Text as T
 import qualified Data.Text.Lazy.Builder as TB
 import qualified Data.Text.Lazy.Builder.Int as TB
-import qualified Data.TypeRepMap as TM
 import qualified Data.Vector as Vector
 
 ----------------------------------------------------------------------------
@@ -297,15 +295,6 @@ unMessageField :: forall fieldName m . MessageField m fieldName -> m (FieldType 
 unMessageField (MessageField f) = f
 {-# INLINE unMessageField #-}
 
-instance (KnownSymbol fieldName, a ~ m (FieldType fieldName))
-      => IsLabel fieldName (a -> TM.WrapTypeable (MessageField m)) where
-#if MIN_VERSION_base(4,11,0)
-    fromLabel field = TM.WrapTypeable $ MessageField @fieldName field
-#else
-    fromLabel field = TM.WrapTypeable $ MessageField  @_ @fieldName field
-#endif
-    {-# INLINE fromLabel #-}
-
 -- | Helper function to deal with 'MessageField' when looking it up in the 'FieldMap'.
 extractField
     :: Applicative m
@@ -322,7 +311,7 @@ extractField = traverse unMessageField
 {- | Depedent map from type level strings to the corresponding types. See
 'FieldType' for mapping between names and types.
 -}
-type FieldMap (m :: Type -> Type) = TypeRepMap (MessageField m)
+type FieldMap m = DMap TypeRep (MessageField m)
 
 {- | Default message map that contains actions to extract 'ThreadId' and
 'C.Time'. Basically, the following mapping:
@@ -334,8 +323,8 @@ type FieldMap (m :: Type -> Type) = TypeRepMap (MessageField m)
 -}
 defaultFieldMap :: MonadIO m => FieldMap m
 defaultFieldMap = fromList
-    [ #threadId  (liftIO myThreadId)
-    , #posixTime (liftIO C.now)
+    [ typeRep @"threadId"  :=> MessageField (liftIO myThreadId)
+    , typeRep @"posixTime" :=> MessageField (liftIO C.now)
     ]
 
 {- | Contains additional data to 'Message' to display more verbose information.
@@ -413,8 +402,8 @@ fmtRichMessageCustomDefault
     -> (Maybe ThreadId -> Maybe C.Time -> msg -> Text)
     -> m Text
 fmtRichMessageCustomDefault RichMsg{..} formatter = do
-    maybeThreadId  <- extractField $ TM.lookup @"threadId"  richMsgMap
-    maybePosixTime <- extractField $ TM.lookup @"posixTime" richMsgMap
+    maybeThreadId  <- extractField $ lookup (typeRep @"threadId")  richMsgMap
+    maybePosixTime <- extractField $ lookup (typeRep @"posixTime") richMsgMap
     pure $ formatter maybeThreadId maybePosixTime richMsgMsg
 
 {- | Shows time in the following format:

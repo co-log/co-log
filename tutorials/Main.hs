@@ -28,8 +28,8 @@ import Colog (HasLog (..), LogAction, Message, Msg (..), PureLogger, RichMsg (..
               logWarning, pattern D, runPureLog, upgradeMessageAction, usingLoggerT, withLog,
               withLogTextFile, (*<), (<&), (>$), (>$<), (>*), (>*<), (>|<))
 
-import qualified Data.TypeRepMap as TM
-
+import Data.Dependent.Map (delete)
+import Type.Reflection (typeRep)
 
 example :: WithLog env Message m => m ()
 example = do
@@ -188,7 +188,7 @@ main = withLogTextFile "tutorials/example.log" $ \logTextFile -> do
 
     let fullMessageAction = upgradeMessageAction defaultFieldMap richMessageAction
     let semiMessageAction = upgradeMessageAction
-                                (TM.delete @"threadId" defaultFieldMap)
+                                (delete (typeRep @"threadId") defaultFieldMap)
                                 richMessageAction
 
     runApp simpleMessageAction
