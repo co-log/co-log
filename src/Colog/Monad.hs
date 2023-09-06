@@ -22,6 +22,7 @@ module Colog.Monad
 import Prelude hiding (log)
 
 import Control.Monad.IO.Class (MonadIO (..))
+import Control.Monad.IO.Unlift (MonadUnliftIO (..))
 import Control.Monad.Reader (MonadReader (..), ReaderT (..), asks)
 import Control.Monad.Trans.Class (MonadTrans (..))
 import Data.Foldable (traverse_)
@@ -36,6 +37,7 @@ newtype LoggerT msg m a = LoggerT
     { runLoggerT :: ReaderT (LogAction (LoggerT msg m) msg) m a
     } deriving newtype ( Functor, Applicative, Monad, MonadIO, MonadFail
                        , MonadReader (LogAction (LoggerT msg m) msg)
+                       , MonadUnliftIO
                        )
 
 instance MonadTrans (LoggerT msg) where
