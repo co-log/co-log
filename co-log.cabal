@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                co-log
-version:             0.4.0.2
+version:             0.5.0.0
 synopsis:            Composable Contravariant Comonadic Logging Library
 description:
     The default implementation of logging based on [co-log-core](http://hackage.haskell.org/package/co-log-core).
@@ -15,7 +15,7 @@ license:             MPL-2.0
 license-file:        LICENSE
 author:              Dmitrii Kovanikov
 maintainer:          Kowainik <xrom.xkov@gmail.com>
-copyright:           2018-2020 Kowainik
+copyright:           2018-2023 Kowainik
 category:            Logging, Contravariant, Comonad
 build-type:          Simple
 stability:           provisional
@@ -23,13 +23,15 @@ extra-doc-files:     CHANGELOG.md
                      README.md
 tested-with:         GHC == 8.10.7
                      GHC == 9.0.2
+                     GHC == 9.2.8
+                     GHC == 9.4.7
 
 source-repository head
   type:                git
   location:            https://github.com/kowainik/co-log.git
 
 common common-options
-  build-depends:       base >= 4.14 && < 4.16
+  build-depends:       base >= 4.14 && < 4.18
 
   ghc-options:         -Wall
                        -Wcompat
@@ -71,6 +73,7 @@ common tutorial-options
   if os(windows)
     buildable:         False
   build-depends:       co-log-core
+                       , text
 
   build-tool-depends:  markdown-unlit:markdown-unlit
   ghc-options:         -pgmL markdown-unlit
@@ -94,13 +97,15 @@ library
                      , directory ^>= 1.3.0
                      , exceptions >= 0.8.3
                      , filepath ^>= 1.4.1
-                     , mtl ^>= 2.2.2
+                     , mtl >= 2.2.2 && < 2.4
                      , text >= 1.2.3 && < 2.1
                      , chronos ^>= 1.1 && < 1.2
                      , transformers >= 0.5 && < 0.7
-                     , typerep-map ^>= 0.5
+                     , typerep-map >= 0.5 && < 0.7
                      , unliftio-core ^>= 0.2
-                     , vector ^>= 0.12.0.3
+                     , vector >= 0.12.0.3 && < 0.14
+  if impl(ghc < 9.4.5)
+    build-depends:     run-st <= 0.1.3.0
 
 executable play-colog
   import:              common-options
@@ -131,27 +136,20 @@ executable readme
   build-depends:       co-log
                      , text
 
-executable tutorial-intro
-  import:              tutorial-options
-  main-is:             tutorials/1-intro/Intro.lhs
-
-executable tutorial-custom
-  import:              tutorial-options
-  main-is:             tutorials/2-custom/Custom.lhs
-  build-depends:       co-log
-                     , mtl
-
 test-suite test-co-log
   import:              common-options
   build-depends:       co-log
                      , co-log-core
-                     , hedgehog >= 1.0 && < 1.2
+                     , hedgehog >= 1.0 && < 1.3
   hs-source-dirs:      test
   main-is:             Property.hs
   type:                exitcode-stdio-1.0
 
 test-suite co-log-doctest
   import:              common-options
+  -- Disable `doctest` on windows since it couldn't handle qualified imports reliable (which leads to errors like "Not in scope: `C.timeToOffsetDatetime'").
+  if os(windows)
+    buildable:         False
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Doctest.hs
@@ -159,3 +157,20 @@ test-suite co-log-doctest
   build-depends:       doctest >= 0.16.0 && < 0.21
                      , Glob ^>= 0.10.0
   ghc-options:         -threaded
+
+
+executable tutorial-intro
+  import:              tutorial-options
+  main-is:             tutorials/1-intro/Intro.lhs
+
+executable tutorial-loggert-simple
+  import:              tutorial-options
+  main-is:             tutorials/2-loggert/loggert.lhs
+  build-depends:       co-log
+                     , mtl
+
+executable tutorial-custom
+  import:              tutorial-options
+  main-is:             tutorials/3-custom/Custom.lhs
+  build-depends:       co-log
+                     , mtl

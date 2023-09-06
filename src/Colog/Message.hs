@@ -9,7 +9,7 @@
 {-# LANGUAGE TypeFamilies          #-}
 
 {- |
-Copyright:  (c) 2018-2020 Kowainik
+Copyright:  (c) 2018-2022 Kowainik
 SPDX-License-Identifier: MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
@@ -457,7 +457,7 @@ builderDmyHMSz (C.OffsetDatetime (C.Datetime date time) offset) =
     spaceSep :: TB.Builder
     spaceSep = TB.singleton ' '
 
-    {- | Given a 'Date' construct a 'Text' 'TB.Builder'
+    {- Given a 'Date' construct a 'Text' 'TB.Builder'
     corresponding to a Day\/Month\/Year encoding.
 
     Example: @01 Jan 2020@

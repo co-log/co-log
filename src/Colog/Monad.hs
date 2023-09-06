@@ -1,7 +1,7 @@
 {-# LANGUAGE InstanceSigs #-}
 
 {- |
-Copyright:  (c) 2018-2020 Kowainik
+Copyright:  (c) 2018-2022 Kowainik
 SPDX-License-Identifier: MPL-2.0
 Maintainer: Kowainik <xrom.xkov@gmail.com>
 
@@ -28,14 +28,14 @@ import Control.Monad.Trans.Class (MonadTrans (..))
 import Data.Foldable (traverse_)
 import GHC.Stack (HasCallStack)
 
-import Colog.Core (HasLog (..), LogAction (..), overLogAction, hoistLogAction)
+import Colog.Core (HasLog (..), LogAction (..), hoistLogAction, overLogAction)
 
 
 {- | @newtype@ wrapper 'ReaderT' that keeps 'LogAction' in its context.
 -}
 newtype LoggerT msg m a = LoggerT
     { runLoggerT :: ReaderT (LogAction (LoggerT msg m) msg) m a
-    } deriving newtype ( Functor, Applicative, Monad, MonadIO
+    } deriving newtype ( Functor, Applicative, Monad, MonadIO, MonadFail
                        , MonadReader (LogAction (LoggerT msg m) msg)
                        , MonadUnliftIO
                        )
