@@ -78,6 +78,12 @@ common tutorial-options
   build-tool-depends:  markdown-unlit:markdown-unlit
   ghc-options:         -pgmL markdown-unlit
 
+common tutorial-depends
+  import: tutorial-options
+  build-depends:     co-log
+                     , mtl
+
+
 library
   import:              common-options
   hs-source-dirs:      src
@@ -164,13 +170,14 @@ executable tutorial-intro
   main-is:             tutorials/1-intro/Intro.lhs
 
 executable tutorial-loggert-simple
-  import:              tutorial-options
+  import:              tutorial-depends
   main-is:             tutorials/2-loggert/loggert.lhs
-  build-depends:       co-log
-                     , mtl
+  
+executable tutorial-loggert
+  import:              tutorial-depends
+  main-is:             tutorials/3-loggert-with-message/loggert.lhs
 
 executable tutorial-custom
-  import:              tutorial-options
-  main-is:             tutorials/3-custom/Custom.lhs
-  build-depends:       co-log
-                     , mtl
+  import:              tutorial-depends
+  main-is:             tutorials/custom/Custom.lhs
+
