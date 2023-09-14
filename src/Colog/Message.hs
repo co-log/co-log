@@ -8,9 +8,8 @@
 {-# LANGUAGE TypeFamilies          #-}
 
 {- |
-Copyright:  (c) 2018-2022 Kowainik
+Copyright:  (c) 2018-2022 Kowainik, 2023 Co-Log
 SPDX-License-Identifier: MPL-2.0
-Maintainer: Kowainik <xrom.xkov@gmail.com>
 
 This module contains logging messages data types along with the formatting and
 logging actions for them.
