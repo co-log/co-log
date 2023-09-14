@@ -9,8 +9,8 @@ description:
     .
     * [co-log: Composable Contravariant Combinatorial Comonadic Configurable Convenient Logging](https://kowainik.github.io/posts/2018-09-25-co-log)
 
-homepage:            https://github.com/kowainik/co-log
-bug-reports:         https://github.com/kowainik/co-log/issues
+homepage:            https://github.com/co-log/co-log
+bug-reports:         https://github.com/co-log/co-log/issues
 license:             MPL-2.0
 license-file:        LICENSE
 author:              Dmitrii Kovanikov
@@ -29,7 +29,7 @@ tested-with:         GHC == 8.10.7
 
 source-repository head
   type:                git
-  location:            https://github.com/kowainik/co-log.git
+  location:            https://github.com/co-log/co-log.git
 
 common common-options
   build-depends:       base >= 4.14 && < 4.19
