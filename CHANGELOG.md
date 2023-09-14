@@ -3,6 +3,31 @@
 `co-log` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 0.6.0.0 - Sep 18, 2023
+
+### What's Changed
+
+* Support GHC-9.6 - replace `typerep-map` with `dependent-map`. by @alaendle in [#264](https://github.com/co-log/co-log/pull/264)
+* Support GHC 9.4. by @alaendle in [#252](https://github.com/co-log/co-log/pull/252)
+* Add MonadUnliftIO instance by @newhoggy in [#240](https://github.com/co-log/co-log/pull/240)
+* Update CI tested GHC versions & workaround for GHC < 9.4.5 (run-st, primitive-unlifted) by @alaendle in [#257](https://github.com/co-log/co-log/pull/257)
+* Derive `MonadFail` for `LoggerT` by @alaendle in [#260](https://github.com/co-log/co-log/pull/260)
+* docs: use relative path to benefit locally reading by @xieyuschen in [#253](https://github.com/co-log/co-log/pull/253)
+* docs: refine readme by @xieyuschen in [#254](https://github.com/co-log/co-log/pull/254)
+* tutorials: add demo for LoggerT and SimpleMsg, #84 by @xieyuschen in [#256](https://github.com/co-log/co-log/pull/256)
+* docs: add a link to tutorial pages and aggregate all tutorial pages by @xieyuschen in [#259](https://github.com/co-log/co-log/pull/259)
+* tutorials: add a tutorial for loggert and message by @xieyuschen in [#261](https://github.com/co-log/co-log/pull/261)
+* Create tags and upload package candidates on version bumps. by @alaendle in [#265](https://github.com/co-log/co-log/pull/265)
+* Added @alaendle as code owner. by @alaendle in [#258](https://github.com/co-log/co-log/pull/258)
+* GA(deps): Bump actions/checkout from 3 to 4 by @dependabot in [#263](https://github.com/co-log/co-log/pull/263)
+
+### New Contributors
+
+* @xieyuschen made their first contribution in [#253](https://github.com/co-log/co-log/pull/253)
+* @newhoggy made their first contribution in [#240](https://github.com/co-log/co-log/pull/240)
+
+**Full Changelog**: https://github.com/co-log/co-log/compare/v0.5.0.0...v0.6.0.0
+
 ## 0.5.0.0 - Nov 2, 2022
 
 * [#230](https://github.com/co-log/co-log/issues/230):
