@@ -74,7 +74,7 @@ common tutorial-options
   if os(windows)
     buildable:         False
   build-depends:       co-log-core
-                       , markdown-unlit >= 0.6.0 && < 0.7
+                       , markdown-unlit >= 0.5.0 && < 0.7
                        , text
 
   build-tool-depends:  markdown-unlit:markdown-unlit
