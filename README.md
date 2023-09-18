@@ -2,8 +2,8 @@
 
 <img align="left" width="180" height="180" src="https://user-images.githubusercontent.com/8126674/80955687-92f21a80-8df7-11ea-90d3-422dafdc8391.png">
 
-[![GitHub CI](https://github.com/kowainik/co-log/workflows/CI/badge.svg)](https://github.com/kowainik/co-log/actions)
-[![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/kowainik/co-log/blob/main/LICENSE)
+[![GitHub CI](https://github.com/co-log/co-log/workflows/CI/badge.svg)](https://github.com/co-log/co-log/actions)
+[![MPL-2.0 license](https://img.shields.io/badge/license-MPL--2.0-blue.svg)](https://github.com/co-log/co-log/blob/main/LICENSE)
 
 `co-log` is a composable and configurable logging framework. It
 combines all the benefits of Haskell idioms to provide a reasonable

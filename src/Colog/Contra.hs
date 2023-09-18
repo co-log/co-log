@@ -3,9 +3,8 @@
 {-# LANGUAGE CPP #-}
 
 {- |
-Copyright:  (c) 2018-2022 Kowainik
+Copyright:  (c) 2018-2022 Kowainik, 2023 Co-Log
 SPDX-License-Identifier: MPL-2.0
-Maintainer: Kowainik <xrom.xkov@gmail.com>
 
 This module contains 'LogAction' orphan instances of @contravariant@ classes.
 -}
