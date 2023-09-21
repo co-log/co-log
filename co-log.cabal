@@ -1,6 +1,6 @@
 cabal-version:       2.4
 name:                co-log
-version:             0.6.0.1
+version:             0.6.0.2
 synopsis:            Composable Contravariant Comonadic Logging Library
 description:
     The default implementation of logging based on [co-log-core](http://hackage.haskell.org/package/co-log-core).
@@ -26,6 +26,10 @@ tested-with:         GHC == 8.10.7
                      GHC == 9.2.8
                      GHC == 9.4.7
                      GHC == 9.6.2
+
+flag tutorial
+  description: Controls if tutorials get build (mainly to avoid building them on hackage).
+  default: False
 
 source-repository head
   type:                git
@@ -71,13 +75,12 @@ common common-options
 
 common tutorial-options
   import:              common-options
-  if os(windows)
+  if os(windows) || !flag(tutorial)
     buildable:         False
   build-depends:       co-log-core
-                       , markdown-unlit >= 0.5.0 && < 0.7
                        , text
 
-  build-tool-depends:  markdown-unlit:markdown-unlit
+  build-tool-depends:  markdown-unlit:markdown-unlit >= 0.5.0 && < 0.7
   ghc-options:         -pgmL markdown-unlit
 
 common tutorial-depends
@@ -90,12 +93,12 @@ library
   import:              common-options
   hs-source-dirs:      src
   exposed-modules:     Colog
-                           Colog.Actions
-                           Colog.Contra
-                           Colog.Message
-                           Colog.Monad
-                           Colog.Pure
-                           Colog.Rotation
+                       Colog.Actions
+                       Colog.Contra
+                       Colog.Message
+                       Colog.Monad
+                       Colog.Pure
+                       Colog.Rotation
 
   build-depends:       ansi-terminal >= 1.0 && < 1.1
                      , bytestring >= 0.10.8 && < 0.13
