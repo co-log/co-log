@@ -68,16 +68,15 @@ import Prelude hiding (lookup, log)
 import Control.Concurrent (ThreadId, myThreadId)
 import Control.Exception (Exception, displayException)
 import Control.Monad.IO.Class (MonadIO (..))
-import Data.Dependent.Map (DMap, fromList, lookup)
-import Data.Dependent.Sum (DSum ((:=>)))
 import Data.Kind (Type)
+import Data.Map.Strict (Map, fromList, lookup)
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import Data.Text.Lazy (toStrict)
 import GHC.Stack (CallStack, SrcLoc (..), callStack, getCallStack, withFrozenCallStack)
 import GHC.TypeLits (Symbol)
 import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..),
                             setSGRCode)
-import Type.Reflection (TypeRep, typeRep)
 
 import Colog.Core (LogAction, Severity (..), cmap)
 import Colog.Monad (WithLog, logMsg)
@@ -310,7 +309,7 @@ extractField = traverse unMessageField
 {- | Depedent map from type level strings to the corresponding types. See
 'FieldType' for mapping between names and types.
 -}
-type FieldMap m = DMap TypeRep (MessageField m)
+type FieldMap m = Map String (m Text)
 
 {- | Default message map that contains actions to extract 'ThreadId' and
 'C.Time'. Basically, the following mapping:
@@ -322,8 +321,8 @@ type FieldMap m = DMap TypeRep (MessageField m)
 -}
 defaultFieldMap :: MonadIO m => FieldMap m
 defaultFieldMap = fromList
-    [ typeRep @"threadId"  :=> MessageField (liftIO myThreadId)
-    , typeRep @"posixTime" :=> MessageField (liftIO C.now)
+    [ ("threadId", showThreadId <$> liftIO myThreadId)
+    , ("posixTime", showTime <$> liftIO C.now)
     ]
 
 {- | Contains additional data to 'Message' to display more verbose information.
@@ -356,8 +355,8 @@ See 'fmtMessage' if you don't need both time and thread ID.
 fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
 fmtRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
   where
-    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Message -> Text
-    formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Msg{..} =
+    formatRichMessage :: Text -> Text -> Message -> Text
+    formatRichMessage thread time Msg{..} =
         showSeverity msgSeverity
      <> time
      <> showSourceLoc msgStack
@@ -384,8 +383,8 @@ Practically, it formats a message as 'fmtRichMessageDefault' without the severit
 fmtSimpleRichMessageDefault :: MonadIO m => RichMsg m SimpleMsg -> m Text
 fmtSimpleRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
   where
-    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> SimpleMsg -> Text
-    formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) SimpleMsg{..} =
+    formatRichMessage :: Text -> Text -> SimpleMsg -> Text
+    formatRichMessage thread time SimpleMsg{..} =
         time
      <> showSourceLoc simpleMsgStack
      <> thread
@@ -398,12 +397,12 @@ and 'C.Time' from fields and allows you to specify how to format them.
 fmtRichMessageCustomDefault
     :: MonadIO m
     => RichMsg m msg
-    -> (Maybe ThreadId -> Maybe C.Time -> msg -> Text)
+    -> (Text -> Text -> msg -> Text)
     -> m Text
 fmtRichMessageCustomDefault RichMsg{..} formatter = do
-    maybeThreadId  <- extractField $ lookup (typeRep @"threadId")  richMsgMap
-    maybePosixTime <- extractField $ lookup (typeRep @"posixTime") richMsgMap
-    pure $ formatter maybeThreadId maybePosixTime richMsgMsg
+    maybeThreadId  <- sequence $ lookup "threadId" richMsgMap
+    maybePosixTime <- sequence $ lookup "posixTime" richMsgMap
+    pure $ formatter (fromMaybe "" maybeThreadId) (fromMaybe "" maybePosixTime) richMsgMsg
 
 {- | Shows time in the following format:
 

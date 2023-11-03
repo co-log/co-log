@@ -2,6 +2,7 @@
 dist
 dist-*
 cabal-dev
+package.db
 *.o
 *.hi
 *.chi
