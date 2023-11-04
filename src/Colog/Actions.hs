@@ -30,7 +30,7 @@ import System.IO (Handle, IOMode (AppendMode), stderr, stdout, withFile)
 
 import Colog.Core.Action (LogAction (..), cmapM, (>$<))
 import Colog.Core.IO (logFlush)
-import Colog.Message (Message, defaultFieldMap, fmtMessage, fmtRichMessageDefault,
+import Colog.Message (Message, defaultFieldFmt, fmtMessage, fmtRichMessageDefault,
                       upgradeMessageAction)
 
 import qualified Data.ByteString as BS
@@ -136,7 +136,7 @@ simpleMessageAction = encodeUtf8 . fmtMessage >$< logByteStringStdout
 'Message' for it to 'stdout'.
 -}
 richMessageAction :: MonadIO m => LogAction m Message
-richMessageAction = upgradeMessageAction defaultFieldMap $
+richMessageAction = upgradeMessageAction defaultFieldFmt $
     cmapM (fmap encodeUtf8 . fmtRichMessageDefault) logByteStringStdout
 {-# INLINE richMessageAction #-}
 {-# SPECIALIZE richMessageAction :: LogAction IO Message #-}
