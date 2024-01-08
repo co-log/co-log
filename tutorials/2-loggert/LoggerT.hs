@@ -8,28 +8,33 @@
 
 module Main (main) where
 
+import Control.Monad.Reader
+import GHC.Stack
 import Prelude hiding (log)
 import Data.Text (Text,append)
-import Colog ( LogAction, SimpleMsg , usingLoggerT,
+import Colog ( LogAction, SimpleMsg(..), usingLoggerT, LoggerT, (<&),
               WithLog, cmap, logText,fmtSimpleMessage,formatWith,
-              logTextStderr,logTextStdout
+              logTextStderr,logTextStdout, getLogAction
               )
 
+-- logTextExample1 asks a logger from the LoggerT monad transformer, and then writes the text into the LogAction
+-- it doesn't print the stack information correctly as it requires more work to handle it
+logTextExample1 :: Monad m => LoggerT SimpleMsg m ()
+logTextExample1 = 
+    asks getLogAction >>= \logger ->
+        logger <& SimpleMsg{ 
+            simpleMsgStack = callStack
+            , simpleMsgText = "this is a demo log for simple message!" 
+            }
 
-example1 :: WithLog env SimpleMsg m => m ()
-example1 = do
-    logText "this is a demo log for simple message!"
-
-example2 :: WithLog env SimpleMsg m => m ()
-example2 = do
-    logText "you see the demo log for simple message again!\n"
-    
+-- logTextExample2 logs the text down with the respective call stack information by the logger carried by env
+-- logTextExample2 is an equivalent version of LoggerT as logTextExample1 with more features so we recommend you to use it
+logTextExample2 :: WithLog env SimpleMsg m => m ()
+logTextExample2 = do
+    logText "you see the demo log for simple message again!"
 
 logStdoutAction :: LogAction IO SimpleMsg
 logStdoutAction = cmap fmtSimpleMessage logTextStdout
-
-logStdErrAction :: LogAction IO SimpleMsg
-logStdErrAction = formatWith fmtSimpleMessage logTextStderr
 
 selfDefinedFmtSimpleMessage :: SimpleMsg -> Text
 selfDefinedFmtSimpleMessage = append "+ self defined behavior: " . fmtSimpleMessage
@@ -39,9 +44,6 @@ logByOwnFormatterAction = formatWith selfDefinedFmtSimpleMessage logTextStderr
 
 main :: IO ()
 main = do
-    usingLoggerT logStdoutAction example1
-    usingLoggerT logStdoutAction example2
-    usingLoggerT logStdErrAction example1
-    usingLoggerT logStdErrAction example2
-    usingLoggerT logByOwnFormatterAction example1
-    usingLoggerT logByOwnFormatterAction example2
+    usingLoggerT logStdoutAction logTextExample1
+    usingLoggerT logStdoutAction logTextExample2
+    usingLoggerT logByOwnFormatterAction logTextExample1

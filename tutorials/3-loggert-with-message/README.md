@@ -112,6 +112,6 @@ main = do
     usingLoggerT richMessageAction example2
 ```
 
-Run command `cabal new-run tutorial-loggert`, and the output will look like this:
+Run command `cabal new-run tutorial-loggert --flag=tutorial`, and the output will look like this:
 
 ![](../img/3-loggert-message.jpg)
