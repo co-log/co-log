@@ -1,11 +1,11 @@
 # Simple Message and LoggerT
 
-This tutorial will show you how to use LoggerT and Simple message to log in with more information in a more flexiable way.
+This tutorial will show you how to use LoggerT and Simple message to log with more information in a more flexible way.
 
 You can run this tutorial by executing the following command:
 
 ```shell
-cabal new-run tutorial-loggert-simple
+cabal new-run tutorial-loggert-simple --flag=tutorial
 ```
 
 ## Preamble: imports and language extensions
@@ -41,12 +41,12 @@ computation of logging.
 The `WithLog` constraint has three type parameters: the application environment,
 the type of the message and the monad. The actions constraint by `WithLog` could be used as `LoggerT`.
 
-In this example, we use a `LoggerT` monad transformer and a monadic action with `WithLog` constraint to perform log.
+In this example, we use a `LoggerT` monad transformer and a monadic action with `WithLog` constraint to perform log (the preferred way).
 
 ```haskell
 -- logTextExample1 asks a logger from the LoggerT monad transformer, and then writes the text into the LogAction
--- it doesn't print the stack information correctly as it requires more work to handle it
-logTextExample1 :: Monad m => LoggerT SimpleMsg m ()
+-- it needs `HasCallStack` to print the stack information correctly
+logTextExample1 :: (HasCallStack, Monad m) => LoggerT SimpleMsg m ()
 logTextExample1 = 
     asks getLogAction >>= \logger ->
         logger <& SimpleMsg{ 
@@ -79,6 +79,9 @@ to combine it with the `LogAction`.
 ```haskell
 logStdoutAction :: LogAction IO SimpleMsg
 logStdoutAction = cmap fmtSimpleMessage logTextStdout
+
+logStdErrAction :: LogAction IO SimpleMsg
+logStdErrAction = formatWith fmtSimpleMessage logTextStderr
 ```
 
 What's more, it's possible to define an own formatter.
@@ -97,10 +100,13 @@ Now we are ready to execute those actions defined above.
 
 ```haskell
 main :: IO ()
-main = do 
+main = do
     usingLoggerT logStdoutAction logTextExample1
     usingLoggerT logStdoutAction logTextExample2
+    usingLoggerT logStdErrAction logTextExample1
+    usingLoggerT logStdErrAction logTextExample2
     usingLoggerT logByOwnFormatterAction logTextExample1
+    usingLoggerT logByOwnFormatterAction logTextExample2
 ```
 
 Run command `cabal new-run tutorial-loggert-simple --flag=tutorial`.

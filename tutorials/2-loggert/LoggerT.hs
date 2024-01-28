@@ -18,8 +18,8 @@ import Colog ( LogAction, SimpleMsg(..), usingLoggerT, LoggerT, (<&),
               )
 
 -- logTextExample1 asks a logger from the LoggerT monad transformer, and then writes the text into the LogAction
--- it doesn't print the stack information correctly as it requires more work to handle it
-logTextExample1 :: Monad m => LoggerT SimpleMsg m ()
+-- it needs `HasCallStack` to print the stack information correctly
+logTextExample1 :: (HasCallStack, Monad m) => LoggerT SimpleMsg m ()
 logTextExample1 = 
     asks getLogAction >>= \logger ->
         logger <& SimpleMsg{ 
@@ -36,6 +36,9 @@ logTextExample2 = do
 logStdoutAction :: LogAction IO SimpleMsg
 logStdoutAction = cmap fmtSimpleMessage logTextStdout
 
+logStdErrAction :: LogAction IO SimpleMsg
+logStdErrAction = formatWith fmtSimpleMessage logTextStderr
+
 selfDefinedFmtSimpleMessage :: SimpleMsg -> Text
 selfDefinedFmtSimpleMessage = append "+ self defined behavior: " . fmtSimpleMessage
 
@@ -46,4 +49,7 @@ main :: IO ()
 main = do
     usingLoggerT logStdoutAction logTextExample1
     usingLoggerT logStdoutAction logTextExample2
+    usingLoggerT logStdErrAction logTextExample1
+    usingLoggerT logStdErrAction logTextExample2
     usingLoggerT logByOwnFormatterAction logTextExample1
+    usingLoggerT logByOwnFormatterAction logTextExample2
