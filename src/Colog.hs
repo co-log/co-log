@@ -1,5 +1,5 @@
 {- |
-Copyright:  (c) 2018-2022 Kowainik, 2023 Co-Log
+Copyright:  (c) 2018-2022 Kowainik, 2023-2024 Co-Log
 SPDX-License-Identifier: MPL-2.0
 
 This package contains @mtl@ implementation of composable, contravariant and

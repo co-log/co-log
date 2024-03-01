@@ -3,6 +3,9 @@
 `co-log` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 0.6.1.0 - Mar 1, 2024
+
+
 ## 0.6.0.0 - Sep 18, 2023
 
 ### What's Changed
