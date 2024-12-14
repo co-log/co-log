@@ -27,6 +27,7 @@ tested-with:         GHC == 8.10.7
                      GHC == 9.4.8
                      GHC == 9.6.4
                      GHC == 9.8.2
+                     GHC == 9.10.1
 
 flag tutorial
   description: Controls if tutorials get build (mainly to avoid building them on hackage).
@@ -37,7 +38,7 @@ source-repository head
   location:            https://github.com/co-log/co-log.git
 
 common common-options
-  build-depends:       base >= 4.14 && < 4.20
+  build-depends:       base >= 4.14 && < 4.21
 
   ghc-options:         -Wall
                        -Wcompat
