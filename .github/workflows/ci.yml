@@ -26,6 +26,7 @@ jobs:
           - 9.4.8
           - 9.6.4
           - 9.8.2
+          - 9.10.1
         exclude:
           - os: macOS-latest
             ghc: 8.10.7
@@ -51,7 +52,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: haskell/actions/setup@v2
+    - uses: haskell-actions/setup@v2
       id: setup-haskell-cabal
       name: Setup Haskell
       with:
