@@ -8,6 +8,7 @@ if impl (ghc >= 9.12)
     , aeson:ghc-prim
     , aeson:template-haskell
     , bytebuild:base
+    , chronos:Win32
     , constraints-extras:base
     , constraints-extras:template-haskell
     , hashable:base
