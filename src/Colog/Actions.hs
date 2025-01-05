@@ -1,5 +1,5 @@
 {- |
-Copyright:  (c) 2018-2022 Kowainik, 2023-2024 Co-Log
+Copyright:  (c) 2018-2022 Kowainik, 2023-2025 Co-Log
 SPDX-License-Identifier: MPL-2.0
 
 Logging actions for various text types.

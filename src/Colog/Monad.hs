@@ -1,7 +1,7 @@
 {-# LANGUAGE InstanceSigs #-}
 
 {- |
-Copyright:  (c) 2018-2022 Kowainik, 2023-2024 Co-Log
+Copyright:  (c) 2018-2022 Kowainik, 2023-2025 Co-Log
 SPDX-License-Identifier: MPL-2.0
 
 Core of the @mtl@ implementation.

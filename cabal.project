@@ -1,0 +1,16 @@
+packages:
+  .
+
+tests: True
+
+if impl (ghc >= 9.12)
+  allow-newer:
+    , aeson:ghc-prim
+    , aeson:template-haskell
+    , bytebuild:base
+    , constraints-extras:base
+    , constraints-extras:template-haskell
+    , hashable:base
+    , haskell-src-meta:template-haskell
+
+    , hedgehog:template-haskell

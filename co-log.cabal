@@ -15,7 +15,7 @@ license:             MPL-2.0
 license-file:        LICENSE
 author:              Dmitrii Kovanikov
 maintainer:          Kowainik <xrom.xkov@gmail.com>
-copyright:           2018-2022 Kowainik, 2023-2024 Co-Log
+copyright:           2018-2022 Kowainik, 2023-2025 Co-Log
 category:            Logging, Contravariant, Comonad
 build-type:          Simple
 stability:           provisional
@@ -25,9 +25,10 @@ tested-with:         GHC == 8.10.7
                      GHC == 9.0.2
                      GHC == 9.2.8
                      GHC == 9.4.8
-                     GHC == 9.6.4
-                     GHC == 9.8.2
+                     GHC == 9.6.6
+                     GHC == 9.8.4
                      GHC == 9.10.1
+                     GHC == 9.12.1
 
 flag tutorial
   description: Controls if tutorials get build (mainly to avoid building them on hackage).
@@ -38,7 +39,7 @@ source-repository head
   location:            https://github.com/co-log/co-log.git
 
 common common-options
-  build-depends:       base >= 4.14 && < 4.21
+  build-depends:       base >= 4.14 && < 4.22
 
   ghc-options:         -Wall
                        -Wcompat
@@ -154,7 +155,7 @@ test-suite test-co-log
   import:              common-options
   build-depends:       co-log
                      , co-log-core
-                     , hedgehog >= 1.0 && < 1.5
+                     , hedgehog >= 1.0 && < 1.6
   hs-source-dirs:      test
   main-is:             Property.hs
   type:                exitcode-stdio-1.0
@@ -168,7 +169,7 @@ test-suite co-log-doctest
   hs-source-dirs:      test
   main-is:             Doctest.hs
 
-  build-depends:       doctest >= 0.16.0 && < 0.23
+  build-depends:       doctest >= 0.16.0 && < 0.24
                      , Glob ^>= 0.10.0
   ghc-options:         -threaded
 
