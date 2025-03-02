@@ -3,6 +3,14 @@
 `co-log` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 0.6.1.2 - March 2, 2025
+
+## What's Changed
+
+* Allow `containers-0.8`.
+
+**Full Changelog**: https://github.com/co-log/co-log/compare/v0.6.1.1...v0.6.1.2
+
 ## 0.6.1.1 - January 5, 2025
 
 ## What's Changed
