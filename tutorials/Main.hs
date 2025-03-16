@@ -22,14 +22,12 @@ import Control.Monad.IO.Class (MonadIO (..))
 import Control.Monad.Reader (MonadReader, ReaderT (..))
 
 import Colog (HasLog (..), LogAction, Message, Msg (..), PureLogger, RichMsg (..), SimpleMsg (..),
-              WithLog, cmap, cmapM, defaultFieldMap, fmtMessage, fmtRichMessageDefault,
+              WithLog, cmap, cmapM, defaultFieldFmt, defaultFieldFmtSimple, fmtMessage, fmtRichMessageDefault,
               fmtSimpleRichMessageDefault, liftLogIO, log, logException, logInfo, logMessagePure,
               logMsg, logMsgs, logPrint, logStringStdout, logText, logTextStderr, logTextStdout,
               logWarning, pattern D, runPureLog, upgradeMessageAction, usingLoggerT, withLog,
-              withLogTextFile, (*<), (<&), (>$), (>$<), (>*), (>*<), (>|<))
-
-import Data.Dependent.Map (delete)
-import Type.Reflection (typeRep)
+              withLogTextFile, showSeverity, (*<), (<&), (>$), (>$<), (>*), (>*<), (>|<), FieldFmt, showSourceLoc, timeFmt)
+import Control.Monad ((<=<))
 
 example :: WithLog env Message m => m ()
 example = do
@@ -164,6 +162,16 @@ logFoo = usingFooM env foo
         }
 
 ----------------------------------------------------------------------------
+-- custom formatting
+----------------------------------------------------------------------------
+
+semiFieldFmt :: MonadIO m => FieldFmt m Message
+semiFieldFmt msg =
+  let sevFmt   = pure . (showSeverity (msgSeverity (richMsgMsg msg)) <>)
+      stackFmt = pure . (showSourceLoc (msgStack (richMsgMsg msg)) <>)
+  in sevFmt <=< timeFmt <=< stackFmt
+
+----------------------------------------------------------------------------
 -- main runner
 ----------------------------------------------------------------------------
 
@@ -184,11 +192,11 @@ main = withLogTextFile "tutorials/example.log" $ \logTextFile -> do
         richSimpleAction = cmapM fmtSimpleRichMessageDefault textAction
 
     let simpleAction :: LogAction IO SimpleMsg
-        simpleAction = upgradeMessageAction defaultFieldMap richSimpleAction
+        simpleAction = upgradeMessageAction defaultFieldFmtSimple richSimpleAction
 
-    let fullMessageAction = upgradeMessageAction defaultFieldMap richMessageAction
+    let fullMessageAction = upgradeMessageAction defaultFieldFmt richMessageAction
     let semiMessageAction = upgradeMessageAction
-                                (delete (typeRep @"threadId") defaultFieldMap)
+                                semiFieldFmt
                                 richMessageAction
 
     runApp simpleMessageAction

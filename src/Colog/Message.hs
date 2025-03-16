@@ -1,6 +1,5 @@
 {-# LANGUAGE CPP                   #-}
 {-# LANGUAGE DataKinds             #-}
-{-# LANGUAGE DeriveFunctor         #-}
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE GADTs                 #-}
@@ -45,21 +44,18 @@ module Colog.Message
        , showThreadId
 
          -- * Externally extensible message type
-         -- ** Field of the dependent map
-       , FieldType
-       , MessageField (..)
-       , unMessageField
-       , extractField
-         -- ** Dependent map that allows to extend logging message
-       , FieldMap
-       , defaultFieldMap
+         -- ** Formatter
+       , FieldFmt
+       , defaultFieldFmt
+       , defaultFieldFmtSimple
+       , timeFmt
+       , threadFmt
 
          -- ** Extensible message
        , RichMessage
        , RichMsg (..)
        , fmtRichMessageDefault
        , fmtSimpleRichMessageDefault
-       , fmtRichMessageCustomDefault
        , upgradeMessageAction
        ) where
 
@@ -67,17 +63,14 @@ import Prelude hiding (lookup, log)
 
 import Control.Concurrent (ThreadId, myThreadId)
 import Control.Exception (Exception, displayException)
+import Control.Monad ((<=<))
 import Control.Monad.IO.Class (MonadIO (..))
-import Data.Dependent.Map (DMap, fromList, lookup)
-import Data.Dependent.Sum (DSum ((:=>)))
 import Data.Kind (Type)
 import Data.Text (Text)
 import Data.Text.Lazy (toStrict)
 import GHC.Stack (CallStack, SrcLoc (..), callStack, getCallStack, withFrozenCallStack)
-import GHC.TypeLits (Symbol)
 import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..),
                             setSGRCode)
-import Type.Reflection (TypeRep, typeRep)
 
 import Colog.Core (LogAction, Severity (..), cmap)
 import Colog.Monad (WithLog, logMsg)
@@ -215,7 +208,7 @@ formatWith :: (msg -> Text) -> LogAction m Text -> LogAction m msg
 formatWith = cmap
 {-# INLINE formatWith #-}
 
-{- | Formats severity in different colours with alignment.
+{- | Formats severity in different colors with alignment.
 -}
 showSeverity :: Severity -> Text
 showSeverity = \case
@@ -252,90 +245,60 @@ showSourceLoc cs = square showCallStack
     showLoc name SrcLoc{..} =
         T.pack srcLocModule <> "." <> T.pack name <> "#" <> T.pack (show srcLocStartLine)
 
-----------------------------------------------------------------------------
--- Externally extensible message
-----------------------------------------------------------------------------
 
-{- | Open type family that maps some user defined tags (type names) to actual
-types. The type family is open so you can add new instances.
+{- | Formatter for fields of a message.
 -}
-type family FieldType (fieldName :: Symbol) :: Type
-type instance FieldType "threadId"  = ThreadId
-type instance FieldType "posixTime" = C.Time
+type FieldFmt m msg = RichMsg m msg -> Text -> m Text
 
-{- | @newtype@ wrapper. Stores monadic ability to extract value of 'FieldType'.
-
-__Implementation detail:__ this exotic writing of 'MessageField' is required in
-order to use it nicer with type applications. So users can write
+{- | Default message field formatter that provides the following format:
 
 @
-MessageField @"threadId" myThreadId
-@
-
-instead of
-
-@
-MessageField @_ @"threadId" myThreadId
-@
-
-Simpler version of this @newtype@:
-
-@
-newtype MessageField m fieldName = MessageField
-    { unMesssageField :: m (FieldType fieldName)
-    }
+[Severity] [Time] [SourceLocation] [ThreadId] \<Text message\>
 @
 -}
-newtype MessageField (m :: Type -> Type) (fieldName :: Symbol) where
-    MessageField :: forall fieldName m . m (FieldType fieldName) -> MessageField m fieldName
+defaultFieldFmt :: MonadIO m => FieldFmt m Message
+defaultFieldFmt msg =
+  let sevFmt   = pure . (showSeverity (msgSeverity (richMsgMsg msg)) <>)
+      stackFmt = pure . (showSourceLoc (msgStack (richMsgMsg msg)) <>)
+  in sevFmt <=< timeFmt <=< stackFmt <=< threadFmt
 
--- | Extracts field from the 'MessageField' constructor.
-unMessageField :: forall fieldName m . MessageField m fieldName -> m (FieldType fieldName)
-unMessageField (MessageField f) = f
-{-# INLINE unMessageField #-}
-
--- | Helper function to deal with 'MessageField' when looking it up in the 'FieldMap'.
-extractField
-    :: Applicative m
-    => Maybe (MessageField m fieldName)
-    -> m (Maybe (FieldType fieldName))
-extractField = traverse unMessageField
-{-# INLINE extractField #-}
-
--- same as:
--- extractField = \case
---    Nothing -> pure Nothing
---    Just (MessageField field) -> Just <$> field
-
-{- | Depedent map from type level strings to the corresponding types. See
-'FieldType' for mapping between names and types.
--}
-type FieldMap m = DMap TypeRep (MessageField m)
-
-{- | Default message map that contains actions to extract 'ThreadId' and
-'C.Time'. Basically, the following mapping:
+{- | Default message field formatter that provides the following format:
 
 @
-"threadId"  -> 'myThreadId'
-"posixTime" -> 'C.now'
+[Time] [SourceLocation] [ThreadId] \<Text message\>
 @
 -}
-defaultFieldMap :: MonadIO m => FieldMap m
-defaultFieldMap = fromList
-    [ typeRep @"threadId"  :=> MessageField (liftIO myThreadId)
-    , typeRep @"posixTime" :=> MessageField (liftIO C.now)
-    ]
+defaultFieldFmtSimple :: MonadIO m => FieldFmt m SimpleMsg
+defaultFieldFmtSimple msg =
+  let stackFmt = pure . (showSourceLoc (simpleMsgStack (richMsgMsg msg)) <>)
+  in timeFmt <=< stackFmt <=< threadFmt
+
+{- | Convenience function to format time field. Basically appends something like:
+
+@
+[03 May 2019 05:23:19.058 +00:00]
+@
+-}
+timeFmt :: MonadIO m => Text -> m Text
+timeFmt t = (<> t) . showTime <$> liftIO C.now
+
+{- | Convenience function to format thread field. Basically appends something like:
+
+@
+[ThreadId 11]
+@
+-}
+threadFmt :: MonadIO m => Text -> m Text
+threadFmt t = (<> t) . showThreadId <$> liftIO myThreadId
 
 {- | Contains additional data to 'Message' to display more verbose information.
-
-@since 0.4.0.0
 -}
 data RichMsg (m :: Type -> Type) (msg :: Type) = RichMsg
     { richMsgMsg :: !msg
-    , richMsgMap :: {-# UNPACK #-} !(FieldMap m)
-    } deriving stock (Functor)
+    , richMsgFmt :: !(RichMsg m msg -> Text -> m Text)
+    }
 
--- | Specialised version of 'RichMsg' that stores severity, callstack and text message.
+-- | Specialized version of 'RichMsg' that stores severity, callstack and text message.
 type RichMessage m = RichMsg m Message
 
 {- | Formats 'RichMessage' in the following way:
@@ -353,16 +316,8 @@ __Examples:__
 
 See 'fmtMessage' if you don't need both time and thread ID.
 -}
-fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
-fmtRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
-  where
-    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Message -> Text
-    formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Msg{..} =
-        showSeverity msgSeverity
-     <> time
-     <> showSourceLoc msgStack
-     <> thread
-     <> msgText
+fmtRichMessageDefault :: RichMessage m -> m Text
+fmtRichMessageDefault msg = richMsgFmt msg msg (msgText (richMsgMsg msg))
 
 {- | Formats 'RichMessage' in the following way:
 
@@ -381,29 +336,8 @@ Practically, it formats a message as 'fmtRichMessageDefault' without the severit
 
 @since 0.4.0.0
 -}
-fmtSimpleRichMessageDefault :: MonadIO m => RichMsg m SimpleMsg -> m Text
-fmtSimpleRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
-  where
-    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> SimpleMsg -> Text
-    formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) SimpleMsg{..} =
-        time
-     <> showSourceLoc simpleMsgStack
-     <> thread
-     <> simpleMsgText
-{- | Custom formatting function for 'RichMsg'. It extracts 'ThreadId'
-and 'C.Time' from fields and allows you to specify how to format them.
-
-@since 0.4.0.0
--}
-fmtRichMessageCustomDefault
-    :: MonadIO m
-    => RichMsg m msg
-    -> (Maybe ThreadId -> Maybe C.Time -> msg -> Text)
-    -> m Text
-fmtRichMessageCustomDefault RichMsg{..} formatter = do
-    maybeThreadId  <- extractField $ lookup (typeRep @"threadId")  richMsgMap
-    maybePosixTime <- extractField $ lookup (typeRep @"posixTime") richMsgMap
-    pure $ formatter maybeThreadId maybePosixTime richMsgMsg
+fmtSimpleRichMessageDefault :: RichMsg m SimpleMsg -> m Text
+fmtSimpleRichMessageDefault msg = richMsgFmt msg msg (simpleMsgText (richMsgMsg msg))
 
 {- | Shows time in the following format:
 
@@ -496,14 +430,14 @@ __>>__ showThreadId <$> Control.Concurrent.myThreadId
 showThreadId :: ThreadId -> Text
 showThreadId = square . T.pack . show
 
-{- | Allows to extend basic 'Message' type with given dependent map of fields.
+{- | Switch to the given field formatting.
 -}
 upgradeMessageAction
     :: forall m msg .
-       FieldMap m
+       FieldFmt m msg
     -> LogAction m (RichMsg m msg)
     -> LogAction m msg
-upgradeMessageAction fieldMap = cmap addMap
+upgradeMessageAction fieldMmt = cmap addFmt
   where
-    addMap :: msg -> RichMsg m msg
-    addMap msg = RichMsg msg fieldMap
+    addFmt :: msg -> RichMsg m msg
+    addFmt msg = RichMsg msg fieldMmt
