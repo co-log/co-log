@@ -6,7 +6,7 @@ using `co-log`'s core data types and functions.
 You can run this tutorial by executing the following command:
 
 ```shell
-cabal new-run tutorial-intro
+cabal new-run tutorial-intro --flag=tutorial
 ```
 
 ## Preamble: imports and language extensions

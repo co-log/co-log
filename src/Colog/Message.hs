@@ -7,7 +7,7 @@
 {-# LANGUAGE TypeFamilies          #-}
 
 {- |
-Copyright:  (c) 2018-2022 Kowainik, 2023 Co-Log
+Copyright:  (c) 2018-2022 Kowainik, 2023-2025 Co-Log
 SPDX-License-Identifier: MPL-2.0
 
 This module contains logging messages data types along with the formatting and

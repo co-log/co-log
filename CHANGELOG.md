@@ -3,6 +3,32 @@
 `co-log` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 0.6.1.2 - March 2, 2025
+
+## What's Changed
+
+* Allow `containers-0.8`.
+
+**Full Changelog**: https://github.com/co-log/co-log/compare/v0.6.1.1...v0.6.1.2
+
+## 0.6.1.1 - January 5, 2025
+
+## What's Changed
+
+* Support ghc-9.10 & ghc-9.12.
+
+**Full Changelog**: https://github.com/co-log/co-log/compare/v0.6.1.0...v0.6.1.1
+
+## 0.6.1.0 - Mar 1, 2024
+
+## What's Changed
+
+* GA(deps): Bump actions/cache from 3 to 4 by @dependabot in https://github.com/co-log/co-log/pull/273
+* docs: refine the loggert tutorials by @xieyuschen in https://github.com/co-log/co-log/pull/272
+* Support ghc-9.8. by @alaendle in https://github.com/co-log/co-log/pull/270
+
+**Full Changelog**: https://github.com/co-log/co-log/compare/v0.6.0.2...v0.6.1.0
+
 ## 0.6.0.0 - Sep 18, 2023
 
 ### What's Changed
