@@ -113,7 +113,7 @@ library
                      , filepath >= 1.4.1 && < 1.6
                      , mtl >= 2.2.2 && < 2.4
                      , text >= 1.2.3 && < 2.2
-                     , chronos ^>= 1.1 && < 1.2
+                     , time >= 1.8 && < 1.15
                      , transformers >= 0.5 && < 0.7
                      , dependent-sum >= 0.7 && < 0.8
                      , dependent-map >= 0.4 && < 0.5
@@ -169,7 +169,7 @@ test-suite co-log-doctest
   hs-source-dirs:      test
   main-is:             Doctest.hs
 
-  build-depends:       doctest >= 0.16.0 && < 0.24
+  build-depends:       doctest >= 0.16.0 && < 0.25
                      , Glob ^>= 0.10.0
   ghc-options:         -threaded
 
