@@ -328,7 +328,7 @@ defaultFieldMap = fromList
 -}
 data RichMsg (m :: Type -> Type) (msg :: Type) = RichMsg
     { richMsgMsg :: !msg
-    , richMsgMap :: {-# UNPACK #-} !(FieldMap m)
+    , richMsgMap :: !(FieldMap m)
     } deriving stock (Functor)
 
 -- | Specialised version of 'RichMsg' that stores severity, callstack and text message.
@@ -411,8 +411,8 @@ showTime = showTimeOffset . C.utcToZonedTime C.utc . C.posixSecondsToUTCTime
 
 {- | Shows time in the following format:
 
->>> showTimeOffset $ C.ZonedTime (C.utcToLocalTime C.utc (C.posixSecondsToUTCTime $ realToFrac 1577656800)) (C.hoursToTimeZone (-2))
-"[29 Dec 2019 22:00:00.000 -02:00] "
+>>> showTimeOffset $ C.utcToZonedTime (C.hoursToTimeZone (-2)) (C.posixSecondsToUTCTime $ realToFrac 1577656800)
+"[29 Dec 2019 20:00:00.000 -02:00] "
 -}
 showTimeOffset :: C.ZonedTime -> Text
 showTimeOffset = square . T.pack . C.formatTime C.defaultTimeLocale "%d %b %Y %H:%M:%S%3Q %Ez"
