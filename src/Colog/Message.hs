@@ -82,7 +82,6 @@ import Colog.Core (LogAction, Severity (..), cmap)
 import Colog.Monad (WithLog, logMsg)
 
 import qualified Data.Time as C
-import qualified Data.Time.Clock.POSIX as C
 import qualified Data.Text as T
 
 ----------------------------------------------------------------------------
@@ -256,8 +255,8 @@ showSourceLoc cs = square showCallStack
 types. The type family is open so you can add new instances.
 -}
 type family FieldType (fieldName :: Symbol) :: Type
-type instance FieldType "threadId"  = ThreadId
-type instance FieldType "posixTime" = C.POSIXTime
+type instance FieldType "threadId" = ThreadId
+type instance FieldType "utcTime"  = C.UTCTime
 
 {- | @newtype@ wrapper. Stores monadic ability to extract value of 'FieldType'.
 
@@ -309,17 +308,17 @@ extractField = traverse unMessageField
 type FieldMap m = DMap TypeRep (MessageField m)
 
 {- | Default message map that contains actions to extract 'ThreadId' and
-'C.POSIXTime'. Basically, the following mapping:
+'C.UTCTime'. Basically, the following mapping:
 
 @
-"threadId"  -> 'myThreadId'
-"posixTime" -> 'C.getPOSIXTime'
+"threadId" -> 'myThreadId'
+"utcTime"  -> 'C.getCurrentTime'
 @
 -}
 defaultFieldMap :: MonadIO m => FieldMap m
 defaultFieldMap = fromList
-    [ typeRep @"threadId"  :=> MessageField (liftIO myThreadId)
-    , typeRep @"posixTime" :=> MessageField (liftIO C.getPOSIXTime)
+    [ typeRep @"threadId" :=> MessageField (liftIO myThreadId)
+    , typeRep @"utcTime"  :=> MessageField (liftIO C.getCurrentTime)
     ]
 
 {- | Contains additional data to 'Message' to display more verbose information.
@@ -352,7 +351,7 @@ See 'fmtMessage' if you don't need both time and thread ID.
 fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
 fmtRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
   where
-    formatRichMessage :: Maybe ThreadId -> Maybe C.POSIXTime -> Message -> Text
+    formatRichMessage :: Maybe ThreadId -> Maybe C.UTCTime -> Message -> Text
     formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Msg{..} =
         showSeverity msgSeverity
      <> time
@@ -380,7 +379,7 @@ Practically, it formats a message as 'fmtRichMessageDefault' without the severit
 fmtSimpleRichMessageDefault :: MonadIO m => RichMsg m SimpleMsg -> m Text
 fmtSimpleRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
   where
-    formatRichMessage :: Maybe ThreadId -> Maybe C.POSIXTime -> SimpleMsg -> Text
+    formatRichMessage :: Maybe ThreadId -> Maybe C.UTCTime -> SimpleMsg -> Text
     formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) SimpleMsg{..} =
         time
      <> showSourceLoc simpleMsgStack
@@ -394,28 +393,28 @@ and 'C.Time' from fields and allows you to specify how to format them.
 fmtRichMessageCustomDefault
     :: MonadIO m
     => RichMsg m msg
-    -> (Maybe ThreadId -> Maybe C.POSIXTime -> msg -> Text)
+    -> (Maybe ThreadId -> Maybe C.UTCTime -> msg -> Text)
     -> m Text
 fmtRichMessageCustomDefault RichMsg{..} formatter = do
-    maybeThreadId  <- extractField $ lookup (typeRep @"threadId")  richMsgMap
-    maybePosixTime <- extractField $ lookup (typeRep @"posixTime") richMsgMap
-    pure $ formatter maybeThreadId maybePosixTime richMsgMsg
+    maybeThreadId <- extractField $ lookup (typeRep @"threadId")  richMsgMap
+    maybeUtcTime  <- extractField $ lookup (typeRep @"utcTime") richMsgMap
+    pure $ formatter maybeThreadId maybeUtcTime richMsgMsg
 
 {- | Shows time in the following format:
 
->>> showTime $ realToFrac 1577656800
+>>> showTime $ C.UTCTime (C.fromGregorian 2019 12 29) (C.secondsToDiffTime 3600 * 22)
 "[29 Dec 2019 22:00:00.000 +00:00] "
 -}
-showTime :: C.POSIXTime -> Text
-showTime = showTimeOffset . C.utcToZonedTime C.utc . C.posixSecondsToUTCTime
+showTime :: C.UTCTime -> Text
+showTime = showTimeOffset . C.utcToZonedTime C.utc
 
 {- | Shows time in the following format:
 
->>> showTimeOffset $ C.utcToZonedTime (C.hoursToTimeZone (-2)) (C.posixSecondsToUTCTime $ realToFrac 1577656800)
+>>> showTimeOffset $ C.utcToZonedTime (C.hoursToTimeZone (-2)) (C.UTCTime (C.fromGregorian 2019 12 29) (C.secondsToDiffTime 3600 * 22))
 "[29 Dec 2019 20:00:00.000 -02:00] "
 -}
 showTimeOffset :: C.ZonedTime -> Text
-showTimeOffset = square . T.pack . C.formatTime C.defaultTimeLocale "%d %b %Y %H:%M:%S%3Q %Ez"
+showTimeOffset = T.pack . C.formatTime C.defaultTimeLocale "[%d %b %Y %H:%M:%S%3Q %Ez] "
 
 ----------------------------------------------------------------------------
 -- Utility functions
