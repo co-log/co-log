@@ -72,7 +72,6 @@ import Data.Dependent.Map (DMap, fromList, lookup)
 import Data.Dependent.Sum (DSum ((:=>)))
 import Data.Kind (Type)
 import Data.Text (Text)
-import Data.Text.Lazy (toStrict)
 import GHC.Stack (CallStack, SrcLoc (..), callStack, getCallStack, withFrozenCallStack)
 import GHC.TypeLits (Symbol)
 import System.Console.ANSI (Color (..), ColorIntensity (Vivid), ConsoleLayer (Foreground), SGR (..),
@@ -82,12 +81,8 @@ import Type.Reflection (TypeRep, typeRep)
 import Colog.Core (LogAction, Severity (..), cmap)
 import Colog.Monad (WithLog, logMsg)
 
-import qualified Chronos as C
-import qualified Chronos.Locale.English as C
+import qualified Data.Time as C
 import qualified Data.Text as T
-import qualified Data.Text.Lazy.Builder as TB
-import qualified Data.Text.Lazy.Builder.Int as TB
-import qualified Data.Vector as Vector
 
 ----------------------------------------------------------------------------
 -- Plain message
@@ -260,8 +255,8 @@ showSourceLoc cs = square showCallStack
 types. The type family is open so you can add new instances.
 -}
 type family FieldType (fieldName :: Symbol) :: Type
-type instance FieldType "threadId"  = ThreadId
-type instance FieldType "posixTime" = C.Time
+type instance FieldType "threadId" = ThreadId
+type instance FieldType "utcTime"  = C.UTCTime
 
 {- | @newtype@ wrapper. Stores monadic ability to extract value of 'FieldType'.
 
@@ -313,17 +308,17 @@ extractField = traverse unMessageField
 type FieldMap m = DMap TypeRep (MessageField m)
 
 {- | Default message map that contains actions to extract 'ThreadId' and
-'C.Time'. Basically, the following mapping:
+'C.UTCTime'. Basically, the following mapping:
 
 @
-"threadId"  -> 'myThreadId'
-"posixTime" -> 'C.now'
+"threadId" -> 'myThreadId'
+"utcTime"  -> 'C.getCurrentTime'
 @
 -}
 defaultFieldMap :: MonadIO m => FieldMap m
 defaultFieldMap = fromList
-    [ typeRep @"threadId"  :=> MessageField (liftIO myThreadId)
-    , typeRep @"posixTime" :=> MessageField (liftIO C.now)
+    [ typeRep @"threadId" :=> MessageField (liftIO myThreadId)
+    , typeRep @"utcTime"  :=> MessageField (liftIO C.getCurrentTime)
     ]
 
 {- | Contains additional data to 'Message' to display more verbose information.
@@ -332,7 +327,7 @@ defaultFieldMap = fromList
 -}
 data RichMsg (m :: Type -> Type) (msg :: Type) = RichMsg
     { richMsgMsg :: !msg
-    , richMsgMap :: {-# UNPACK #-} !(FieldMap m)
+    , richMsgMap :: !(FieldMap m)
     } deriving stock (Functor)
 
 -- | Specialised version of 'RichMsg' that stores severity, callstack and text message.
@@ -356,7 +351,7 @@ See 'fmtMessage' if you don't need both time and thread ID.
 fmtRichMessageDefault :: MonadIO m => RichMessage m -> m Text
 fmtRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
   where
-    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> Message -> Text
+    formatRichMessage :: Maybe ThreadId -> Maybe C.UTCTime -> Message -> Text
     formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) Msg{..} =
         showSeverity msgSeverity
      <> time
@@ -384,7 +379,7 @@ Practically, it formats a message as 'fmtRichMessageDefault' without the severit
 fmtSimpleRichMessageDefault :: MonadIO m => RichMsg m SimpleMsg -> m Text
 fmtSimpleRichMessageDefault msg = fmtRichMessageCustomDefault msg formatRichMessage
   where
-    formatRichMessage :: Maybe ThreadId -> Maybe C.Time -> SimpleMsg -> Text
+    formatRichMessage :: Maybe ThreadId -> Maybe C.UTCTime -> SimpleMsg -> Text
     formatRichMessage (maybe "" showThreadId -> thread) (maybe "" showTime -> time) SimpleMsg{..} =
         time
      <> showSourceLoc simpleMsgStack
@@ -398,91 +393,28 @@ and 'C.Time' from fields and allows you to specify how to format them.
 fmtRichMessageCustomDefault
     :: MonadIO m
     => RichMsg m msg
-    -> (Maybe ThreadId -> Maybe C.Time -> msg -> Text)
+    -> (Maybe ThreadId -> Maybe C.UTCTime -> msg -> Text)
     -> m Text
 fmtRichMessageCustomDefault RichMsg{..} formatter = do
-    maybeThreadId  <- extractField $ lookup (typeRep @"threadId")  richMsgMap
-    maybePosixTime <- extractField $ lookup (typeRep @"posixTime") richMsgMap
-    pure $ formatter maybeThreadId maybePosixTime richMsgMsg
+    maybeThreadId <- extractField $ lookup (typeRep @"threadId")  richMsgMap
+    maybeUtcTime  <- extractField $ lookup (typeRep @"utcTime") richMsgMap
+    pure $ formatter maybeThreadId maybeUtcTime richMsgMsg
 
 {- | Shows time in the following format:
 
->>> showTime $ C.Time 1577656800000000000
+>>> showTime $ C.UTCTime (C.fromGregorian 2019 12 29) (C.secondsToDiffTime 3600 * 22)
 "[29 Dec 2019 22:00:00.000 +00:00] "
 -}
-showTime :: C.Time -> Text
-showTime t =
-    square
-    $ toStrict
-    $ TB.toLazyText
-    $ builderDmyHMSz (C.timeToOffsetDatetime (C.Offset 0) t)
+showTime :: C.UTCTime -> Text
+showTime = showTimeOffset . C.utcToZonedTime C.utc
 
 {- | Shows time in the following format:
 
->>> showTimeOffset $ C.timeToOffsetDatetime (C.Offset $ -120) $ C.Time 1577656800000000000
+>>> showTimeOffset $ C.utcToZonedTime (C.hoursToTimeZone (-2)) (C.UTCTime (C.fromGregorian 2019 12 29) (C.secondsToDiffTime 3600 * 22))
 "[29 Dec 2019 20:00:00.000 -02:00] "
 -}
-showTimeOffset :: C.OffsetDatetime -> Text
-showTimeOffset = square . toStrict . TB.toLazyText . builderDmyHMSz
-
-----------------------------------------------------------------------------
--- Chronos extra
-----------------------------------------------------------------------------
-
-{- | Given a 'OffsetDatetime', constructs a 'Text' 'TB.Builder' corresponding to a
-Day\/Month\/Year,Hour\/Minute\/Second\/Offset encoding of the given 'OffsetDatetime'.
-
-Example: @29 Dec 2019 22:00:00.000 +00:00@
--}
-builderDmyHMSz :: C.OffsetDatetime -> TB.Builder
-builderDmyHMSz (C.OffsetDatetime (C.Datetime date time) offset) =
-       builderDmy date
-    <> spaceSep
-    <> C.builder_HMS (C.SubsecondPrecisionFixed 3) (Just ':') time
-    <> spaceSep
-    <> C.builderOffset C.OffsetFormatColonOn offset
-  where
-    spaceSep :: TB.Builder
-    spaceSep = TB.singleton ' '
-
-    {- Given a 'Date' construct a 'Text' 'TB.Builder'
-    corresponding to a Day\/Month\/Year encoding.
-
-    Example: @01 Jan 2020@
-    -}
-    builderDmy :: C.Date -> TB.Builder
-    builderDmy (C.Date (C.Year y) m d) =
-           zeroPadDayOfMonth d
-        <> spaceSep
-        <> TB.fromText (C.caseMonth C.abbreviated m)
-        <> spaceSep
-        <> TB.decimal y
-
-
-    zeroPadDayOfMonth :: C.DayOfMonth -> TB.Builder
-    zeroPadDayOfMonth (C.DayOfMonth d) =
-        if d < 100
-        then Vector.unsafeIndex twoDigitTextBuilder d
-        else TB.decimal d
-
-    twoDigitTextBuilder :: Vector.Vector TB.Builder
-    twoDigitTextBuilder = Vector.fromList $
-        map (TB.fromText . T.pack) twoDigitStrings
-    {-# NOINLINE twoDigitTextBuilder #-}
-
-    twoDigitStrings :: [String]
-    twoDigitStrings =
-        [ "00","01","02","03","04","05","06","07","08","09"
-        , "10","11","12","13","14","15","16","17","18","19"
-        , "20","21","22","23","24","25","26","27","28","29"
-        , "30","31","32","33","34","35","36","37","38","39"
-        , "40","41","42","43","44","45","46","47","48","49"
-        , "50","51","52","53","54","55","56","57","58","59"
-        , "60","61","62","63","64","65","66","67","68","69"
-        , "70","71","72","73","74","75","76","77","78","79"
-        , "80","81","82","83","84","85","86","87","88","89"
-        , "90","91","92","93","94","95","96","97","98","99"
-        ]
+showTimeOffset :: C.ZonedTime -> Text
+showTimeOffset = T.pack . C.formatTime C.defaultTimeLocale "[%d %b %Y %H:%M:%S%3Q %Ez] "
 
 ----------------------------------------------------------------------------
 -- Utility functions
