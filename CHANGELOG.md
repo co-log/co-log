@@ -3,6 +3,16 @@
 `co-log` uses [PVP Versioning][1].
 The changelog is available [on GitHub][2].
 
+## 0.7.0.0 - April 6, 2025
+
+## What's Changed
+
+* Move away from `chronos`. (#277)
+
+  **Breaking change**: Some signatures have changed from `Chronos.Time` to `Data.Time.UTCTime`.
+
+**Full Changelog**: https://github.com/co-log/co-log/compare/v0.6.1.2...v0.7.0.0
+
 ## 0.6.1.2 - March 2, 2025
 
 ## What's Changed
