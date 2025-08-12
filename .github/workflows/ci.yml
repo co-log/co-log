@@ -60,7 +60,7 @@ jobs:
             ghc: 8.10.7
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - uses: haskell-actions/setup@v2
       id: setup-haskell-cabal
