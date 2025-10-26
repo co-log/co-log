@@ -10,6 +10,9 @@ on:
     # additionally run once per week (At 00:00 on Sunday) to maintain cache
     - cron: '0 0 * * 0'
 
+permissions:
+  contents: read
+
 jobs:
   cabal:
     name: ${{ matrix.os }} / ghc ${{ matrix.ghc }}
