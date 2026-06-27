@@ -25,10 +25,11 @@ tested-with:         GHC == 8.10.7
                      GHC == 9.0.2
                      GHC == 9.2.8
                      GHC == 9.4.8
-                     GHC == 9.6.6
+                     GHC == 9.6.7
                      GHC == 9.8.4
-                     GHC == 9.10.1
-                     GHC == 9.12.1
+                     GHC == 9.10.3
+                     GHC == 9.12.4
+                     GHC == 9.14.1
 
 flag tutorial
   description: Controls if tutorials get build (mainly to avoid building them on hackage).
@@ -39,7 +40,7 @@ source-repository head
   location:            https://github.com/co-log/co-log.git
 
 common common-options
-  build-depends:       base >= 4.14 && < 4.22
+  build-depends:       base >= 4.14 && < 4.23
 
   ghc-options:         -Wall
                        -Wcompat
@@ -113,7 +114,7 @@ library
                      , filepath >= 1.4.1 && < 1.6
                      , mtl >= 2.2.2 && < 2.4
                      , text >= 1.2.3 && < 2.2
-                     , time >= 1.8 && < 1.15
+                     , time >= 1.8 && < 1.17
                      , transformers >= 0.5 && < 0.7
                      , dependent-sum >= 0.7 && < 0.8
                      , dependent-map >= 0.4 && < 0.5
@@ -155,7 +156,7 @@ test-suite test-co-log
   import:              common-options
   build-depends:       co-log
                      , co-log-core
-                     , hedgehog >= 1.0 && < 1.6
+                     , hedgehog >= 1.0 && < 1.8
   hs-source-dirs:      test
   main-is:             Property.hs
   type:                exitcode-stdio-1.0
@@ -169,7 +170,7 @@ test-suite co-log-doctest
   hs-source-dirs:      test
   main-is:             Doctest.hs
 
-  build-depends:       doctest >= 0.16.0 && < 0.25
+  build-depends:       doctest >= 0.16.0 && < 1.0.0
                      , Glob ^>= 0.10.0
   ghc-options:         -threaded
 
