@@ -73,6 +73,21 @@ jobs:
         ghc-version: ${{ matrix.ghc }}
         cabal-version: ${{ matrix.cabal }}
 
+    # Ubuntu 26.04 no longer ships ld.gold, but the hsc2hs wrapper of the
+    # GHC 9.2/9.4 bindists hardcodes HSC2HS_EXTRA="--lflag=-fuse-ld=gold"
+    # (the GHC settings file itself is fine), so every .hsc file fails with
+    # "collect2: fatal error: cannot find 'ld'".
+    - name: Set linker to ld.bfd for GHC 9.2/9.4 on Ubuntu
+      if: runner.os == 'Linux' && (matrix.ghc == '9.2.8' || matrix.ghc == '9.4.8')
+      run: |
+        GHC_BIN_DIR="$(dirname "$(readlink -f "$(command -v ghc)")")"
+        FILES="$(grep -lI -- '-fuse-ld=gold' "$GHC_BIN_DIR"/* "$(ghc --print-libdir)/settings" || true)"
+        for f in $FILES; do
+          sed -i --follow-symlinks 's/-fuse-ld=gold/-fuse-ld=bfd/g' "$f"
+          echo "Patched $f:"
+          grep -H -- '-fuse-ld' "$f"
+        done
+
     - name: Configure
       run: |
         cabal configure --enable-tests --enable-benchmarks --enable-documentation --test-show-details=direct --write-ghc-environment-files=always -ftutorial
